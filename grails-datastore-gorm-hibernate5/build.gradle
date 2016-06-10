@@ -1,0 +1,145 @@
+dependencies {
+    compile("org.grails:grails-datastore-gorm-hibernate-core:$gormVersion") {
+        exclude group:'org.hibernate', module:'hibernate-core'
+        exclude group:'org.hibernate', module:'hibernate-validator'
+        exclude group:'org.hibernate', module:'hibernate-ehcache'
+        exclude group:'org.hibernate', module:'hibernate-commons-annotations'
+    }
+    compile("org.grails:grails-datastore-gorm-support:$gormVersion") {
+        exclude group:'org.grails', module:'grails-datastore-gorm-hibernate-core'
+    }
+
+    // Web dependencies provided
+    compileOnly "javax.servlet:javax.servlet-api:$servletApiVersion"
+    compileOnly "org.grails:grails-web-url-mappings:$grailsVersion"
+    compileOnly("org.grails:grails-datastore-web:$gormVersion")
+
+    String hibVersion = "${hibernate5Version}.Final"
+
+    compile 'org.springframework:spring-orm:4.2.3.RELEASE'
+    compile("org.hibernate:hibernate-core:$hibVersion") {
+        exclude group:'commons-logging', module:'commons-logging'
+        exclude group:'dom4j', module:'dom4j'
+        exclude group:'com.h2database', module:'h2'
+        exclude group:'commons-collections', module:'commons-collections'
+        exclude group:'org.slf4j', module:'jcl-over-slf4j'
+        exclude group:'org.slf4j', module:'slf4j-api'
+        exclude group:'org.slf4j', module:'slf4j-log4j12'
+        exclude group:'xml-apis', module:'xml-apis'
+    }
+    compile('org.hibernate:hibernate-validator:5.2.4.Final') {
+        exclude group:'commons-logging', module:'commons-logging'
+        exclude group:'commons-collections', module:'commons-collections'
+        exclude group:'org.slf4j', module:'slf4j-api'
+    }
+    runtime('javax.el:javax.el-api:2.2.4')
+
+    runtime('dom4j:dom4j:1.6.1') {
+        exclude group: 'xml-apis', module:'xml-apis'
+    }
+
+    compileOnly ("net.sf.ehcache:ehcache-core:2.4.8") {
+        exclude group: 'commons-logging', module:'commons-logging'
+    }
+
+    compileOnly ("org.hibernate:hibernate-ehcache:$hibVersion") {
+        exclude group:'commons-collections', module:'commons-collections'
+        exclude group:'commons-logging', module:'commons-logging'
+        exclude group:'com.h2database', module:'h2'
+        exclude group:'dom4j', module:'dom4j'
+        exclude group:'net.sf.ehcache', module:'ehcache'
+        exclude group:'net.sf.ehcache', module:'ehcache-core'
+        exclude group:'org.hibernate', module:'hibernate-core'
+        exclude group:'org.slf4j', module:'jcl-over-slf4j'
+        exclude group:'org.slf4j', module:'slf4j-api'
+        exclude group:'org.slf4j', module:'slf4j-log4j12'
+        exclude group:'xml-apis', module:'xml-apis'
+    }
+
+    testCompile "org.codehaus.groovy:groovy-sql:$groovyVersion"
+    testCompile "org.grails:grails-datastore-gorm-tck:$gormVersion"
+    testCompile "com.h2database:h2:1.3.164"
+
+    testCompile "net.sf.ehcache:ehcache-core:2.4.6"
+    testCompile "org.hibernate:hibernate-ehcache:$hibVersion"
+
+    compileOnly "javax.servlet:javax.servlet-api:$servletApiVersion"
+
+    def tomcatVersion = '7.0.50'
+    testCompile "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
+    testRuntime "org.springframework:spring-aop:$springVersion"
+    testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatVersion"
+
+    // The groovydoc task needs the Hibernate 4.x jars in the classpath
+    documentation("org.hibernate:hibernate-core:${hibernateVersion}.Final")
+
+}
+
+test {
+    if (isTravisBuild) {
+        maxParallelForks = 1
+        forkEvery = 10
+    }
+    else {
+        maxParallelForks = 1
+        forkEvery = 30
+    }
+
+    jvmArgs = ['-Xmx1028M']
+    afterSuite {
+        System.out.print('.')
+        System.out.flush()
+    }
+}
+
+test.doFirst {
+    def toBaseClassRelativePathWithoutExtension = { String base, String classFile ->
+        if (classFile.startsWith(base)) {
+            def sansClass = classFile[0 .. classFile.size() - ".class".size() - 1]
+            def dollarIndex = sansClass.indexOf('$')
+            def baseClass = dollarIndex > 0 ? sansClass[0..dollarIndex - 1] : sansClass
+            def relative = baseClass - base - '/'
+            relative
+        }
+        else {
+            null
+        }
+    }    
+    def tckClassesFile = project
+                            .configurations
+                            .testCompile
+                            .resolvedConfiguration
+                            .getResolvedArtifacts()
+                            .find { resolved ->
+                                resolved.moduleVersion.id.name == 'grails-datastore-gorm-tck'
+                            }.file
+
+    def tckClassesDir = project.file("${project.buildDir}/tck")                            
+    copy {
+        from zipTree(tckClassesFile)
+        into tckClassesDir 
+    }
+    copy {
+        from tckClassesDir
+        into sourceSets.test.output.classesDir
+        include "**/*.class"
+        exclude { details ->
+            // Do not copy across any TCK class (or nested classes of that class)
+            // If there is a corresponding source file in the particular modules
+            // test source tree. Allows a module to override a test/helper.
+
+            if (!details.file.isFile()) {
+                return false
+            }
+            def candidatePath = details.file.absolutePath
+            def relativePath = toBaseClassRelativePathWithoutExtension(tckClassesDir.absolutePath, candidatePath)
+
+            if (relativePath == null) {
+                throw new IllegalStateException("$candidatePath does not appear to be in the TCK")
+            }
+
+            project.file("src/test/groovy/${relativePath}.groovy").exists()
+        }
+    }
+}
+
