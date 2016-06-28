@@ -1,14 +1,7 @@
-dependencyManagement {
-    imports {
-        mavenBom "org.grails:grails-bom:$grailsVersion"
-    }
-    applyMavenExclusions false
-}
-
-
 dependencies {
 
-    compileOnly("org.grails:grails-core")
+    compileOnly("org.grails:grails-core:$grailsVersion")
+    compileOnly("org.grails:grails-validation:$grailsVersion")
     
     compile "org.hibernate:hibernate-core:${hibernate5Version}.Final"
     compile "org.grails:grails-datastore-web:$gormVersion"

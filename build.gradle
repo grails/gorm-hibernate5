@@ -93,7 +93,9 @@ subprojects { project ->
     version project.gormVersion
 
     repositories {
-        mavenLocal()
+        if(!System.getenv("TRAVIS")) {
+            mavenLocal()
+        }
         maven { url "https://repo.grails.org/grails/core" }
     }
 
