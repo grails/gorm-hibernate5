@@ -65,18 +65,20 @@ class HibernateGormEnhancer extends GormEnhancer {
         return qualifiers
 
     }
-    protected <D> GormValidationApi<D> getValidationApi(Class<D> cls) {
-        new HibernateGormValidationApi<D>(cls, (HibernateDatastore)datastore, Thread.currentThread().contextClassLoader)
-    }
 
     @Override
-    protected <D> GormStaticApi<D> getStaticApi(Class<D> cls) {
+    protected <D> GormStaticApi<D> getStaticApi(Class<D> cls, String qualifier) {
         new HibernateGormStaticApi<D>(cls, (HibernateDatastore)datastore, getFinders(), Thread.currentThread().contextClassLoader, transactionManager)
     }
 
     @Override
-    protected <D> GormInstanceApi<D> getInstanceApi(Class<D> cls) {
+    protected <D> GormInstanceApi<D> getInstanceApi(Class<D> cls, String qualifier) {
         new HibernateGormInstanceApi<D>(cls, (HibernateDatastore)datastore, Thread.currentThread().contextClassLoader)
+    }
+
+    @Override
+    protected <D> GormValidationApi<D> getValidationApi(Class<D> cls, String qualifier) {
+        new HibernateGormValidationApi<D>(cls, (HibernateDatastore)datastore, Thread.currentThread().contextClassLoader)
     }
 
     @Override
