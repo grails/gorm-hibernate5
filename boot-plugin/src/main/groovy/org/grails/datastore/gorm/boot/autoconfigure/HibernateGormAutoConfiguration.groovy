@@ -65,7 +65,7 @@ class HibernateGormAutoConfiguration implements BeanFactoryAware, ResourceLoader
         def packages = AutoConfigurationPackages.get(beanFactory)
         def classLoader = ((ConfigurableBeanFactory)beanFactory).getBeanClassLoader()
 
-        initializer = new HibernateDatastoreSpringInitializer(classLoader, packages as String[])
+        initializer = new HibernateDatastoreSpringInitializer(environment, packages as String[])
         initializer.resourceLoader = resourceLoader
         initializer.setConfiguration(environment)
         initializer.configureForBeanDefinitionRegistry(registry)

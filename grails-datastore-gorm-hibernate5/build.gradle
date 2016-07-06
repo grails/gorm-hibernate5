@@ -81,8 +81,8 @@ test {
         forkEvery = 10
     }
     else {
-        maxParallelForks = 1
-        forkEvery = 30
+        maxParallelForks = 4
+        forkEvery = 20
     }
 
     jvmArgs = ['-Xmx1028M']

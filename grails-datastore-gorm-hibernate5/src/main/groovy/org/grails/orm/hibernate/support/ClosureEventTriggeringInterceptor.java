@@ -18,6 +18,8 @@ package org.grails.orm.hibernate.support;
 
 import java.util.*;
 
+import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPublisher;
+import org.grails.datastore.gorm.events.ConfigurableApplicationEventPublisher;
 import org.grails.datastore.mapping.model.config.GormProperties;
 import org.grails.orm.hibernate.AbstractHibernateGormInstanceApi;
 import org.grails.orm.hibernate.HibernateDatastore;
@@ -49,8 +51,10 @@ import org.hibernate.event.spi.PreUpdateEvent;
 import org.hibernate.event.spi.PreUpdateEventListener;
 import org.hibernate.event.spi.SaveOrUpdateEvent;
 import org.hibernate.persister.entity.EntityPersister;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Listens for Hibernate events and publishes corresponding Datastore events.
@@ -60,16 +64,7 @@ import org.springframework.context.ApplicationContextAware;
  * @author Burt Beckwith
  * @since 1.0
  */
-public class ClosureEventTriggeringInterceptor extends DefaultSaveOrUpdateEventListener
-       implements ApplicationContextAware,
-                  PreLoadEventListener,
-                  PostLoadEventListener,
-                  PostInsertEventListener,
-                  PostUpdateEventListener,
-                  PostDeleteEventListener,
-                  PreDeleteEventListener,
-                  PreUpdateEventListener,
-                  PreInsertEventListener {
+public class ClosureEventTriggeringInterceptor extends AbstractClosureEventTriggeringInterceptor {
 
 //    private final Logger log = LoggerFactory.getLogger(getClass());
     private static final long serialVersionUID = 1;
@@ -86,45 +81,44 @@ public class ClosureEventTriggeringInterceptor extends DefaultSaveOrUpdateEventL
     public static final String AFTER_DELETE_EVENT = "afterDelete";
     public static final String AFTER_LOAD_EVENT = "afterLoad";
 
-    private ApplicationContext ctx;
-    private Map<SessionFactory, HibernateDatastore> datastores;
+    protected HibernateDatastore datastore;
+    protected ConfigurableApplicationEventPublisher eventPublisher;
 
+    public void setDatastore(HibernateDatastore datastore) {
+        this.datastore = datastore;
+    }
 
-    public void setDatastores(HibernateDatastore[] datastores) {
-        Map<SessionFactory, HibernateDatastore> datastoreMap = new HashMap<SessionFactory, HibernateDatastore>();
-        for (HibernateDatastore hibernateDatastore : datastores) {
-            datastoreMap.put(hibernateDatastore.getSessionFactory(), hibernateDatastore);
-        }
-        this.datastores = datastoreMap;
+    public void setEventPublisher(ConfigurableApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
     public void onSaveOrUpdate(SaveOrUpdateEvent hibernateEvent) throws HibernateException {
         publishEvent(hibernateEvent, new org.grails.datastore.mapping.engine.event.SaveOrUpdateEvent(
-                findDatastore(hibernateEvent), hibernateEvent.getEntity()));
+                this.datastore, hibernateEvent.getObject()));
         super.onSaveOrUpdate(hibernateEvent);
     }
 
     public void onPreLoad(PreLoadEvent hibernateEvent) {
         publishEvent(hibernateEvent, new org.grails.datastore.mapping.engine.event.PreLoadEvent(
-                findDatastore(hibernateEvent), hibernateEvent.getEntity()));
+                this.datastore, hibernateEvent.getEntity()));
     }
 
     public void onPostLoad(PostLoadEvent hibernateEvent) {
         publishEvent(hibernateEvent, new org.grails.datastore.mapping.engine.event.PostLoadEvent(
-                findDatastore(hibernateEvent), hibernateEvent.getEntity()));
+                this.datastore, hibernateEvent.getEntity()));
     }
 
     public boolean onPreInsert(PreInsertEvent hibernateEvent) {
         AbstractPersistenceEvent event = new org.grails.datastore.mapping.engine.event.PreInsertEvent(
-                findDatastore(hibernateEvent), hibernateEvent.getEntity());
+                this.datastore, hibernateEvent.getEntity());
         publishEvent(hibernateEvent, event);
         return event.isCancelled();
     }
 
     public void onPostInsert(PostInsertEvent hibernateEvent) {
         publishEvent(hibernateEvent, new org.grails.datastore.mapping.engine.event.PostInsertEvent(
-                findDatastore(hibernateEvent), hibernateEvent.getEntity()));
+                this.datastore, hibernateEvent.getEntity()));
     }
 
     @Override
@@ -134,56 +128,33 @@ public class ClosureEventTriggeringInterceptor extends DefaultSaveOrUpdateEventL
 
     public boolean onPreUpdate(PreUpdateEvent hibernateEvent) {
         AbstractPersistenceEvent event = new org.grails.datastore.mapping.engine.event.PreUpdateEvent(
-                findDatastore(hibernateEvent), hibernateEvent.getEntity());
+                this.datastore, hibernateEvent.getEntity());
         publishEvent(hibernateEvent, event);
         return event.isCancelled();
     }
 
     public void onPostUpdate(PostUpdateEvent hibernateEvent) {
         publishEvent(hibernateEvent, new org.grails.datastore.mapping.engine.event.PostUpdateEvent(
-                findDatastore(hibernateEvent), hibernateEvent.getEntity()));
+                this.datastore, hibernateEvent.getEntity()));
     }
 
     public boolean onPreDelete(PreDeleteEvent hibernateEvent) {
         AbstractPersistenceEvent event = new org.grails.datastore.mapping.engine.event.PreDeleteEvent(
-                findDatastore(hibernateEvent), hibernateEvent.getEntity());
+                this.datastore, hibernateEvent.getEntity());
         publishEvent(hibernateEvent, event);
         return event.isCancelled();
     }
 
     public void onPostDelete(PostDeleteEvent hibernateEvent) {
         publishEvent(hibernateEvent, new org.grails.datastore.mapping.engine.event.PostDeleteEvent(
-                findDatastore(hibernateEvent), hibernateEvent.getEntity()));
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        ctx = applicationContext;
+                this.datastore, hibernateEvent.getEntity()));
     }
 
     private void publishEvent(AbstractEvent hibernateEvent, AbstractPersistenceEvent mappingEvent) {
         mappingEvent.setNativeEvent(hibernateEvent);
-        ctx.publishEvent(mappingEvent);
-    }
-
-    private Datastore findDatastore(AbstractEvent hibernateEvent) {
-        SessionFactory sessionFactory = hibernateEvent.getSession().getSessionFactory();
-        if (!(sessionFactory instanceof SessionFactoryProxy)) {
-            // should always be the case
-            for (Map.Entry<SessionFactory, HibernateDatastore> entry : datastores.entrySet()) {
-                SessionFactory sf = entry.getKey();
-                if (sf instanceof SessionFactoryProxy) {
-                    if (((SessionFactoryProxy)sf).getCurrentSessionFactory() == sessionFactory) {
-                        return entry.getValue();
-                    }
-                }
-            }
+        if(eventPublisher != null) {
+            eventPublisher.publishEvent(mappingEvent);
         }
-
-        Datastore datastore = datastores.get(sessionFactory);
-        if (datastore == null && datastores.size() == 1) {
-            datastore = datastores.values().iterator().next();
-        }
-        return datastore;
     }
 
     /*
@@ -199,6 +170,13 @@ public class ClosureEventTriggeringInterceptor extends DefaultSaveOrUpdateEventL
     }
 
     private static final PreInsertEventListener NULLABILITY_CHECKER_INSTANCE = new NullabilityCheckerPreInsertEventListener();
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        if(applicationContext instanceof ConfigurableApplicationContext) {
+            this.eventPublisher = new ConfigurableApplicationContextEventPublisher((ConfigurableApplicationContext) applicationContext);
+        }
+    }
 
     @SuppressWarnings("serial")
     private static class NullabilityCheckerPreInsertEventListener implements PreInsertEventListener {

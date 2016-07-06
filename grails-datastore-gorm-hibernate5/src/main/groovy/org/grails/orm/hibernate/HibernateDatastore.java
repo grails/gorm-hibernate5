@@ -14,19 +14,35 @@
  */
 package org.grails.orm.hibernate;
 
-import java.util.Map;
-import java.util.concurrent.Callable;
-
+import org.grails.datastore.gorm.events.*;
+import org.grails.datastore.gorm.validation.constraints.MappingContextAwareConstraintFactory;
+import org.grails.datastore.gorm.validation.constraints.builtin.UniqueConstraint;
+import org.grails.datastore.gorm.validation.constraints.registry.DefaultValidatorRegistry;
 import org.grails.datastore.mapping.core.ConnectionNotFoundException;
 import org.grails.datastore.mapping.core.Session;
+import org.grails.datastore.mapping.core.connections.ConnectionSource;
+import org.grails.datastore.mapping.core.connections.ConnectionSources;
+import org.grails.datastore.mapping.core.connections.ConnectionSourcesInitializer;
+import org.grails.datastore.mapping.core.connections.SingletonConnectionSources;
+import org.grails.datastore.mapping.core.exceptions.ConfigurationException;
+import org.grails.datastore.mapping.engine.event.DatastoreInitializedEvent;
 import org.grails.datastore.mapping.model.MappingContext;
-import org.grails.orm.hibernate.cfg.Mapping;
-import org.hibernate.FlushMode;
+import org.grails.datastore.mapping.model.PersistentEntity;
+import org.grails.orm.hibernate.cfg.HibernateMappingContext;
+import org.grails.orm.hibernate.connections.HibernateConnectionSource;
+import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory;
+import org.grails.orm.hibernate.connections.HibernateConnectionSourceSettings;
+import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.PropertyResolver;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * Datastore implementation that uses a Hibernate SessionFactory underneath.
@@ -36,18 +52,125 @@ import org.springframework.core.env.PropertyResolver;
  */
 public class HibernateDatastore extends AbstractHibernateDatastore  {
 
-    public HibernateDatastore(MappingContext mappingContext, SessionFactory sessionFactory, PropertyResolver config) {
-        super(mappingContext, sessionFactory, config, null, Mapping.DEFAULT_DATA_SOURCE);
+    protected final GrailsHibernateTransactionManager transactionManager;
+    protected ConfigurableApplicationEventPublisher eventPublisher;
+    protected final HibernateGormEnhancer gormEnhancer;
+    protected final Map<String, HibernateDatastore> datastoresByConnectionSource = new LinkedHashMap<>();
+
+    public HibernateDatastore(ConnectionSources<SessionFactory, HibernateConnectionSourceSettings> connectionSources, HibernateMappingContext mappingContext, ConfigurableApplicationEventPublisher eventPublisher) {
+        super(connectionSources, mappingContext);
+
+        GrailsHibernateTransactionManager hibernateTransactionManager = new GrailsHibernateTransactionManager();
+        HibernateConnectionSource defaultConnectionSource = (HibernateConnectionSource) connectionSources.getDefaultConnectionSource();
+        hibernateTransactionManager.setDataSource(defaultConnectionSource.getDataSource());
+        hibernateTransactionManager.setSessionFactory(defaultConnectionSource.getSource());
+        this.transactionManager = hibernateTransactionManager;
+        this.eventPublisher = eventPublisher;
+        this.eventTriggeringInterceptor = new EventTriggeringInterceptor(this);
+
+        HibernateConnectionSourceSettings.HibernateSettings hibernateSettings = defaultConnectionSource.getSettings().getHibernate();
+
+        ClosureEventTriggeringInterceptor interceptor = (ClosureEventTriggeringInterceptor) hibernateSettings.getEventTriggeringInterceptor();
+        interceptor.setDatastore(this);
+        interceptor.setEventPublisher(eventPublisher);
+        registerEventListeners(this.eventPublisher);
+        configureValidationRegistry(connectionSources.getBaseConfiguration(), mappingContext);
+        this.mappingContext.addMappingContextListener(new MappingContext.Listener() {
+            @Override
+            public void persistentEntityAdded(PersistentEntity entity) {
+                gormEnhancer.registerEntity(entity);
+            }
+        });
+        initializeConverters(this.mappingContext);
+
+        if(!(connectionSources instanceof SingletonConnectionSources)) {
+
+            Iterable<ConnectionSource<SessionFactory, HibernateConnectionSourceSettings>> allConnectionSources = connectionSources.getAllConnectionSources();
+            for (ConnectionSource<SessionFactory, HibernateConnectionSourceSettings> connectionSource : allConnectionSources) {
+                SingletonConnectionSources singletonConnectionSources = new SingletonConnectionSources(connectionSource, connectionSources.getBaseConfiguration());
+                HibernateDatastore childDatastore;
+
+                if(ConnectionSource.DEFAULT.equals(connectionSource.getName())) {
+                    childDatastore = this;
+                }
+                else {
+                    childDatastore = new HibernateDatastore(singletonConnectionSources, mappingContext, eventPublisher) {
+                        @Override
+                        protected HibernateGormEnhancer initialize() {
+                            return null;
+                        }
+                    };
+                }
+                datastoresByConnectionSource.put(connectionSource.getName(), childDatastore);
+            }
+        }
+
+        this.gormEnhancer = initialize();
+        this.eventPublisher.publishEvent( new DatastoreInitializedEvent(this) );
     }
 
-    public HibernateDatastore(MappingContext mappingContext, SessionFactory sessionFactory, PropertyResolver config, ApplicationContext applicationContext) {
-        super(mappingContext, sessionFactory, config, applicationContext, Mapping.DEFAULT_DATA_SOURCE);
+    protected HibernateGormEnhancer initialize() {
+        return new HibernateGormEnhancer(this, transactionManager);
     }
 
-    public HibernateDatastore(MappingContext mappingContext, SessionFactory sessionFactory, PropertyResolver config, String dataSourceName) {
-        super(mappingContext, sessionFactory, config, null,dataSourceName);
+    public HibernateDatastore(ConnectionSources<SessionFactory, HibernateConnectionSourceSettings> connectionSources, ConfigurableApplicationEventPublisher eventPublisher, Class...classes) {
+        this(connectionSources, new HibernateMappingContext(connectionSources.getDefaultConnectionSource().getSettings(), eventPublisher, classes), eventPublisher);
     }
 
+    public HibernateDatastore(ConnectionSources<SessionFactory, HibernateConnectionSourceSettings> connectionSources, Class...classes) {
+        this(connectionSources, new HibernateMappingContext(connectionSources.getDefaultConnectionSource().getSettings(), null, classes), new DefaultApplicationEventPublisher());
+    }
+
+    public HibernateDatastore(PropertyResolver configuration, Class...classes) {
+        this(ConnectionSourcesInitializer.create(new HibernateConnectionSourceFactory(classes), configuration), classes);
+    }
+
+    public HibernateDatastore(PropertyResolver configuration, HibernateConnectionSourceFactory connectionSourceFactory) {
+        this(ConnectionSourcesInitializer.create(connectionSourceFactory, configuration), connectionSourceFactory.getPersistentClasses());
+    }
+
+    @Override
+    public ApplicationEventPublisher getApplicationEventPublisher() {
+        return this.eventPublisher;
+    }
+
+    /**
+     * @return The {@link org.springframework.transaction.PlatformTransactionManager} instance
+     */
+    public GrailsHibernateTransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+
+    /**
+     * Obtain a child {@link HibernateDatastore} by connection name
+     *
+     * @param connectionName The connection name
+     *
+     * @return The {@link HibernateDatastore}
+     */
+    public HibernateDatastore getDatastoreForConnection(String connectionName) {
+
+        HibernateDatastore hibernateDatastore = this.datastoresByConnectionSource.get(connectionName);
+        if(hibernateDatastore == null) {
+            throw new ConfigurationException("DataSource not found for name ["+connectionName+"] in configuration. Please check your multiple data sources configuration and try again.");
+        }
+        return hibernateDatastore;
+    }
+
+    protected void registerEventListeners(ConfigurableApplicationEventPublisher eventPublisher) {
+        eventPublisher.addApplicationListener(new AutoTimestampEventListener(this));
+        eventPublisher.addApplicationListener(eventTriggeringInterceptor);
+    }
+
+    protected void configureValidationRegistry(PropertyResolver configuration, HibernateMappingContext mappingContext) {
+        DefaultValidatorRegistry defaultValidatorRegistry = new DefaultValidatorRegistry(mappingContext, configuration);
+        defaultValidatorRegistry.addConstraintFactory(
+                new MappingContextAwareConstraintFactory(UniqueConstraint.class, defaultValidatorRegistry.getMessageSource(), mappingContext)
+        );
+        mappingContext.setValidatorRegistry(
+                defaultValidatorRegistry
+        );
+    }
 
     @Override
     protected Session createSession(PropertyResolver connectionDetails) {
@@ -55,12 +178,21 @@ public class HibernateDatastore extends AbstractHibernateDatastore  {
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        super.setApplicationContext(applicationContext);
+        if(applicationContext instanceof ConfigurableApplicationContext) {
+            super.setApplicationContext(applicationContext);
 
-        if (applicationContext != null && eventTriggeringInterceptor == null) {
-            // support for callbacks in domain classes
-            eventTriggeringInterceptor = new EventTriggeringInterceptor(this, connectionDetails);
-            ((ConfigurableApplicationContext)applicationContext).addApplicationListener(eventTriggeringInterceptor);
+            for (HibernateDatastore hibernateDatastore : datastoresByConnectionSource.values()) {
+                if(hibernateDatastore != this) {
+                    hibernateDatastore.setApplicationContext(applicationContext);
+                }
+            }
+            this.eventPublisher = new ConfigurableApplicationContextEventPublisher((ConfigurableApplicationContext) applicationContext);
+            HibernateConnectionSourceSettings.HibernateSettings hibernateSettings = getConnectionSources().getDefaultConnectionSource().getSettings().getHibernate();
+            ClosureEventTriggeringInterceptor interceptor = (ClosureEventTriggeringInterceptor) hibernateSettings.getEventTriggeringInterceptor();
+            interceptor.setDatastore(this);
+            interceptor.setEventPublisher(eventPublisher);
+
+            registerEventListeners(eventPublisher);
         }
     }
 
@@ -101,5 +233,18 @@ public class HibernateDatastore extends AbstractHibernateDatastore  {
     public Session getCurrentSession() throws ConnectionNotFoundException {
         // HibernateSession, just a thin wrapper around default session handling so simply return a new instance here
         return new HibernateSession(this, sessionFactory, getDefaultFlushMode());
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        try {
+            try {
+                super.destroy();
+            } finally {
+                this.getConnectionSources().close();
+            }
+        } finally {
+            this.gormEnhancer.close();
+        }
     }
 }

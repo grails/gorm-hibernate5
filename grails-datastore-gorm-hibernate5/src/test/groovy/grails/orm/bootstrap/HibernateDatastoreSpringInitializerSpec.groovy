@@ -4,6 +4,7 @@ import grails.persistence.Entity
 import org.h2.Driver
 import org.hibernate.Session
 import org.hibernate.SessionFactory
+import org.hibernate.dialect.H2Dialect
 import org.springframework.context.ApplicationContext
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.jdbc.datasource.DriverManagerDataSource
@@ -19,7 +20,7 @@ class HibernateDatastoreSpringInitializerSpec extends Specification{
     void "Test that GORM is initialized correctly for an existing BeanDefinitionRegistry"() {
         given:"An initializer instance"
 
-        def datastoreInitializer = new HibernateDatastoreSpringInitializer(Person)
+        def datastoreInitializer = new HibernateDatastoreSpringInitializer(['hibernate.hbm2ddl.auto': 'create'], Person)
         def applicationContext = new GenericApplicationContext()
         def dataSource = new DriverManagerDataSource("jdbc:h2:mem:grailsDb1;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_DELAY=-1", 'sa', '')
         dataSource.driverClassName = Driver.name
@@ -66,7 +67,7 @@ class HibernateDatastoreSpringInitializerSpec extends Specification{
     void "Test that GORM is initialized correctly for a DataSource"() {
         given:"An initializer instance"
 
-        def datastoreInitializer = new HibernateDatastoreSpringInitializer(Person)
+        def datastoreInitializer = new HibernateDatastoreSpringInitializer(['hibernate.hbm2ddl.auto': 'create'], Person)
         def dataSource = new DriverManagerDataSource("jdbc:h2:mem:grailsDb2;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_DELAY=-1", 'sa', '')
         dataSource.driverClassName = Driver.name
 
@@ -76,6 +77,10 @@ class HibernateDatastoreSpringInitializerSpec extends Specification{
         def conn = dataSource.getConnection()
 
         then:"The database tables are created correctly"
+        Person.withNewSession {  Session s ->
+            assert s.connection().metaData.getURL() == "jdbc:h2:mem:grailsDb2"
+            return true
+        }
         conn.prepareStatement("SELECT * FROM PERSON").execute()
 
         when:"A GORM method is invoked"
@@ -104,19 +109,22 @@ class HibernateDatastoreSpringInitializerSpec extends Specification{
 //    @IgnoreRest
     void "Test configure multiple data sources"() {
         given:"An initializer instance"
-
-        def datastoreInitializer = new HibernateDatastoreSpringInitializer(Person, Book, Author)
-        def dataSource = new DriverManagerDataSource("jdbc:h2:mem:people;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_DELAY=-1", 'sa', '')
-        dataSource.driverClassName = Driver.name
-
-        def booksDs = new DriverManagerDataSource("jdbc:h2:mem:books;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_DELAY=-1", 'sa', '')
-        booksDs.driverClassName = Driver.name
-
-        def moreBooksDs = new DriverManagerDataSource("jdbc:h2:mem:moreBooks;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_DELAY=-1", 'sa', '')
-        moreBooksDs.driverClassName = Driver.name
+        Map config = [
+                'dataSource.url':"jdbc:h2:mem:people;MVCC=TRUE;LOCK_TIMEOUT=10000",
+                'dataSource.dbCreate': 'update',
+                'dataSource.dialect': H2Dialect.name,
+                'dataSource.formatSql': 'true',
+                'hibernate.flush.mode': 'COMMIT',
+                'hibernate.cache.queries': 'true',
+                'hibernate.hbm2ddl.auto': 'create',
+                'dataSources.books.url':"jdbc:h2:mem:books;MVCC=TRUE;LOCK_TIMEOUT=10000",
+                'dataSources.moreBooks.url':"jdbc:h2:mem:moreBooks;MVCC=TRUE;LOCK_TIMEOUT=10000"
+        ]
+        def datastoreInitializer = new HibernateDatastoreSpringInitializer(config, Person, Book, Author)
 
         when:"the application is configured"
-        def applicationContext = datastoreInitializer.configureForDataSources(dataSource: dataSource, books: booksDs, moreBooks: moreBooksDs)
+        def applicationContext = datastoreInitializer.configure()
+        println applicationContext.getBeanDefinitionNames()
 
         then:"Each session factory has the correct number of persistent entities"
         applicationContext.getBean("sessionFactory", SessionFactory).allClassMetadata.values().size() == 2

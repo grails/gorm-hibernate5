@@ -9,7 +9,6 @@ buildscript {
         // classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
         classpath "io.github.groovylang.groovydoc:groovydoc-gradle-plugin:1.0.1"
         classpath "org.grails:grails-gradle-plugin:3.1.8"
-        classpath "org.grails:grails-gradle-plugin:2.2.0.RC1"
     }
 }
 

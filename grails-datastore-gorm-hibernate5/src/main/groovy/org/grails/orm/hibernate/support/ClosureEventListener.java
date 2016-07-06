@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.grails.datastore.gorm.GormValidateable;
 import org.grails.datastore.mapping.model.config.GormProperties;
 import org.grails.datastore.mapping.reflect.ClassUtils;
@@ -45,6 +43,8 @@ import org.hibernate.engine.spi.ActionQueue;
 import org.hibernate.engine.spi.ExecutableList;
 import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.Errors;
 
@@ -67,7 +67,7 @@ public class ClosureEventListener implements SaveOrUpdateEventListener,
                                              PreUpdateEventListener {
 
     private static final long serialVersionUID = 1;
-    protected static final Log LOG = LogFactory.getLog(ClosureEventListener.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ClosureEventListener.class);
 
     final EventTriggerCaller saveOrUpdateCaller;
     final EventTriggerCaller beforeInsertCaller;

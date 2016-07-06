@@ -5,6 +5,7 @@ import grails.core.GrailsApplication
 import grails.orm.bootstrap.HibernateDatastoreSpringInitializer
 import groovy.sql.Sql
 import groovy.transform.CompileStatic
+import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.datastore.mapping.core.Session
 import org.grails.orm.hibernate.GrailsHibernateTransactionManager
 import org.grails.orm.hibernate.HibernateDatastore
@@ -45,6 +46,7 @@ class Setup {
         if(hibernateConfig != null) {
             hibernateConfig = null
         }
+        hibernateDatastore.destroy()
         grailsApplication = null
         hibernateDatastore = null
         hibernateSession = null
@@ -69,17 +71,15 @@ class Setup {
         }
     }
 
-    static Session setup(List<Class> classes, ConfigObject grailsConfig = null, boolean isTransactional = true) {
+    static Session setup(List<Class> classes, ConfigObject grailsConfig = new ConfigObject(), boolean isTransactional = true) {
         grailsApplication = new DefaultGrailsApplication(classes as Class[], new GroovyClassLoader(Setup.getClassLoader()))
         if(grailsConfig) {
             grailsApplication.config.putAll(grailsConfig)
         }
 
-
-        def initializer = grailsConfig ?  new HibernateDatastoreSpringInitializer(grailsConfig, classes) : new HibernateDatastoreSpringInitializer(classes)
-        applicationContext = initializer.configure()
-        hibernateDatastore = applicationContext.getBean(HibernateDatastore)
-        transactionManager = applicationContext.getBean(HibernateTransactionManager)
+        grailsConfig.dataSource.dbCreate = "create-drop"
+        hibernateDatastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(grailsConfig), classes as Class[])
+        transactionManager = hibernateDatastore.getTransactionManager()
         sessionFactory = hibernateDatastore.sessionFactory
         if (transactionStatus == null && isTransactional) {
             transactionStatus = transactionManager.getTransaction(new DefaultTransactionDefinition())

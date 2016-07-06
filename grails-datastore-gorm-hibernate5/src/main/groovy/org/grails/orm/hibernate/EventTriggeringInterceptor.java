@@ -15,37 +15,22 @@
  */
 package org.grails.orm.hibernate;
 
-import groovy.lang.GroovySystem;
-
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import org.grails.datastore.mapping.model.MappingContext;
-import org.grails.datastore.mapping.model.PersistentEntity;
-import org.grails.orm.hibernate.cfg.*;
-import org.grails.orm.hibernate.support.ClosureEventListener;
-import org.grails.orm.hibernate.support.SoftKey;
-import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 import org.grails.core.artefact.AnnotationDomainClassArtefactHandler;
 import org.grails.datastore.gorm.timestamp.DefaultTimestampProvider;
 import org.grails.datastore.gorm.timestamp.TimestampProvider;
 import org.grails.datastore.mapping.engine.event.AbstractPersistenceEvent;
 import org.grails.datastore.mapping.engine.event.ValidationEvent;
+import org.grails.orm.hibernate.cfg.HibernateMappingContext;
+import org.grails.orm.hibernate.support.ClosureEventListener;
+import org.grails.orm.hibernate.support.SoftKey;
 import org.hibernate.HibernateException;
-import org.hibernate.SessionFactory;
-import org.hibernate.event.spi.PostDeleteEvent;
-import org.hibernate.event.spi.PostInsertEvent;
-import org.hibernate.event.spi.PostLoadEvent;
-import org.hibernate.event.spi.PostUpdateEvent;
-import org.hibernate.event.spi.PreDeleteEvent;
-import org.hibernate.event.spi.PreInsertEvent;
-import org.hibernate.event.spi.PreLoadEvent;
-import org.hibernate.event.spi.PreUpdateEvent;
-import org.hibernate.event.spi.SaveOrUpdateEvent;
-import org.springframework.context.ApplicationContext;
+import org.hibernate.engine.spi.EntityEntry;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.event.spi.*;
 import org.springframework.context.ApplicationEvent;
-import org.springframework.core.env.PropertyResolver;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * <p>Invokes closure events on domain entities such as beforeInsert, beforeUpdate and beforeDelete.
@@ -58,22 +43,14 @@ import org.springframework.core.env.PropertyResolver;
 public class EventTriggeringInterceptor extends AbstractEventTriggeringInterceptor {
 
     protected transient ConcurrentMap<SoftKey<Class<?>>, ClosureEventListener> eventListeners =
-            new ConcurrentHashMap<SoftKey<Class<?>>, ClosureEventListener>();
+            new ConcurrentHashMap<>();
 
 
     private TimestampProvider timestampProvider = new DefaultTimestampProvider();
 
-    public EventTriggeringInterceptor(HibernateDatastore datastore, PropertyResolver co) {
-        super(datastore);
 
-        Object failOnErrorConfig = co.getProperty("grails.gorm.failOnError", Object.class);
-        if (failOnErrorConfig instanceof List) {
-            failOnError = true;
-            failOnErrorPackages = (List<?>)failOnErrorConfig;
-        }
-        else {
-            failOnError = DefaultTypeTransformation.castToBoolean(failOnErrorConfig);
-        }
+    public EventTriggeringInterceptor(HibernateDatastore datastore) {
+        super(datastore);
     }
 
     @Override
@@ -121,7 +98,16 @@ public class EventTriggeringInterceptor extends AbstractEventTriggeringIntercept
     }
 
     public void onSaveOrUpdate(SaveOrUpdateEvent event) throws HibernateException {
-        ClosureEventListener eventListener = findEventListener(event.getObject());
+        EntityEntry entry = event.getEntry();
+        ClosureEventListener eventListener;
+
+        if(entry != null) {
+            eventListener = findEventListener(event.getObject(), entry.getPersister().getFactory());
+        }
+        else {
+            EventSource session = event.getSession();
+            eventListener = findEventListener(event.getObject(), (SessionFactoryImplementor) session.getSessionFactory());
+        }
         if (eventListener != null) {
             eventListener.onSaveOrUpdate(event);
         }
@@ -129,22 +115,21 @@ public class EventTriggeringInterceptor extends AbstractEventTriggeringIntercept
 
     public void onPreLoad(PreLoadEvent event) {
         Object entity = event.getEntity();
-        GrailsHibernateUtil.ensureCorrectGroovyMetaClass(entity, entity.getClass());
-        ClosureEventListener eventListener = findEventListener(entity);
+        ClosureEventListener eventListener = findEventListener(entity, event.getPersister().getFactory());
         if (eventListener != null) {
             eventListener.onPreLoad(event);
         }
     }
 
     public void onPostLoad(PostLoadEvent event) {
-        ClosureEventListener eventListener = findEventListener(event.getEntity());
+        ClosureEventListener eventListener = findEventListener(event.getEntity(), event.getPersister().getFactory());
         if (eventListener != null) {
             eventListener.onPostLoad(event);
         }
     }
 
     public void onPostInsert(PostInsertEvent event) {
-        ClosureEventListener eventListener = findEventListener(event.getEntity());
+        ClosureEventListener eventListener = findEventListener(event.getEntity(), event.getPersister().getFactory());
         if (eventListener != null) {
             eventListener.onPostInsert(event);
         }
@@ -152,7 +137,7 @@ public class EventTriggeringInterceptor extends AbstractEventTriggeringIntercept
 
     public boolean onPreInsert(PreInsertEvent event) {
         boolean evict = false;
-        ClosureEventListener eventListener = findEventListener(event.getEntity());
+        ClosureEventListener eventListener = findEventListener(event.getEntity(), event.getPersister().getFactory());
         if (eventListener != null) {
             evict = eventListener.onPreInsert(event);
         }
@@ -161,7 +146,7 @@ public class EventTriggeringInterceptor extends AbstractEventTriggeringIntercept
 
     public boolean onPreUpdate(PreUpdateEvent event) {
         boolean evict = false;
-        ClosureEventListener eventListener = findEventListener(event.getEntity());
+        ClosureEventListener eventListener = findEventListener(event.getEntity(), event.getPersister().getFactory());
         if (eventListener != null) {
             evict = eventListener.onPreUpdate(event);
         }
@@ -169,7 +154,7 @@ public class EventTriggeringInterceptor extends AbstractEventTriggeringIntercept
     }
 
     public void onPostUpdate(PostUpdateEvent event) {
-        ClosureEventListener eventListener = findEventListener(event.getEntity());
+        ClosureEventListener eventListener = findEventListener(event.getEntity(), event.getPersister().getFactory());
         if (eventListener != null) {
             eventListener.onPostUpdate(event);
         }
@@ -177,7 +162,7 @@ public class EventTriggeringInterceptor extends AbstractEventTriggeringIntercept
 
     public boolean onPreDelete(PreDeleteEvent event) {
         boolean evict = false;
-        ClosureEventListener eventListener = findEventListener(event.getEntity());
+        ClosureEventListener eventListener = findEventListener(event.getEntity(), event.getPersister().getFactory());
         if (eventListener != null) {
             evict = eventListener.onPreDelete(event);
         }
@@ -185,20 +170,20 @@ public class EventTriggeringInterceptor extends AbstractEventTriggeringIntercept
     }
 
     public void onPostDelete(PostDeleteEvent event) {
-        ClosureEventListener eventListener = findEventListener(event.getEntity());
+        ClosureEventListener eventListener = findEventListener(event.getEntity(), event.getPersister().getFactory());
         if (eventListener != null) {
             eventListener.onPostDelete(event);
         }
     }
 
     public void onValidate(ValidationEvent event) {
-        ClosureEventListener eventListener = findEventListener(event.getEntityObject());
+        ClosureEventListener eventListener = findEventListener(event.getEntityObject(), null);
         if (eventListener != null) {
             eventListener.onValidate(event);
         }
     }
 
-    protected ClosureEventListener findEventListener(Object entity) {
+    protected ClosureEventListener findEventListener(Object entity, SessionFactoryImplementor factory) {
         if (entity == null) return null;
         Class<?> clazz = entity.getClass();
 
@@ -213,9 +198,8 @@ public class EventTriggeringInterceptor extends AbstractEventTriggeringIntercept
             synchronized(clazz) {
                 eventListener = eventListeners.get(key);
                 if (eventListener == null) {
-                    shouldTrigger = (GroovySystem.getMetaClassRegistry().getMetaClass(entity.getClass()) != null &&
-                            (HibernateMappingContext.isDomainClass(clazz) || AnnotationDomainClassArtefactHandler.isJPADomainClass(clazz)) &&
-                            isDefinedByCurrentDataStore(entity));
+                    boolean isValidSessionFactory = factory == null || ((HibernateDatastore) datastore).getSessionFactory().equals(factory);
+                    shouldTrigger = (HibernateMappingContext.isDomainClass(clazz) || AnnotationDomainClassArtefactHandler.isJPADomainClass(clazz)) && isValidSessionFactory;
                     if (shouldTrigger) {
                         eventListener = new ClosureEventListener(clazz, failOnError, failOnErrorPackages, timestampProvider);
                         ClosureEventListener previous = eventListeners.putIfAbsent(key, eventListener);
@@ -230,51 +214,6 @@ public class EventTriggeringInterceptor extends AbstractEventTriggeringIntercept
         return eventListener;
     }
 
-    protected boolean isDefinedByCurrentDataStore(Object entity) {
-        SessionFactory currentDataStoreSessionFactory = ((AbstractHibernateDatastore) datastore).getSessionFactory();
-        ApplicationContext applicationContext = datastore.getApplicationContext();
-        final MappingContext hibernateMappingContext = datastore.getMappingContext();
-
-        Mapping mapping = GrailsDomainBinder.getMapping(entity.getClass());
-        List<String> dataSourceNames = null;
-        if (mapping == null) {
-            final PersistentEntity dc = hibernateMappingContext.getPersistentEntity(entity.getClass().getName());
-            if (dc != null) {
-                dataSourceNames = getDatasourceNames(dc);
-            }
-        }
-        else {
-            dataSourceNames = mapping.getDatasources();
-        }
-
-        if (dataSourceNames == null) {
-            return false;
-        }
-
-        for (String dataSource : dataSourceNames) {
-            if (Mapping.ALL_DATA_SOURCES.equals(dataSource)) {
-                return true;
-            }
-            boolean isDefault = dataSource.equals(Mapping.DEFAULT_DATA_SOURCE);
-            String suffix = isDefault ? "" : "_" + dataSource;
-            String sessionFactoryBeanName = "sessionFactory" + suffix;
-
-            if (applicationContext.containsBean(sessionFactoryBeanName)) {
-                SessionFactory sessionFactory = applicationContext.getBean(sessionFactoryBeanName, SessionFactory.class);
-                if (currentDataStoreSessionFactory == sessionFactory) {
-                    return true;
-                }
-            }
-            else {
-                log.warn("Cannot resolve SessionFactory for dataSource ["+dataSource+"] and entity ["+entity.getClass().getName()+"]");
-            }
-        }
-        return false;
-    }
-
-    protected List<String> getDatasourceNames(PersistentEntity dc) {
-        return GrailsHibernateUtil.getDatasourceNames(dc);
-    }
     /**
      * {@inheritDoc}
      * @see org.springframework.context.event.SmartApplicationListener#supportsEventType(java.lang.Class)

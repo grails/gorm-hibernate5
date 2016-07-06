@@ -21,6 +21,7 @@ import org.grails.datastore.gorm.GormStaticApi
 import org.grails.datastore.gorm.GormValidationApi
 import org.grails.datastore.mapping.config.Entity
 import org.grails.datastore.mapping.core.Datastore
+import org.grails.datastore.mapping.core.connections.ConnectionSource
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
 import org.grails.orm.hibernate.cfg.Mapping
@@ -42,43 +43,36 @@ class HibernateGormEnhancer extends GormEnhancer {
     }
 
     @Override
-    protected boolean appliesToDatastore(Datastore datastore, PersistentEntity entity) {
-        if(MultipleDataSourceSupport.usesDatasource(entity, ((AbstractHibernateDatastore)datastore).getDataSourceName())) {
-            return super.appliesToDatastore(datastore, entity)
-        }
-        return false;
-    }
-
-    @Override
     Set<String> allQualifiers(Datastore datastore, PersistentEntity entity) {
-        def dataSourceName = MultipleDataSourceSupport.getDefaultDataSource(entity)
-        def datastoreStoreDataSourceName = ((HibernateDatastore) datastore).dataSourceName
-        Set<String> qualifiers = []
 
-        def allMappedDataSources = MultipleDataSourceSupport.getDatasourceNames(entity)
-        if(datastoreStoreDataSourceName.equals(dataSourceName) ) {
-            qualifiers.add(Entity.DEFAULT_DATA_SOURCE)
-        }
-        if(allMappedDataSources.contains(datastoreStoreDataSourceName) || allMappedDataSources.contains(Mapping.ALL_DATA_SOURCES)) {
-            qualifiers.add(datastoreStoreDataSourceName)
+        Set<String> qualifiers = new LinkedHashSet<>()
+        qualifiers.addAll MultipleDataSourceSupport.getDatasourceNames(entity)
+
+        if(qualifiers.contains(ConnectionSource.ALL)) {
+            qualifiers.clear()
+
+            def allConnectionSourceNames = ((HibernateDatastore) datastore).getConnectionSources().allConnectionSources.collect() { ConnectionSource connectionSource -> connectionSource.name }
+            qualifiers.addAll allConnectionSourceNames
         }
         return qualifiers
-
     }
 
     @Override
     protected <D> GormStaticApi<D> getStaticApi(Class<D> cls, String qualifier) {
-        new HibernateGormStaticApi<D>(cls, (HibernateDatastore)datastore, getFinders(), Thread.currentThread().contextClassLoader, transactionManager)
+        HibernateDatastore hibernateDatastore = (HibernateDatastore) datastore
+        new HibernateGormStaticApi<D>(cls, hibernateDatastore.getDatastoreForConnection(qualifier), getFinders(), Thread.currentThread().contextClassLoader, transactionManager)
     }
 
     @Override
     protected <D> GormInstanceApi<D> getInstanceApi(Class<D> cls, String qualifier) {
-        new HibernateGormInstanceApi<D>(cls, (HibernateDatastore)datastore, Thread.currentThread().contextClassLoader)
+        HibernateDatastore hibernateDatastore = (HibernateDatastore) datastore
+        new HibernateGormInstanceApi<D>(cls, hibernateDatastore.getDatastoreForConnection(qualifier), Thread.currentThread().contextClassLoader)
     }
 
     @Override
     protected <D> GormValidationApi<D> getValidationApi(Class<D> cls, String qualifier) {
-        new HibernateGormValidationApi<D>(cls, (HibernateDatastore)datastore, Thread.currentThread().contextClassLoader)
+        HibernateDatastore hibernateDatastore = (HibernateDatastore) datastore
+        new HibernateGormValidationApi<D>(cls, hibernateDatastore.getDatastoreForConnection(qualifier), Thread.currentThread().contextClassLoader)
     }
 
     @Override
