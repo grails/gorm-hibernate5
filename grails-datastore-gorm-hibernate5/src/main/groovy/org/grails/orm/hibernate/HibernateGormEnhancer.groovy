@@ -22,6 +22,7 @@ import org.grails.datastore.gorm.GormValidationApi
 import org.grails.datastore.mapping.config.Entity
 import org.grails.datastore.mapping.core.Datastore
 import org.grails.datastore.mapping.core.connections.ConnectionSource
+import org.grails.datastore.mapping.core.connections.ConnectionSourceSettings
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
 import org.grails.orm.hibernate.cfg.Mapping
@@ -38,8 +39,13 @@ import org.springframework.transaction.PlatformTransactionManager
 @CompileStatic
 class HibernateGormEnhancer extends GormEnhancer {
 
+    @Deprecated
     HibernateGormEnhancer(HibernateDatastore datastore, PlatformTransactionManager transactionManager) {
         super(datastore, transactionManager)
+    }
+
+    HibernateGormEnhancer(Datastore datastore, PlatformTransactionManager transactionManager, ConnectionSourceSettings settings) {
+        super(datastore, transactionManager, settings)
     }
 
     @Override

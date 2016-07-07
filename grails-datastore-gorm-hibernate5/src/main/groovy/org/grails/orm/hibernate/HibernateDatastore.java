@@ -169,7 +169,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore  {
     }
 
     protected HibernateGormEnhancer initialize() {
-        return new HibernateGormEnhancer(this, transactionManager);
+        return new HibernateGormEnhancer(this, transactionManager, getConnectionSources().getDefaultConnectionSource().getSettings());
     }
 
     @Override
