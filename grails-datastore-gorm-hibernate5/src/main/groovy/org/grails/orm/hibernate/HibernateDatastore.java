@@ -109,24 +109,20 @@ public class HibernateDatastore extends AbstractHibernateDatastore  {
         this.eventPublisher.publishEvent( new DatastoreInitializedEvent(this) );
     }
 
-    protected HibernateGormEnhancer initialize() {
-        return new HibernateGormEnhancer(this, transactionManager);
-    }
-
-    public HibernateDatastore(ConnectionSources<SessionFactory, HibernateConnectionSourceSettings> connectionSources, ConfigurableApplicationEventPublisher eventPublisher, Class...classes) {
-        this(connectionSources, new HibernateMappingContext(connectionSources.getDefaultConnectionSource().getSettings(), eventPublisher, classes), eventPublisher);
-    }
-
-    public HibernateDatastore(ConnectionSources<SessionFactory, HibernateConnectionSourceSettings> connectionSources, Class...classes) {
-        this(connectionSources, new HibernateMappingContext(connectionSources.getDefaultConnectionSource().getSettings(), null, classes), new DefaultApplicationEventPublisher());
-    }
-
-    public HibernateDatastore(PropertyResolver configuration, Class...classes) {
-        this(ConnectionSourcesInitializer.create(new HibernateConnectionSourceFactory(classes), configuration), classes);
+    public HibernateDatastore(PropertyResolver configuration, HibernateConnectionSourceFactory connectionSourceFactory, ConfigurableApplicationEventPublisher eventPublisher) {
+        this(ConnectionSourcesInitializer.create(connectionSourceFactory, configuration), connectionSourceFactory.getMappingContext(), eventPublisher);
     }
 
     public HibernateDatastore(PropertyResolver configuration, HibernateConnectionSourceFactory connectionSourceFactory) {
-        this(ConnectionSourcesInitializer.create(connectionSourceFactory, configuration), connectionSourceFactory.getPersistentClasses());
+        this(ConnectionSourcesInitializer.create(connectionSourceFactory, configuration), connectionSourceFactory.getMappingContext(), new DefaultApplicationEventPublisher());
+    }
+
+    public HibernateDatastore(PropertyResolver configuration, ConfigurableApplicationEventPublisher eventPublisher, Class...classes) {
+        this(configuration, new HibernateConnectionSourceFactory(classes), eventPublisher);
+    }
+
+    public HibernateDatastore(PropertyResolver configuration, Class...classes) {
+        this(configuration, new HibernateConnectionSourceFactory(classes));
     }
 
     @Override
@@ -170,6 +166,10 @@ public class HibernateDatastore extends AbstractHibernateDatastore  {
         mappingContext.setValidatorRegistry(
                 defaultValidatorRegistry
         );
+    }
+
+    protected HibernateGormEnhancer initialize() {
+        return new HibernateGormEnhancer(this, transactionManager);
     }
 
     @Override

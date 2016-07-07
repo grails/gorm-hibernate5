@@ -43,21 +43,6 @@ class HibernateGormEnhancer extends GormEnhancer {
     }
 
     @Override
-    Set<String> allQualifiers(Datastore datastore, PersistentEntity entity) {
-
-        Set<String> qualifiers = new LinkedHashSet<>()
-        qualifiers.addAll MultipleDataSourceSupport.getDatasourceNames(entity)
-
-        if(qualifiers.contains(ConnectionSource.ALL)) {
-            qualifiers.clear()
-
-            def allConnectionSourceNames = ((HibernateDatastore) datastore).getConnectionSources().allConnectionSources.collect() { ConnectionSource connectionSource -> connectionSource.name }
-            qualifiers.addAll allConnectionSourceNames
-        }
-        return qualifiers
-    }
-
-    @Override
     protected <D> GormStaticApi<D> getStaticApi(Class<D> cls, String qualifier) {
         HibernateDatastore hibernateDatastore = (HibernateDatastore) datastore
         new HibernateGormStaticApi<D>(cls, hibernateDatastore.getDatastoreForConnection(qualifier), getFinders(), Thread.currentThread().contextClassLoader, transactionManager)

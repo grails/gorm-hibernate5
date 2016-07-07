@@ -2,6 +2,7 @@ package org.grails.orm.hibernate.connections;
 
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.core.exceptions.ConfigurationException;
+import org.grails.orm.hibernate.HibernateEventListeners;
 import org.grails.orm.hibernate.cfg.GrailsDomainBinder;
 import org.grails.orm.hibernate.cfg.HibernateMappingContext;
 import org.grails.orm.hibernate.cfg.HibernateMappingContextConfiguration;
@@ -9,11 +10,13 @@ import org.grails.orm.hibernate.jdbc.connections.DataSourceSettings;
 import org.grails.orm.hibernate.jdbc.connections.SpringDataSourceConnectionSourceFactory;
 import org.grails.orm.hibernate.support.AbstractClosureEventTriggeringInterceptor;
 import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor;
+import org.hibernate.Interceptor;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.NamingStrategy;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.ClassPathResource;
@@ -34,6 +37,9 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
     protected HibernateMappingContext mappingContext;
     protected Class[] persistentClasses = new Class[0];
     private ApplicationContext applicationContext;
+    protected HibernateEventListeners hibernateEventListeners;
+    protected AbstractClosureEventTriggeringInterceptor closureEventTriggeringInterceptor;
+    protected Interceptor interceptor;
 
     public HibernateConnectionSourceFactory(Class...classes) {
         this.persistentClasses = classes;
@@ -41,6 +47,25 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
 
     public Class[] getPersistentClasses() {
         return persistentClasses;
+    }
+
+    @Autowired(required = false)
+    public void setHibernateEventListeners(HibernateEventListeners hibernateEventListeners) {
+        this.hibernateEventListeners = hibernateEventListeners;
+    }
+
+    @Autowired(required = false)
+    public void setClosureEventTriggeringInterceptor(AbstractClosureEventTriggeringInterceptor closureEventTriggeringInterceptor) {
+        this.closureEventTriggeringInterceptor = closureEventTriggeringInterceptor;
+    }
+
+    @Autowired(required = false)
+    public void setInterceptor(Interceptor interceptor) {
+        this.interceptor = interceptor;
+    }
+
+    public HibernateMappingContext getMappingContext() {
+        return mappingContext;
     }
 
     @Override
@@ -139,9 +164,9 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
             }
         }
 
-//        if (entityInterceptor != null) {
-//            configuration.setInterceptor(entityInterceptor);
-//        }
+        if (this.interceptor != null) {
+            configuration.setInterceptor(this.interceptor);
+        }
 
         Class[] annotatedClasses = hibernateSettings.getAnnotatedClasses();
         if (annotatedClasses != null) {
@@ -163,9 +188,15 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
         AbstractClosureEventTriggeringInterceptor eventTriggeringInterceptor;
 
         if(closureEventTriggeringInterceptorClass == null) {
-            AbstractClosureEventTriggeringInterceptor fromConfiguration = hibernateSettings.getEventTriggeringInterceptor();
-            eventTriggeringInterceptor = fromConfiguration != null ? fromConfiguration : new ClosureEventTriggeringInterceptor();
-            hibernateSettings.eventTriggeringInterceptor(eventTriggeringInterceptor);
+            if(this.closureEventTriggeringInterceptor != null) {
+                eventTriggeringInterceptor = this.closureEventTriggeringInterceptor;
+                hibernateSettings.eventTriggeringInterceptor(this.closureEventTriggeringInterceptor);
+            }
+            else {
+                AbstractClosureEventTriggeringInterceptor fromConfiguration = hibernateSettings.getEventTriggeringInterceptor();
+                eventTriggeringInterceptor = fromConfiguration != null ? fromConfiguration : new ClosureEventTriggeringInterceptor();
+                hibernateSettings.eventTriggeringInterceptor(eventTriggeringInterceptor);
+            }
         }
         else {
             eventTriggeringInterceptor = BeanUtils.instantiate(closureEventTriggeringInterceptorClass);
@@ -181,7 +212,8 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
         }
 
         configuration.setEventListeners(hibernateSettings.toHibernateEventListeners(eventTriggeringInterceptor));
-        configuration.setHibernateEventListeners(hibernateSettings.getHibernateEventListeners());
+        HibernateEventListeners hibernateEventListeners = hibernateSettings.getHibernateEventListeners();
+        configuration.setHibernateEventListeners(this.hibernateEventListeners != null ? this.hibernateEventListeners  : hibernateEventListeners);
         configuration.setHibernateMappingContext(mappingContext);
         configuration.setDataSourceName(name);
         configuration.setSessionFactoryBeanName(isDefault ? "sessionFactory" : "sessionFactory_" + name);

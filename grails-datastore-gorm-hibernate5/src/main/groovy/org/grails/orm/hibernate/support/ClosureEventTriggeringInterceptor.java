@@ -94,9 +94,22 @@ public class ClosureEventTriggeringInterceptor extends AbstractClosureEventTrigg
 
     @Override
     public void onSaveOrUpdate(SaveOrUpdateEvent hibernateEvent) throws HibernateException {
-        publishEvent(hibernateEvent, new org.grails.datastore.mapping.engine.event.SaveOrUpdateEvent(
-                this.datastore, hibernateEvent.getObject()));
+        Object entity = getEntity(hibernateEvent);
+        if(entity != null) {
+            publishEvent(hibernateEvent, new org.grails.datastore.mapping.engine.event.SaveOrUpdateEvent(
+                    this.datastore, entity));
+        }
         super.onSaveOrUpdate(hibernateEvent);
+    }
+
+    protected Object getEntity(SaveOrUpdateEvent hibernateEvent) {
+        Object object = hibernateEvent.getObject();
+        if(object != null) {
+            return object;
+        }
+        else {
+            return hibernateEvent.getEntity();
+        }
     }
 
     public void onPreLoad(PreLoadEvent hibernateEvent) {
@@ -174,6 +187,7 @@ public class ClosureEventTriggeringInterceptor extends AbstractClosureEventTrigg
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         if(applicationContext instanceof ConfigurableApplicationContext) {
+
             this.eventPublisher = new ConfigurableApplicationContextEventPublisher((ConfigurableApplicationContext) applicationContext);
         }
     }

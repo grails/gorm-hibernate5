@@ -14,42 +14,29 @@
  */
 package grails.orm.bootstrap
 
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovy.transform.InheritConstructors
 import groovy.util.logging.Slf4j
 import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
 import org.grails.datastore.gorm.proxy.ProxyHandlerAdapter
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
 import org.grails.datastore.gorm.support.DatastorePersistenceContextInterceptor
-import org.grails.datastore.gorm.validation.CascadingValidator
 import org.grails.datastore.mapping.core.connections.AbstractConnectionSources
-import org.grails.datastore.mapping.engine.event.DatastoreInitializedEvent
-import org.grails.datastore.mapping.model.DatastoreConfigurationException
 import org.grails.datastore.mapping.validation.BeanFactoryValidatorRegistry
-import org.grails.orm.hibernate.GrailsHibernateTemplate
 import org.grails.orm.hibernate.HibernateDatastore
-import org.grails.orm.hibernate.HibernateEventListeners
-import org.grails.orm.hibernate.HibernateGormEnhancer
 import org.grails.orm.hibernate.cfg.Mapping
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
-import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor
 import org.grails.orm.hibernate.support.FlushOnRedirectEventListener
 import org.grails.orm.hibernate.validation.HibernateDomainClassValidator
 import org.grails.orm.hibernate5.support.AggregatePersistenceContextInterceptor
 import org.grails.orm.hibernate5.support.GrailsOpenSessionInViewInterceptor
 import org.springframework.beans.factory.BeanFactory
-import org.springframework.beans.factory.InitializingBean
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
-import org.springframework.context.ApplicationContextAware
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.core.env.PropertyResolver
-import org.springframework.jdbc.datasource.DriverManagerDataSource
 
 import javax.sql.DataSource
 /**
@@ -159,35 +146,19 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             hibernateProxyHandler(HibernateProxyHandler)
             proxyHandler(ProxyHandlerAdapter, ref('hibernateProxyHandler'))
 
-            // for handling GORM events
-//            eventTriggeringInterceptor(ClosureEventTriggeringInterceptor)
-            // for listening to Hibernate events
-//            hibernateEventListeners(HibernateEventListeners)
-
             // Useful interceptor for wrapping Hibernate behavior
             persistenceInterceptor(AggregatePersistenceContextInterceptor) {
                 delegate.dataSourceNames  = dataSources
             }
 
-            // domain model mapping context, used for configuration
-
-
-            // override Validator beans with Hibernate aware instances
-
-            // TODO: FIXME default interceptor, can be overridden for extensibility
-//            def entityInterceptorName = "entityInterceptor$suffix"
-//            if(!beanDefinitionRegistry.containsBeanDefinition(entityInterceptorName)) {
-//                "$entityInterceptorName"(EmptyInterceptor)
-//            }
-
             def config = this.configuration
-
             final boolean isGrailsPresent = isGrailsPresent()
             hibernateConnectionSourceFactory(HibernateConnectionSourceFactory, persistentClasses as Class[])
             hibernateDatastore(HibernateDatastore, config, hibernateConnectionSourceFactory)
             sessionFactory(hibernateDatastore:'getSessionFactory')
-
             transactionManager(hibernateDatastore:"getTransactionManager")
+
+            // domain model mapping context, used for configuration
             grailsDomainClassMappingContext(hibernateDatastore:"getMappingContext") {
                 if(isGrailsPresent && (beanDefinitionRegistry instanceof BeanFactory)) {
                     validatorRegistry = new BeanFactoryValidatorRegistry((BeanFactory)beanDefinitionRegistry)
@@ -195,6 +166,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             }
 
             if(isGrailsPresent) {
+                // override Validator beans with Hibernate aware instances
                 for(cls in persistentClasses) {
                     "${cls.name}Validator"(HibernateDomainClassValidator) {
                         messageSource = ref("messageSource")
@@ -234,9 +206,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                 if (isWebApplication && osivEnabled) {
                     "flushingRedirectEventListener$suffix"(FlushOnRedirectEventListener, datastoreBeanName)
                     "openSessionInViewInterceptor$suffix"(GrailsOpenSessionInViewInterceptor) {
-                        flushMode = HibernateDatastoreSpringInitializer.resolveDefaultFlushMode(config.getProperty("hibernate${suffix}.flush.mode"),
-                                                                                                config.getProperty("hibernate${suffix}.osiv.readonly", Boolean, false))
-                        sessionFactory = ref(sessionFactoryName)
+                        hibernateDatastore = ref(datastoreBeanName)
                     }
                 }
             }
@@ -246,33 +216,6 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
         return beanDefinitions
     }
 
-    @CompileStatic
-    private static int resolveDefaultFlushMode(CharSequence flushModeStr, boolean readOnly) {
-        int flushMode
-        if (Boolean.TRUE.equals(readOnly)) {
-            flushMode = GrailsHibernateTemplate.FLUSH_NEVER
-        }
-        else if (flushModeStr instanceof CharSequence) {
-            switch(flushModeStr.toString().toLowerCase()) {
-                case "manual":
-                case "never":
-                    flushMode = GrailsHibernateTemplate.FLUSH_NEVER
-                    break
-                case "always":
-                    flushMode = GrailsHibernateTemplate.FLUSH_ALWAYS
-                    break
-                case "commit":
-                    flushMode = GrailsHibernateTemplate.FLUSH_COMMIT
-                    break
-                default:
-                    flushMode = GrailsHibernateTemplate.FLUSH_AUTO
-            }
-        }
-        else {
-            flushMode = GrailsHibernateTemplate.FLUSH_AUTO
-        }
-        return flushMode
-    }
 
     protected GenericApplicationContext createApplicationContext() {
         GenericApplicationContext applicationContext = new GenericApplicationContext()
