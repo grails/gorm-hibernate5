@@ -15,12 +15,9 @@
  */
 package org.grails.orm.hibernate
 
-import groovy.transform.CompileStatic
-
 import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
 import org.hibernate.engine.spi.EntityEntry
 import org.hibernate.engine.spi.SessionImplementor
-
 /**
  * The implementation of the GORM instance API contract for Hibernate.
  *

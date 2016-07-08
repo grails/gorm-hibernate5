@@ -19,16 +19,9 @@ import org.grails.datastore.gorm.GormEnhancer
 import org.grails.datastore.gorm.GormInstanceApi
 import org.grails.datastore.gorm.GormStaticApi
 import org.grails.datastore.gorm.GormValidationApi
-import org.grails.datastore.mapping.config.Entity
 import org.grails.datastore.mapping.core.Datastore
-import org.grails.datastore.mapping.core.connections.ConnectionSource
 import org.grails.datastore.mapping.core.connections.ConnectionSourceSettings
-import org.grails.datastore.mapping.model.PersistentEntity
-import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
-import org.grails.orm.hibernate.cfg.Mapping
-import org.grails.orm.hibernate.datasource.MultipleDataSourceSupport
 import org.springframework.transaction.PlatformTransactionManager
-
 /**
  * Extended GORM Enhancer that fills out the remaining GORM for Hibernate methods
  * and implements string-based query support via HQL.
