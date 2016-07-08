@@ -65,6 +65,14 @@ class SingleTenantSpec extends Specification {
         then:"The results are correct"
         MultiTenantAuthor.withNewSession { MultiTenantAuthor.count() == 1 }
 
+        when:"An a transaction is used"
+        MultiTenantAuthor.withTransaction{
+            new MultiTenantAuthor(name: "James Patterson").save(flush:true)
+        }
+
+        then:"The results are correct"
+        MultiTenantAuthor.withNewSession { MultiTenantAuthor.count() == 2 }
+
         when:"The tenant id is switched"
         System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, "books")
 
@@ -75,7 +83,7 @@ class SingleTenantSpec extends Specification {
             MultiTenantAuthor.count() == 0
         }
         MultiTenantAuthor.withTenant("moreBooks") { Session s ->
-            MultiTenantAuthor.count() == 1
+            MultiTenantAuthor.count() == 2
         }
 
         when:"each tenant is iterated over"
@@ -85,7 +93,7 @@ class SingleTenantSpec extends Specification {
         }
 
         then:"The result is correct"
-        tenantIds == [moreBooks:1, books:0]
+        tenantIds == [moreBooks:2, books:0]
     }
 
 

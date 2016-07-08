@@ -44,7 +44,8 @@ class HibernateGormEnhancer extends GormEnhancer {
     @Override
     protected <D> GormStaticApi<D> getStaticApi(Class<D> cls, String qualifier) {
         HibernateDatastore hibernateDatastore = (HibernateDatastore) datastore
-        new HibernateGormStaticApi<D>(cls, hibernateDatastore.getDatastoreForConnection(qualifier), getFinders(), Thread.currentThread().contextClassLoader, transactionManager)
+        HibernateDatastore datastoreForConnection = hibernateDatastore.getDatastoreForConnection(qualifier)
+        new HibernateGormStaticApi<D>(cls, hibernateDatastore.getDatastoreForConnection(qualifier), getFinders(), Thread.currentThread().contextClassLoader, datastoreForConnection.getTransactionManager())
     }
 
     @Override
