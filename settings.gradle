@@ -2,5 +2,8 @@ include "grails-datastore-gorm-hibernate5",
         "boot-plugin", 
         'grails-plugin'
 
+// Example
+include "examples/grails31-hibernate5"
+
 findProject(':boot-plugin').name = 'gorm-hibernate5-spring-boot'
 

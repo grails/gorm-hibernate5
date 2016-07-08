@@ -37,6 +37,19 @@ ext {
 
 
 subprojects { project ->
+
+    repositories {
+        mavenLocal()
+        maven { url "https://repo.grails.org/grails/core" }
+    }
+
+    if(project.name.startsWith("examples/grails")) {
+        apply plugin:"org.grails.grails-web"
+        apply plugin:"org.grails.grails-gsp"
+
+        return
+    }
+
     boolean isPluginProject = project.name.endsWith("-plugin") && (project.name.startsWith("grails") || project.name.startsWith("rx-"))
     boolean isGrails3PluginProject = project.name.endsWith("-plugin") && !project.name.startsWith("grails2")
     boolean isGrails2PluginProject = project.name.endsWith("-plugin") && project.name.startsWith("grails2")
@@ -91,12 +104,6 @@ subprojects { project ->
 
     version project.gormVersion
 
-    repositories {
-        if(!System.getenv("TRAVIS")) {
-            mavenLocal()
-        }
-        maven { url "https://repo.grails.org/grails/core" }
-    }
 
     configurations {
         documentation
