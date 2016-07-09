@@ -72,6 +72,7 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
     private Map<String, Object> eventListeners;
     private ServiceRegistry serviceRegistry;
     private ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+    private MetadataContributor metadataContributor;
 
     public void setHibernateMappingContext(HibernateMappingContext hibernateMappingContext) {
         this.hibernateMappingContext = hibernateMappingContext;
@@ -230,7 +231,12 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
                 @Override
                 public <S> Collection<S> loadJavaServices(Class<S> serviceContract) {
                     if(MetadataContributor.class.isAssignableFrom(serviceContract)) {
-                        return Collections.<S>singletonList((S) domainBinder);
+                        if(metadataContributor != null) {
+                            return (Collection<S>) Arrays.asList(domainBinder, metadataContributor);
+                        }
+                        else {
+                            return Collections.singletonList((S) domainBinder);
+                        }
                     }
                     else {
                         return super.loadJavaServices(serviceContract);
@@ -297,5 +303,9 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
         catch (Exception e) {
             // ignore exception
         }
+    }
+
+    public void setMetadataContributor(MetadataContributor metadataContributor) {
+        this.metadataContributor = metadataContributor;
     }
 }

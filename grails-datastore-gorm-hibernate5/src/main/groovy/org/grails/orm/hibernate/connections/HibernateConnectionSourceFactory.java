@@ -12,6 +12,7 @@ import org.grails.orm.hibernate.support.AbstractClosureEventTriggeringIntercepto
 import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor;
 import org.hibernate.Interceptor;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.spi.MetadataContributor;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.NamingStrategy;
 import org.springframework.beans.BeanUtils;
@@ -40,6 +41,7 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
     protected HibernateEventListeners hibernateEventListeners;
     protected AbstractClosureEventTriggeringInterceptor closureEventTriggeringInterceptor;
     protected Interceptor interceptor;
+    protected MetadataContributor metadataContributor;
 
     public HibernateConnectionSourceFactory(Class...classes) {
         this.persistentClasses = classes;
@@ -62,6 +64,11 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
     @Autowired(required = false)
     public void setInterceptor(Interceptor interceptor) {
         this.interceptor = interceptor;
+    }
+
+    @Autowired(required = false)
+    public void setMetadataContributor(MetadataContributor metadataContributor) {
+        this.metadataContributor = metadataContributor;
     }
 
     public HibernateMappingContext getMappingContext() {
@@ -166,6 +173,10 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
 
         if (this.interceptor != null) {
             configuration.setInterceptor(this.interceptor);
+        }
+
+        if (this.metadataContributor != null) {
+            configuration.setMetadataContributor(metadataContributor);
         }
 
         Class[] annotatedClasses = hibernateSettings.getAnnotatedClasses();
