@@ -1,6 +1,7 @@
 package org.grails.orm.hibernate.connections
 
 import grails.gorm.MultiTenant
+import grails.gorm.multitenancy.Tenants
 import grails.persistence.Entity
 import org.grails.datastore.gorm.GormEntity
 import org.grails.datastore.mapping.core.DatastoreUtils
@@ -82,8 +83,18 @@ class SingleTenantSpec extends Specification {
             assert s.connection().metaData.getURL() == "jdbc:h2:mem:books"
             MultiTenantAuthor.count() == 0
         }
-        MultiTenantAuthor.withTenant("moreBooks") { Session s ->
+        MultiTenantAuthor.withTenant("moreBooks") { String tenantId, Session s ->
+            assert s != null
             MultiTenantAuthor.count() == 2
+        }
+        Tenants.withId("books") {
+            MultiTenantAuthor.count() == 0
+        }
+        Tenants.withId("moreBooks") {
+            MultiTenantAuthor.count() == 2
+        }
+        Tenants.withCurrent {
+            MultiTenantAuthor.count() == 0
         }
 
         when:"each tenant is iterated over"

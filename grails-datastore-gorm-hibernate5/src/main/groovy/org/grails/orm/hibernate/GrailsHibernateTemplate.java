@@ -110,6 +110,48 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
         return execute(hibernateCallback);
     }
 
+    @Override
+    public <T> T executeWithNewSession(final Closure<T> callable) {
+        SessionHolder sessionHolder = (SessionHolder)TransactionSynchronizationManager.getResource(sessionFactory);
+        SessionHolder previousHolder = sessionHolder;
+        Session newSession = null;
+        boolean newBind = false;
+        try {
+            newSession = sessionFactory.openSession();
+            if (sessionHolder == null) {
+                sessionHolder = new SessionHolder(newSession);
+                TransactionSynchronizationManager.bindResource(sessionFactory, sessionHolder);
+                newBind = true;
+            }
+            else {
+                TransactionSynchronizationManager.unbindResource(sessionFactory);
+                sessionHolder = new SessionHolder(newSession);
+                TransactionSynchronizationManager.bindResource(sessionFactory, sessionHolder);
+            }
+
+            return execute(new HibernateCallback<T>() {
+                @Override
+                public T doInHibernate(Session session) throws HibernateException, SQLException {
+                    return callable.call(session);
+                }
+            });
+        }
+        finally {
+            try {
+                if (newSession != null) {
+                    SessionFactoryUtils.closeSession(newSession);
+                }
+                TransactionSynchronizationManager.unbindResource(sessionFactory);
+            }
+            finally {
+                if(!newBind) {
+                    TransactionSynchronizationManager.bindResource(sessionFactory, previousHolder);
+                }
+
+            }
+        }
+    }
+
     public SessionFactory getSessionFactory() {
         return sessionFactory;
     }
