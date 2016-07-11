@@ -6,7 +6,6 @@ import grails.persistence.Entity
 import org.grails.datastore.gorm.GormEntity
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.datastore.mapping.multitenancy.exceptions.TenantNotFoundException
-import org.grails.datastore.mapping.multitenancy.resolvers.FixedTenantResolver
 import org.grails.datastore.mapping.multitenancy.resolvers.SystemPropertyTenantResolver
 import org.grails.orm.hibernate.HibernateDatastore
 import org.hibernate.Session
@@ -33,16 +32,16 @@ class SingleTenantSpec extends Specification {
                 'dataSources.moreBooks':[url:"jdbc:h2:mem:moreBooks;MVCC=TRUE;LOCK_TIMEOUT=10000"]
         ]
 
-        HibernateDatastore datastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config),Book, MultiTenantAuthor )
+        HibernateDatastore datastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config),Book, SingleTenantAuthor )
 
         when:"no tenant id is present"
-        MultiTenantAuthor.list()
+        SingleTenantAuthor.list()
 
         then:"An exception is thrown"
         thrown(TenantNotFoundException)
 
         when:"no tenant id is present"
-        new MultiTenantAuthor().save()
+        new SingleTenantAuthor().save()
 
         then:"An exception is thrown"
         thrown(TenantNotFoundException)
@@ -51,56 +50,56 @@ class SingleTenantSpec extends Specification {
         System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, "moreBooks")
 
         then:"the correct tenant is used"
-        MultiTenantAuthor.withNewSession { MultiTenantAuthor.count() == 0 }
-        MultiTenantAuthor.withNewSession { Session s ->
+        SingleTenantAuthor.withNewSession { SingleTenantAuthor.count() == 0 }
+        SingleTenantAuthor.withNewSession { Session s ->
             assert s.connection().metaData.getURL() == "jdbc:h2:mem:moreBooks"
             return true
         }
 
         when:"An object is saved"
-        MultiTenantAuthor.withNewSession { Session s ->
+        SingleTenantAuthor.withNewSession { Session s ->
             assert s.connection().metaData.getURL() == "jdbc:h2:mem:moreBooks"
-            new MultiTenantAuthor(name: "Stephen King").save(flush:true)
+            new SingleTenantAuthor(name: "Stephen King").save(flush:true)
         }
 
         then:"The results are correct"
-        MultiTenantAuthor.withNewSession { MultiTenantAuthor.count() == 1 }
+        SingleTenantAuthor.withNewSession { SingleTenantAuthor.count() == 1 }
 
         when:"An a transaction is used"
-        MultiTenantAuthor.withTransaction{
-            new MultiTenantAuthor(name: "James Patterson").save(flush:true)
+        SingleTenantAuthor.withTransaction{
+            new SingleTenantAuthor(name: "James Patterson").save(flush:true)
         }
 
         then:"The results are correct"
-        MultiTenantAuthor.withNewSession { MultiTenantAuthor.count() == 2 }
+        SingleTenantAuthor.withNewSession { SingleTenantAuthor.count() == 2 }
 
         when:"The tenant id is switched"
         System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, "books")
 
         then:"the correct tenant is used"
-        MultiTenantAuthor.withNewSession { MultiTenantAuthor.count() == 0 }
-        MultiTenantAuthor.withNewSession { Session s ->
+        SingleTenantAuthor.withNewSession { SingleTenantAuthor.count() == 0 }
+        SingleTenantAuthor.withNewSession { Session s ->
             assert s.connection().metaData.getURL() == "jdbc:h2:mem:books"
-            MultiTenantAuthor.count() == 0
+            SingleTenantAuthor.count() == 0
         }
-        MultiTenantAuthor.withTenant("moreBooks") { String tenantId, Session s ->
+        SingleTenantAuthor.withTenant("moreBooks") { String tenantId, Session s ->
             assert s != null
-            MultiTenantAuthor.count() == 2
+            SingleTenantAuthor.count() == 2
         }
         Tenants.withId("books") {
-            MultiTenantAuthor.count() == 0
+            SingleTenantAuthor.count() == 0
         }
         Tenants.withId("moreBooks") {
-            MultiTenantAuthor.count() == 2
+            SingleTenantAuthor.count() == 2
         }
         Tenants.withCurrent {
-            MultiTenantAuthor.count() == 0
+            SingleTenantAuthor.count() == 0
         }
 
         when:"each tenant is iterated over"
         Map tenantIds = [:]
-        MultiTenantAuthor.eachTenant { String tenantId ->
-            tenantIds.put(tenantId, MultiTenantAuthor.count())
+        SingleTenantAuthor.eachTenant { String tenantId ->
+            tenantIds.put(tenantId, SingleTenantAuthor.count())
         }
 
         then:"The result is correct"
@@ -112,7 +111,7 @@ class SingleTenantSpec extends Specification {
 
 
 @Entity
-class MultiTenantAuthor implements GormEntity<MultiTenantAuthor>,MultiTenant<MultiTenantAuthor> {
+class SingleTenantAuthor implements GormEntity<SingleTenantAuthor>,MultiTenant<SingleTenantAuthor> {
     Long id
     Long version
     String name

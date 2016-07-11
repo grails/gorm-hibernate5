@@ -79,7 +79,8 @@ public class ClosureEventListener implements SaveOrUpdateEventListener,
     final EventTriggerCaller preDeleteEventListener;
     final EventTriggerCaller preUpdateEventListener;
     final BeforeValidateEventTriggerCaller beforeValidateEventListener;
-    boolean shouldTimestamp = false;
+    final boolean shouldTimestamp;
+    final boolean isMultiTenant;
     MetaProperty dateCreatedProperty;
     MetaProperty lastUpdatedProperty;
     MetaClass domainMetaClass;
@@ -94,8 +95,22 @@ public class ClosureEventListener implements SaveOrUpdateEventListener,
     public ClosureEventListener(Class<?> domainClazz, boolean failOnError, List failOnErrorPackages, TimestampProvider timestampProvider) {
         this.timestampProvider = timestampProvider;
         domainMetaClass = GroovySystem.getMetaClassRegistry().getMetaClass(domainClazz);
-        applyAutotimestampSettings(domainClazz, timestampProvider);
+        dateCreatedProperty = domainMetaClass.getMetaProperty(GormProperties.DATE_CREATED);
+        if(dateCreatedProperty != null && !verifyTimestampFieldTypeSupport(domainClazz, timestampProvider, dateCreatedProperty)) {
+            dateCreatedProperty = null;
+        }
+        lastUpdatedProperty = domainMetaClass.getMetaProperty(GormProperties.LAST_UPDATED);
+        if(lastUpdatedProperty != null && !verifyTimestampFieldTypeSupport(domainClazz, timestampProvider, lastUpdatedProperty)) {
+            lastUpdatedProperty = null;
+        }
+        if (dateCreatedProperty != null || lastUpdatedProperty != null) {
+            Mapping m = GrailsDomainBinder.getMapping(domainClazz);
+            shouldTimestamp = m == null || m.isAutoTimestamp();
+        } else {
+            shouldTimestamp = false;
+        }
 
+        this.isMultiTenant = ClassUtils.isMultiTenant(domainClazz);
         saveOrUpdateCaller = buildCaller(ClosureEventTriggeringInterceptor.ONLOAD_SAVE, domainClazz);
         beforeInsertCaller = buildCaller(ClosureEventTriggeringInterceptor.BEFORE_INSERT_EVENT, domainClazz);
         EventTriggerCaller preLoadEventCaller = buildCaller(ClosureEventTriggeringInterceptor.ONLOAD_EVENT, domainClazz);
@@ -134,23 +149,7 @@ public class ClosureEventListener implements SaveOrUpdateEventListener,
         }
     }
 
-    private void applyAutotimestampSettings(Class<?> domainClazz, TimestampProvider timestampProvider) {
-        dateCreatedProperty = domainMetaClass.getMetaProperty(GormProperties.DATE_CREATED);
-        if(dateCreatedProperty != null && !verifyTimestampFieldTypeSupport(domainClazz, timestampProvider, dateCreatedProperty)) {
-            dateCreatedProperty = null;
-        }
-        lastUpdatedProperty = domainMetaClass.getMetaProperty(GormProperties.LAST_UPDATED);
-        if(lastUpdatedProperty != null && !verifyTimestampFieldTypeSupport(domainClazz, timestampProvider, lastUpdatedProperty)) {
-            lastUpdatedProperty = null;
-        }
-        if (dateCreatedProperty != null || lastUpdatedProperty != null) {
-            Mapping m = GrailsDomainBinder.getMapping(domainClazz);
-            shouldTimestamp = m == null || m.isAutoTimestamp();
-        } else {
-            shouldTimestamp = false;
-        }
-    }
-    
+
     private boolean verifyTimestampFieldTypeSupport(Class<?> domainClazz, TimestampProvider timestampProvider, MetaProperty timestampField) {
         if(timestampProvider.supportsCreating(timestampField.getType())) {
             return true;
@@ -425,6 +424,6 @@ public class ClosureEventListener implements SaveOrUpdateEventListener,
                 synchronizeState = true;
             }
         }
-        return synchronizeState;
+        return synchronizeState || isMultiTenant;
     }
 }

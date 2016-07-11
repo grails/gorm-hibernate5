@@ -70,6 +70,8 @@ dependencies {
     testRuntime "org.springframework:spring-aop:$springVersion"
     testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatVersion"
 
+    testRuntime "org.slf4j:slf4j-simple:1.7.10"
+    testRuntime "org.slf4j:jcl-over-slf4j:1.7.10"
     // The groovydoc task needs the Hibernate 4.x jars in the classpath
     documentation("org.hibernate:hibernate-core:${hibernateVersion}.Final")
 

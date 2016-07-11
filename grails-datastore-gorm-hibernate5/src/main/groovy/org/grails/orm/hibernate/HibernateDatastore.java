@@ -28,10 +28,12 @@ import org.grails.datastore.mapping.core.exceptions.ConfigurationException;
 import org.grails.datastore.mapping.engine.event.DatastoreInitializedEvent;
 import org.grails.datastore.mapping.model.MappingContext;
 import org.grails.datastore.mapping.model.PersistentEntity;
+import org.grails.datastore.mapping.multitenancy.MultiTenancySettings;
 import org.grails.orm.hibernate.cfg.HibernateMappingContext;
 import org.grails.orm.hibernate.connections.HibernateConnectionSource;
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory;
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceSettings;
+import org.grails.orm.hibernate.multitenancy.MultiTenantEventListener;
 import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.BeansException;
@@ -51,7 +53,6 @@ import java.util.concurrent.Callable;
  * @since 2.0
  */
 public class HibernateDatastore extends AbstractHibernateDatastore  {
-
     protected final GrailsHibernateTransactionManager transactionManager;
     protected ConfigurableApplicationEventPublisher eventPublisher;
     protected final HibernateGormEnhancer gormEnhancer;
@@ -155,6 +156,9 @@ public class HibernateDatastore extends AbstractHibernateDatastore  {
 
     protected void registerEventListeners(ConfigurableApplicationEventPublisher eventPublisher) {
         eventPublisher.addApplicationListener(new AutoTimestampEventListener(this));
+        if(multiTenantMode == MultiTenancySettings.MultiTenancyMode.MULTI) {
+            eventPublisher.addApplicationListener(new MultiTenantEventListener());
+        }
         eventPublisher.addApplicationListener(eventTriggeringInterceptor);
     }
 

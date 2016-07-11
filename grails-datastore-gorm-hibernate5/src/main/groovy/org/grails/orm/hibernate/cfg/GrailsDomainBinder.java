@@ -18,6 +18,7 @@ import groovy.lang.Closure;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
+import org.grails.datastore.mapping.core.connections.ConnectionSourcesSupport;
 import org.grails.datastore.mapping.model.DatastoreConfigurationException;
 import org.grails.datastore.mapping.model.MappingContext;
 import org.grails.datastore.mapping.model.PersistentEntity;
@@ -26,6 +27,7 @@ import org.grails.datastore.mapping.model.config.GormProperties;
 import org.grails.datastore.mapping.model.types.*;
 import org.grails.datastore.mapping.model.types.ToOne;
 import org.grails.datastore.mapping.reflect.NameUtils;
+import org.grails.orm.hibernate.HibernateDatastore;
 import org.grails.orm.hibernate.persister.entity.GroovyAwareJoinedSubclassEntityPersister;
 import org.grails.orm.hibernate.persister.entity.GroovyAwareSingleTableEntityPersister;
 import org.hibernate.FetchMode;
@@ -39,6 +41,7 @@ import org.hibernate.cfg.BinderHelper;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.cfg.SecondPass;
+import org.hibernate.engine.spi.FilterDefinition;
 import org.hibernate.id.PersistentIdentifierGenerator;
 import org.hibernate.mapping.*;
 import org.hibernate.mapping.Collection;
@@ -153,7 +156,7 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         java.util.Collection<PersistentEntity> persistentEntities = hibernateMappingContext.getPersistentEntities();
         for (PersistentEntity persistentEntity : persistentEntities) {
-            if(GrailsHibernateUtil.usesDatasource(persistentEntity, dataSourceName) && persistentEntity.isRoot()) {
+            if(ConnectionSourcesSupport.usesConnectionSource(persistentEntity, dataSourceName) && persistentEntity.isRoot()) {
                 bindRoot((HibernatePersistentEntity) persistentEntity, metadataCollector, sessionFactoryName);
             }
         }
@@ -1372,6 +1375,9 @@ public class GrailsDomainBinder implements MetadataContributor {
         RootClass root = new RootClass(this.metadataBuildingContext);
         root.setAbstract(entity.isAbstract());
         final MappingContext mappingContext = entity.getMappingContext();
+
+
+
         final java.util.Collection<PersistentEntity> children = mappingContext.getDirectChildEntities(entity);
         if (children.isEmpty()) {
             root.setPolymorphic(false);
@@ -1396,7 +1402,24 @@ public class GrailsDomainBinder implements MetadataContributor {
             root.setEntityPersisterClass(getGroovyAwareSingleTableEntityPersisterClass());
         }
 
+        if(entity.isMultiTenant()) {
+            String filterName = getTenantIdFilterName(entity);
+            TenantId tenantId = entity.getTenantId();
+            String defaultColumnName = getDefaultColumnName(tenantId, sessionFactoryBeanName);
+            String filterCondition = ":tenantId = " + defaultColumnName;
+            root.addFilter(filterName,filterCondition, true, Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
+            mappings.addFilterDefinition(new FilterDefinition(
+                    filterName,
+                    filterCondition,
+                    Collections.singletonMap(GormProperties.TENANT_IDENTITY, root.getProperty(tenantId.getName()).getType())
+            ));
+
+        }
         mappings.addEntityBinding(root);
+    }
+
+    public static String getTenantIdFilterName(PersistentEntity entity) {
+        return entity.getJavaClass().getSimpleName() + "TenantId";
     }
 
     /**
@@ -2654,7 +2677,7 @@ public class GrailsDomainBinder implements MetadataContributor {
                                    String path, PropertyConfig propertyConfig, String sessionFactoryBeanName) {
         setTypeForPropertyConfig(grailsProp, simpleValue, propertyConfig);
         final PropertyConfig mappedForm = (PropertyConfig) grailsProp.getMapping().getMappedForm();
-        if (mappedForm.isDerived()) {
+        if (mappedForm.isDerived() && !(grailsProp instanceof TenantId)) {
             Formula formula = new Formula();
             formula.setFormula(propertyConfig.getFormula());
             simpleValue.addFormula(formula);
