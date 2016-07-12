@@ -62,6 +62,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
     String ddlAuto = "update"
     Set<String> dataSources = [defaultDataSourceBeanName]
     boolean enableReload = false
+    boolean grailsPlugin = false
 
     HibernateDatastoreSpringInitializer(PropertyResolver configuration, Collection<Class> persistentClasses) {
         super(configuration, persistentClasses)
@@ -202,9 +203,15 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
                 String transactionManagerBeanName = "transactionManager$suffix"
 
-                "$transactionManagerBeanName"(GrailsHibernateTransactionManager) {
-                    dataSource = ref("dataSource$suffix")
-                    sessionFactory = ref(sessionFactoryName)
+                if(grailsPlugin) {
+                    "$transactionManagerBeanName"(GrailsHibernateTransactionManager) {
+                        dataSource = ref("dataSource$suffix")
+                        sessionFactory = ref(sessionFactoryName)
+                    }
+                }
+                else {
+                    "$transactionManagerBeanName"((datastoreBeanName):"getTransactionManager")
+                    getBeanDefinition(transactionManagerBeanName).beanClass = PlatformTransactionManager
                 }
 
                 boolean osivEnabled = config.getProperty("hibernate${suffix}.osiv.enabled", Boolean, true)
