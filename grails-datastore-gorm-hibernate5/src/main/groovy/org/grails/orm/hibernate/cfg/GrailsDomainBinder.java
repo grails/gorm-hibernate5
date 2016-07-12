@@ -396,6 +396,13 @@ public class GrailsDomainBinder implements MetadataContributor {
                 collection.setWhere(discriminatorColumnName + " in (" + inclause + ")");
             }
 
+            if(referenced != null && referenced.isMultiTenant()) {
+                String filterCondition = getMultiTenantFilterCondition(sessionFactoryBeanName, referenced);
+                if(filterCondition != null) {
+                    collection.addFilter(GormProperties.TENANT_IDENTITY, filterCondition, true, Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
+                }
+            }
+
             OneToMany oneToMany = (OneToMany) collection.getElement();
             String associatedClassName = oneToMany.getReferencedEntityName();
 
@@ -471,6 +478,17 @@ public class GrailsDomainBinder implements MetadataContributor {
             // there are problems with list and map mappings and join columns relating to duplicate key constraints
             // TODO change this when HHH-1268 is resolved
             bindUnidirectionalOneToMany((org.grails.datastore.mapping.model.types.OneToMany) property, mappings, collection);
+        }
+    }
+
+    private String getMultiTenantFilterCondition(String sessionFactoryBeanName, PersistentEntity referenced) {
+        TenantId tenantId = referenced.getTenantId();
+        if(tenantId != null) {
+            String defaultColumnName = getDefaultColumnName(tenantId, sessionFactoryBeanName);
+            return ":tenantId = " + defaultColumnName;
+        }
+        else {
+            return null;
         }
     }
 
@@ -1403,24 +1421,21 @@ public class GrailsDomainBinder implements MetadataContributor {
         }
 
         if(entity.isMultiTenant()) {
-            String filterName = getTenantIdFilterName(entity);
             TenantId tenantId = entity.getTenantId();
-            String defaultColumnName = getDefaultColumnName(tenantId, sessionFactoryBeanName);
-            String filterCondition = ":tenantId = " + defaultColumnName;
-            root.addFilter(filterName,filterCondition, true, Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
-            mappings.addFilterDefinition(new FilterDefinition(
-                    filterName,
-                    filterCondition,
-                    Collections.singletonMap(GormProperties.TENANT_IDENTITY, root.getProperty(tenantId.getName()).getType())
-            ));
+            if(tenantId != null) {
+                String filterCondition = getMultiTenantFilterCondition(sessionFactoryBeanName, entity);
+                root.addFilter(GormProperties.TENANT_IDENTITY,filterCondition, true, Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
+                mappings.addFilterDefinition(new FilterDefinition(
+                        GormProperties.TENANT_IDENTITY,
+                        filterCondition,
+                        Collections.singletonMap(GormProperties.TENANT_IDENTITY, root.getProperty(tenantId.getName()).getType())
+                ));
+            }
 
         }
         mappings.addEntityBinding(root);
     }
 
-    public static String getTenantIdFilterName(PersistentEntity entity) {
-        return entity.getJavaClass().getSimpleName() + "TenantId";
-    }
 
     /**
      * Binds the sub classes of a root class using table-per-heirarchy inheritance mapping

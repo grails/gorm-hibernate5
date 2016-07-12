@@ -15,31 +15,21 @@
  */
 package org.grails.orm.hibernate
 
-import grails.gorm.MultiTenant
 import grails.orm.HibernateCriteriaBuilder
 import grails.orm.PagedResultList
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import groovy.transform.TypeCheckingMode
 import org.grails.datastore.gorm.GormEnhancer
-import org.grails.datastore.mapping.core.Datastore
-import org.grails.datastore.mapping.query.event.PostQueryEvent
-import org.grails.datastore.mapping.query.event.PreQueryEvent
-import org.grails.orm.hibernate.multitenancy.HibernateMultiTenancySupport
-import org.grails.orm.hibernate.query.GrailsHibernateQueryUtils
 import org.grails.datastore.gorm.finders.DynamicFinder
 import org.grails.datastore.gorm.finders.FinderMethod
 import org.grails.datastore.mapping.query.api.BuildableCriteria as GrailsCriteria
+import org.grails.datastore.mapping.query.event.PostQueryEvent
+import org.grails.datastore.mapping.query.event.PreQueryEvent
+import org.grails.orm.hibernate.query.GrailsHibernateQueryUtils
 import org.grails.orm.hibernate.query.HibernateHqlQuery
 import org.grails.orm.hibernate.query.HibernateQuery
-import org.hibernate.Criteria
-import org.hibernate.LockMode
-import org.hibernate.Query
-import org.hibernate.Session
-import org.hibernate.SessionFactory
-import org.springframework.context.ApplicationEventPublisher
+import org.hibernate.*
 import org.springframework.core.convert.ConversionService
-import org.springframework.orm.hibernate5.SessionFactoryUtils
 import org.springframework.orm.hibernate5.SessionHolder
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionSynchronizationManager
@@ -76,11 +66,6 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
     }
 
     @Override
-    def propertyMissing(String name) {
-        return GormEnhancer.findStaticApi(persistentClass, name)
-    }
-
-    @Override
     List<D> list(Map params = Collections.emptyMap()) {
         hibernateTemplate.execute { Session session ->
             Criteria c = session.createCriteria(persistentEntity.javaClass)
@@ -102,10 +87,11 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
         }
     }
 
-    @CompileDynamic
-    protected void setResultTransformer(Criteria c) {
-        c.resultTransformer = Criteria.DISTINCT_ROOT_ENTITY
+    @Override
+    def propertyMissing(String name) {
+        return GormEnhancer.findStaticApi(persistentClass, name)
     }
+
 
     @Override
     GrailsCriteria createCriteria() {
@@ -171,84 +157,6 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
         }
     }
 
-
-
-    @Override
-    Object withSession(Closure callable) {
-        GrailsHibernateTemplate template = new GrailsHibernateTemplate(sessionFactory, (HibernateDatastore)datastore)
-        template.setExposeNativeSession(false)
-        template.setApplyFlushModeOnlyToNonExistingTransactions(true)
-        hibernateTemplate.execute new GrailsHibernateTemplate.HibernateCallback() {
-            def doInHibernate(Session session) {
-                boolean isMultiTenant = MultiTenant.isAssignableFrom(persistentClass)
-                if(isMultiTenant) {
-                    HibernateMultiTenancySupport.enableFilter((AbstractHibernateDatastore)datastore, persistentEntity)
-                }
-                try {
-                    callable(session)
-                } finally {
-                    if(isMultiTenant) {
-                        HibernateMultiTenancySupport.disableFilter((AbstractHibernateDatastore)datastore, persistentEntity)
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    @CompileStatic(TypeCheckingMode.SKIP)
-    def withNewSession(Closure callable) {
-        GrailsHibernateTemplate template  = new GrailsHibernateTemplate(sessionFactory, (HibernateDatastore)datastore)
-        template.setExposeNativeSession(false)
-        SessionHolder sessionHolder = (SessionHolder)TransactionSynchronizationManager.getResource(sessionFactory)
-        Session previousSession = sessionHolder?.session
-        Session newSession
-        boolean newBind = false
-        try {
-            template.allowCreate = true
-            newSession = sessionFactory.openSession()
-            if (sessionHolder == null) {
-                sessionHolder = new SessionHolder(newSession)
-                TransactionSynchronizationManager.bindResource(sessionFactory, sessionHolder)
-                newBind = true
-            }
-            else {
-                sessionHolder.@session = newSession
-            }
-
-            hibernateTemplate.execute new GrailsHibernateTemplate.HibernateCallback() {
-                def doInHibernate(Session session) {
-                    boolean isMultiTenant = MultiTenant.isAssignableFrom(persistentClass)
-                    if(isMultiTenant) {
-                        HibernateMultiTenancySupport.enableFilter((AbstractHibernateDatastore)datastore, persistentEntity)
-                    }
-                    try {
-                        callable(session)
-                    } finally {
-                        if(isMultiTenant) {
-                            HibernateMultiTenancySupport.disableFilter((AbstractHibernateDatastore)datastore, persistentEntity)
-                        }
-                    }
-                }
-            }
-        }
-        finally {
-            try {
-                if (newSession) {
-                    SessionFactoryUtils.closeSession(newSession)
-                }
-                if (newBind) {
-                    TransactionSynchronizationManager.unbindResource(sessionFactory)
-                }
-            }
-            finally {
-                if (previousSession) {
-                    sessionHolder.@session = previousSession
-                }
-            }
-        }
-    }
-
     protected <T> T withQueryEvents(Query query, Closure<T> callable) {
         HibernateDatastore hibernateDatastore = (HibernateDatastore)datastore
 
@@ -281,5 +189,10 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
     @Override
     protected HibernateHqlQuery createHqlQuery(Session session, Query q) {
         return new HibernateHqlQuery(new HibernateSession((HibernateDatastore)datastore, sessionFactory), persistentEntity, q)
+    }
+
+    @CompileDynamic
+    protected void setResultTransformer(Criteria c) {
+        c.resultTransformer = Criteria.DISTINCT_ROOT_ENTITY
     }
 }
