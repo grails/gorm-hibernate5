@@ -83,7 +83,6 @@ public class GrailsDomainBinder implements MetadataContributor {
     protected static final String CASCADE_NONE = "none";
     protected static final String BACKTICK = "`";
 
-    protected static final Map<Class<?>, Mapping> MAPPING_CACHE = new HashMap<Class<?>, Mapping>();
     protected static final String ENUM_TYPE_CLASS = "org.hibernate.type.EnumType";
     protected static final String ENUM_CLASS_PROP = "enumClass";
     protected static final String ENUM_TYPE_PROP = "type";
@@ -1266,7 +1265,7 @@ public class GrailsDomainBinder implements MetadataContributor {
             final Mapping m = (Mapping) domainClass.getMapping().getMappedForm();
             trackCustomCascadingSaves(m, domainClass.getPersistentProperties());
             if (cache) {
-                MAPPING_CACHE.put(domainClass.getJavaClass(), m);
+                AbstractGrailsDomainBinder.cacheMapping(domainClass.getJavaClass(), m);
             }
             return m;
         } catch (Exception e) {
@@ -1316,7 +1315,7 @@ public class GrailsDomainBinder implements MetadataContributor {
      * @return A Mapping object or null
      */
     public static Mapping getMapping(Class<?> theClass) {
-        return theClass == null ? null : MAPPING_CACHE.get(theClass);
+        return AbstractGrailsDomainBinder.getMapping(theClass);
     }
 
     /**
@@ -1326,21 +1325,15 @@ public class GrailsDomainBinder implements MetadataContributor {
      * @return A Mapping object or null
      */
     public static Mapping getMapping(PersistentEntity domainClass) {
-        return domainClass == null ? null : MAPPING_CACHE.get(domainClass.getJavaClass());
+        return domainClass == null ? null : AbstractGrailsDomainBinder.getMapping(domainClass.getJavaClass());
     }
 
     public static void clearMappingCache() {
-        MAPPING_CACHE.clear();
+        AbstractGrailsDomainBinder.clearMappingCache();
     }
 
     public static void clearMappingCache(Class<?> theClass) {
-        String className = theClass.getName();
-        for(Iterator<Map.Entry<Class<?>, Mapping>> it = MAPPING_CACHE.entrySet().iterator(); it.hasNext();) {
-            Map.Entry<Class<?>, Mapping> entry = it.next();
-            if (className.equals(entry.getKey().getName())) {
-                it.remove();
-            }
-        }
+        // no-op, here for compatibility
     }
 
     /**

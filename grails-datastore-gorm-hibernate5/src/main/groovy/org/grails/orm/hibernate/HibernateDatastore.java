@@ -29,6 +29,7 @@ import org.grails.datastore.mapping.engine.event.DatastoreInitializedEvent;
 import org.grails.datastore.mapping.model.MappingContext;
 import org.grails.datastore.mapping.model.PersistentEntity;
 import org.grails.datastore.mapping.multitenancy.MultiTenancySettings;
+import org.grails.orm.hibernate.cfg.GrailsDomainBinder;
 import org.grails.orm.hibernate.cfg.HibernateMappingContext;
 import org.grails.orm.hibernate.connections.HibernateConnectionSource;
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory;
@@ -42,6 +43,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.PropertyResolver;
 import org.grails.orm.hibernate.multitenancy.*;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -130,6 +132,9 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
     public ApplicationEventPublisher getApplicationEventPublisher() {
         return this.eventPublisher;
     }
+
+
+
 
     /**
      * @return The {@link org.springframework.transaction.PlatformTransactionManager} instance
@@ -242,12 +247,9 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
     @Override
     public void destroy() throws Exception {
         try {
-            try {
-                super.destroy();
-            } finally {
-                this.getConnectionSources().close();
-            }
+            super.destroy();
         } finally {
+            GrailsDomainBinder.clearMappingCache();
             this.gormEnhancer.close();
         }
     }
