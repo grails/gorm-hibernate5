@@ -184,7 +184,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
             for(dataSourceName in dataSources) {
 
-                boolean isDefault = dataSourceName == Settings.SETTING_DATASOURCE
+                boolean isDefault = dataSourceName == Settings.SETTING_DATASOURCE || dataSourceName == ConnectionSource.DEFAULT
                 if(isDefault) continue
 
                 String suffix = '_' + dataSourceName
@@ -207,8 +207,6 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                     sessionFactory = ref(sessionFactoryName)
                 }
 
-                "$transactionManagerBeanName"((datastoreBeanName):"getTransactionManager")
-                getBeanDefinition(transactionManagerBeanName).beanClass = PlatformTransactionManager
                 boolean osivEnabled = config.getProperty("hibernate${suffix}.osiv.enabled", Boolean, true)
                 boolean isWebApplication = beanDefinitionRegistry?.containsBeanDefinition("dispatcherServlet") ||
                         beanDefinitionRegistry?.containsBeanDefinition("grailsControllerHelper")
