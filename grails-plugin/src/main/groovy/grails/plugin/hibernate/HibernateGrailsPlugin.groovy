@@ -68,7 +68,6 @@ class HibernateGrailsPlugin extends Plugin {
 
         springInitializer.enableReload = Environment.isDevelopmentMode()
         springInitializer.registerApplicationIfNotPresent = false
-        springInitializer.dataSources = dataSourceNames
         dataSourceNames = springInitializer.dataSources
         def beans = springInitializer.getBeanDefinitions((BeanDefinitionRegistry)applicationContext)
 

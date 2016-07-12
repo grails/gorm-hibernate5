@@ -163,12 +163,15 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
      * @return The {@link HibernateDatastore}
      */
     public HibernateDatastore getDatastoreForConnection(String connectionName) {
-
-        HibernateDatastore hibernateDatastore = this.datastoresByConnectionSource.get(connectionName);
-        if(hibernateDatastore == null) {
-            throw new ConfigurationException("DataSource not found for name ["+connectionName+"] in configuration. Please check your multiple data sources configuration and try again.");
+        if(connectionName.equals(Settings.SETTING_DATASOURCE)) {
+            return this;
+        } else {
+            HibernateDatastore hibernateDatastore = this.datastoresByConnectionSource.get(connectionName);
+            if(hibernateDatastore == null) {
+                throw new ConfigurationException("DataSource not found for name ["+connectionName+"] in configuration. Please check your multiple data sources configuration and try again.");
+            }
+            return hibernateDatastore;
         }
-        return hibernateDatastore;
     }
 
     protected void registerEventListeners(ConfigurableApplicationEventPublisher eventPublisher) {

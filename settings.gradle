@@ -1,9 +1,13 @@
-include "grails-datastore-gorm-hibernate5",
-        "boot-plugin", 
-        'grails-plugin'
+// Core
+include "grails-datastore-gorm-hibernate5"
+
+// Plugins
+include "boot-plugin"
+include 'grails-plugin'
 
 // Example
 include "examples/grails31-hibernate5"
+include "examples/grails31-multiple-datasources"
 
 findProject(':boot-plugin').name = 'gorm-hibernate5-spring-boot'
 
