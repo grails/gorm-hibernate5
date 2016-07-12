@@ -350,12 +350,12 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         PropertyConfig propConfig = getPropertyConfig(property);
 
+        PersistentEntity referenced = property.getAssociatedEntity();
         if (propConfig != null && StringUtils.hasText(propConfig.getSort())) {
             if (!property.isBidirectional() && (property instanceof org.grails.datastore.mapping.model.types.OneToMany)) {
                 throw new DatastoreConfigurationException("Default sort for associations ["+property.getOwner().getName()+"->" + property.getName() +
                         "] are not supported with unidirectional one to many relationships.");
             }
-            PersistentEntity referenced = property.getAssociatedEntity();
             if (referenced != null) {
                 PersistentProperty propertyToSortBy = referenced.getPropertyByName(propConfig.getSort());
 
@@ -372,7 +372,6 @@ public class GrailsDomainBinder implements MetadataContributor {
         // Configure one-to-many
         if (collection.isOneToMany()) {
 
-            PersistentEntity referenced = property.getAssociatedEntity();
             Mapping m = getRootMapping(referenced);
             boolean tablePerSubclass = m != null && !m.getTablePerHierarchy();
 
@@ -396,12 +395,6 @@ public class GrailsDomainBinder implements MetadataContributor {
                 collection.setWhere(discriminatorColumnName + " in (" + inclause + ")");
             }
 
-            if(referenced != null && referenced.isMultiTenant()) {
-                String filterCondition = getMultiTenantFilterCondition(sessionFactoryBeanName, referenced);
-                if(filterCondition != null) {
-                    collection.addFilter(GormProperties.TENANT_IDENTITY, filterCondition, true, Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
-                }
-            }
 
             OneToMany oneToMany = (OneToMany) collection.getElement();
             String associatedClassName = oneToMany.getReferencedEntityName();
@@ -418,6 +411,13 @@ public class GrailsDomainBinder implements MetadataContributor {
             }
 
             bindCollectionForPropertyConfig(collection, propConfig);
+        }
+
+        if(referenced != null && referenced.isMultiTenant()) {
+            String filterCondition = getMultiTenantFilterCondition(sessionFactoryBeanName, referenced);
+            if(filterCondition != null) {
+                collection.addFilter(GormProperties.TENANT_IDENTITY, filterCondition, true, Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
+            }
         }
 
         if (isSorted(property)) {
