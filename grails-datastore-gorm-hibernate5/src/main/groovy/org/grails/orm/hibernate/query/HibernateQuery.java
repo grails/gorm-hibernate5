@@ -67,6 +67,13 @@ public class HibernateQuery extends AbstractHibernateQuery {
         super(criteria, entity);
     }
 
+    /**
+     * @return The hibernate criteria
+     */
+    public Criteria getHibernateCriteria() {
+        return this.criteria;
+    }
+
     @Override
     protected AbstractHibernateCriterionAdapter createHibernateCriterionAdapter() {
         return HIBERNATE_CRITERION_ADAPTER;

@@ -19,6 +19,7 @@ import org.grails.datastore.gorm.validation.constraints.MappingContextAwareConst
 import org.grails.datastore.gorm.validation.constraints.builtin.UniqueConstraint;
 import org.grails.datastore.gorm.validation.constraints.registry.DefaultValidatorRegistry;
 import org.grails.datastore.mapping.core.ConnectionNotFoundException;
+import org.grails.datastore.mapping.core.DatastoreUtils;
 import org.grails.datastore.mapping.core.Session;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.core.connections.ConnectionSources;
@@ -28,7 +29,10 @@ import org.grails.datastore.mapping.core.exceptions.ConfigurationException;
 import org.grails.datastore.mapping.engine.event.DatastoreInitializedEvent;
 import org.grails.datastore.mapping.model.MappingContext;
 import org.grails.datastore.mapping.model.PersistentEntity;
+import org.grails.datastore.mapping.multitenancy.MultiTenancySettings;
+import org.grails.orm.hibernate.cfg.GrailsDomainBinder;
 import org.grails.orm.hibernate.cfg.HibernateMappingContext;
+import org.grails.orm.hibernate.cfg.Settings;
 import org.grails.orm.hibernate.connections.HibernateConnectionSource;
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory;
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceSettings;
@@ -39,7 +43,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.PropertyResolver;
+import org.grails.orm.hibernate.multitenancy.*;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -50,8 +57,7 @@ import java.util.concurrent.Callable;
  * @author Graeme Rocher
  * @since 2.0
  */
-public class HibernateDatastore extends AbstractHibernateDatastore  {
-
+public class HibernateDatastore extends AbstractHibernateDatastore {
     protected final GrailsHibernateTransactionManager transactionManager;
     protected ConfigurableApplicationEventPublisher eventPublisher;
     protected final HibernateGormEnhancer gormEnhancer;
@@ -125,10 +131,22 @@ public class HibernateDatastore extends AbstractHibernateDatastore  {
         this(configuration, new HibernateConnectionSourceFactory(classes));
     }
 
+    /**
+     * Constructor used purely for testing purposes. Creates a datastore with an in-memory database and dbCreate set to 'create-drop'
+     *
+     * @param classes The classes
+     */
+    public HibernateDatastore(Class...classes) {
+        this(DatastoreUtils.createPropertyResolver(Collections.singletonMap(Settings.SETTING_DB_CREATE, (Object) "create-drop")), new HibernateConnectionSourceFactory(classes));
+    }
+
     @Override
     public ApplicationEventPublisher getApplicationEventPublisher() {
         return this.eventPublisher;
     }
+
+
+
 
     /**
      * @return The {@link org.springframework.transaction.PlatformTransactionManager} instance
@@ -155,6 +173,9 @@ public class HibernateDatastore extends AbstractHibernateDatastore  {
 
     protected void registerEventListeners(ConfigurableApplicationEventPublisher eventPublisher) {
         eventPublisher.addApplicationListener(new AutoTimestampEventListener(this));
+        if(multiTenantMode == MultiTenancySettings.MultiTenancyMode.MULTI) {
+            eventPublisher.addApplicationListener(new MultiTenantEventListener());
+        }
         eventPublisher.addApplicationListener(eventTriggeringInterceptor);
     }
 
@@ -238,12 +259,9 @@ public class HibernateDatastore extends AbstractHibernateDatastore  {
     @Override
     public void destroy() throws Exception {
         try {
-            try {
-                super.destroy();
-            } finally {
-                this.getConnectionSources().close();
-            }
+            super.destroy();
         } finally {
+            GrailsDomainBinder.clearMappingCache();
             this.gormEnhancer.close();
         }
     }

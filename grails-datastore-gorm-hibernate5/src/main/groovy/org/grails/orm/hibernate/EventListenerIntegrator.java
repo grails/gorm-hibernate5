@@ -25,7 +25,6 @@ import java.util.Map;
 
 import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor;
 import org.hibernate.boot.Metadata;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerGroup;
 import org.hibernate.event.service.spi.EventListenerRegistry;
@@ -112,7 +111,7 @@ public class EventListenerIntegrator implements Integrator {
     }
 
     protected <T> void appendListeners(EventListenerRegistry listenerRegistry,
-            EventType<T> eventType, Collection<T> listeners) {
+                                       EventType<T> eventType, Collection<T> listeners) {
 
         EventListenerGroup<T> group = listenerRegistry.getEventListenerGroup(eventType);
         for (T listener : listeners) {
@@ -137,7 +136,7 @@ public class EventListenerIntegrator implements Integrator {
 
     @SuppressWarnings("unchecked")
     protected <T> void appendListeners(final EventListenerRegistry listenerRegistry,
-            final EventType<T> eventType, final Map<String, Object> listeners) {
+                                       final EventType<T> eventType, final Map<String, Object> listeners) {
 
         Object listener = listeners.get(eventType.eventName());
         if (listener != null) {

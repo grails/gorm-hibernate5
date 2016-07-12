@@ -16,6 +16,7 @@ package org.grails.orm.hibernate;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,10 @@ import javax.persistence.FlushModeType;
 import org.grails.datastore.mapping.model.PersistentProperty;
 import org.grails.datastore.mapping.model.config.GormProperties;
 import org.grails.datastore.mapping.proxy.ProxyHandler;
+import org.grails.datastore.mapping.query.event.PostQueryEvent;
+import org.grails.datastore.mapping.query.event.PreQueryEvent;
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler;
+import org.grails.orm.hibernate.query.HibernateHqlQuery;
 import org.grails.orm.hibernate.query.HibernateQuery;
 import org.grails.datastore.mapping.model.PersistentEntity;
 import org.grails.datastore.mapping.query.Query;
@@ -39,6 +43,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * Session implementation that wraps a Hibernate {@link org.hibernate.Session}.
@@ -97,7 +102,13 @@ public class HibernateSession extends AbstractHibernateSession {
                         query.setParameter(JpaQueryBuilder.PARAMETER_NAME_PREFIX + (i+1), parameters.get(i));
                     }
                 }
-                return query.executeUpdate();
+
+                HibernateHqlQuery hqlQuery = new HibernateHqlQuery(HibernateSession.this, criteria.getPersistentEntity(), query);
+                ApplicationEventPublisher applicationEventPublisher = datastore.getApplicationEventPublisher();
+                applicationEventPublisher.publishEvent(new PreQueryEvent(datastore, hqlQuery));
+                int result = query.executeUpdate();
+                applicationEventPublisher.publishEvent(new PostQueryEvent(datastore, hqlQuery, Collections.singletonList(result)));
+                return result;
             }
         });
     }
@@ -130,7 +141,13 @@ public class HibernateSession extends AbstractHibernateSession {
                         query.setParameter(JpaQueryBuilder.PARAMETER_NAME_PREFIX + (i+1), parameters.get(i));
                     }
                 }
-                return query.executeUpdate();
+
+                HibernateHqlQuery hqlQuery = new HibernateHqlQuery(HibernateSession.this, targetEntity, query);
+                ApplicationEventPublisher applicationEventPublisher = datastore.getApplicationEventPublisher();
+                applicationEventPublisher.publishEvent(new PreQueryEvent(datastore, hqlQuery));
+                int result = query.executeUpdate();
+                applicationEventPublisher.publishEvent(new PostQueryEvent(datastore, hqlQuery, Collections.singletonList(result)));
+                return result;
             }
         });
     }
@@ -141,9 +158,10 @@ public class HibernateSession extends AbstractHibernateSession {
             public List doInHibernate(org.hibernate.Session session) throws HibernateException, SQLException {
                 Criteria criteria = session.createCriteria(type);
                 getHibernateTemplate().applySettings(criteria);
-                return criteria.add(
-                        Restrictions.in(persistentEntity.getIdentity().getName(), getIterableAsCollection(keys)))
-                        .list();
+                criteria.add(
+                        Restrictions.in(persistentEntity.getIdentity().getName(), getIterableAsCollection(keys)));
+
+                return new HibernateQuery(criteria, persistentEntity).list();
             }
         });
     }

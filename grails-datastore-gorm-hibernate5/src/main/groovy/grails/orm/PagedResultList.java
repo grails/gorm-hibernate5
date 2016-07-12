@@ -16,6 +16,8 @@
 package grails.orm;
 
 import org.grails.orm.hibernate.GrailsHibernateTemplate;
+import org.grails.orm.hibernate.query.AbstractHibernateQuery;
+import org.grails.orm.hibernate.query.HibernateQuery;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -42,6 +44,13 @@ public class PagedResultList extends grails.gorm.PagedResultList {
         super(null);
         resultList = crit.list();
         criteria = crit;
+        hibernateTemplate = template;
+    }
+
+    public PagedResultList(GrailsHibernateTemplate template, HibernateQuery query) {
+        super(null);
+        resultList = query.listForCriteria();
+        criteria = query.getHibernateCriteria();
         hibernateTemplate = template;
     }
 
