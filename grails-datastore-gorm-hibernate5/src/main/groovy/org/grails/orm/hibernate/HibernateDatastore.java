@@ -163,7 +163,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
      * @return The {@link HibernateDatastore}
      */
     public HibernateDatastore getDatastoreForConnection(String connectionName) {
-        if(connectionName.equals(Settings.SETTING_DATASOURCE)) {
+        if(connectionName.equals(Settings.SETTING_DATASOURCE) || connectionName.equals(ConnectionSource.DEFAULT)) {
             return this;
         } else {
             HibernateDatastore hibernateDatastore = this.datastoresByConnectionSource.get(connectionName);
