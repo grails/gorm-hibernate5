@@ -18,6 +18,7 @@ import spock.lang.Specification
 class SingleTenantSpec extends Specification {
     void "Test a database per tenant multi tenancy"() {
         given:"A configuration for multiple data sources"
+        System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, "")
         Map config = [
                 "grails.gorm.multiTenancy.mode":"SINGLE",
                 "grails.gorm.multiTenancy.tenantResolverClass":SystemPropertyTenantResolver,
