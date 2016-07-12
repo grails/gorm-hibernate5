@@ -81,7 +81,7 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
             }
             else {
                 GrailsHibernateQueryUtils.populateArgumentsForCriteria(persistentEntity, c, params, datastore.mappingContext.conversionService, true)
-                def results = hibernateQuery.list()
+                def results = hibernateQuery.listForCriteria()
                 return results
             }
         }

@@ -49,7 +49,7 @@ public class PagedResultList extends grails.gorm.PagedResultList {
 
     public PagedResultList(GrailsHibernateTemplate template, HibernateQuery query) {
         super(null);
-        resultList = query.list();
+        resultList = query.listForCriteria();
         criteria = query.getHibernateCriteria();
         hibernateTemplate = template;
     }
