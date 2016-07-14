@@ -1,0 +1,75 @@
+Using a database per tenant is the most secure way to isolate each tenants data and builds upon GORM's existing support for <<multipleDataSources, Multiple Data Sources>>.
+
+==== Configuration
+
+In order to activate database-per-tenant multi-tenancy you need to see the multi-tenancy mode to `DATABASE` in your configuration and supply a link:../api/org/grails/datastore/mapping/multitenancy/TenantResolver.html[TenantResolver]:
+
+[source,yaml]
+----
+grails:
+    gorm:
+        multiTenancy:
+            mode: DATABASE
+            tenantResolverClass: org.grails.datastore.mapping.multitenancy.web.SubDomainTenantResolver
+dataSource:
+    dbCreate: create-drop
+    url: jdbc:h2:mem:books
+dataSources:
+    moreBooks:
+        url: jdbc:h2:mem:moreBooks
+    evenMoreBooks:
+        url: jdbc:h2:mem:evenMoreBooks
+----
+
+The above example uses a built-in tenant `TenantResolver` implementation that works with Grails or Spring Boot and evaluates the current tenant id from sub-domain in a web application. However, you can implement whatever tenant resolving strategy you choose.
+
+==== Multi Tenant Domain Classes
+
+With the above configuration in place you then to need to implement the link:../api/grails/gorm/MultiTenant.html[MultiTenant] trait in the domain classes you want to be regarded as multi tenant:
+
+
+[source,groovy]
+----
+class Book implements MultiTenant<Book> {
+    String title
+}
+----
+
+With that done whenever you attempt to execute a method on a domain class the tenant id will be resolved via the `TenantResolver`. So for example if the `TenantResolver` returns `moreBooks` then the `moreBooks` connection will be used.
+
+==== Multi Tenancy with Sessions and Transactions
+
+When working with GORM typically you need a session bound to the current thread in order for GORM and transactions to work consistently. If you switch to a different tenant then it may be that the session bound to the current thread no longer matches the underlying `SessionFactory` being used by the tenant. With this in mind you may wants to use the link:../api/grails/gorm/multitenancy/Tenants.html[Tenants] class to ensure the correct session is bound for the current tenant:
+
+[source,groovy]
+----
+import static grails.gorm.multitenancy.Tenants.*
+
+List<Book> books = withCurrent {
+    Book.list()
+}
+----
+
+You can also use a specify tenant id using the `withId` method:
+
+[source,groovy]
+----
+import static grails.gorm.multitenancy.Tenants.*
+
+List<Book> books = withId("moreBooks") {
+    Book.list()
+}
+----
+
+Note that if you are using more than one GORM implementation, it may be necessary to specify the implementation type:
+
+[source,groovy]
+----
+import static grails.gorm.multitenancy.Tenants.*
+import org.grails.orm.hibernate.*
+
+List<Book> books = withId(HibernateDatastore, "moreBooks") {
+    Book.list()
+}
+----
+
