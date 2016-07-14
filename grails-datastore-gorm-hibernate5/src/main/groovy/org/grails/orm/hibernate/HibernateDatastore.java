@@ -176,7 +176,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
 
     protected void registerEventListeners(ConfigurableApplicationEventPublisher eventPublisher) {
         eventPublisher.addApplicationListener(new AutoTimestampEventListener(this));
-        if(multiTenantMode == MultiTenancySettings.MultiTenancyMode.MULTI) {
+        if(multiTenantMode == MultiTenancySettings.MultiTenancyMode.DISCRIMINATOR) {
             eventPublisher.addApplicationListener(new MultiTenantEventListener());
         }
         eventPublisher.addApplicationListener(eventTriggeringInterceptor);
