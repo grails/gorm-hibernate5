@@ -47,7 +47,9 @@ subprojects { project ->
     if(project.name.startsWith("examples/grails")) {
         apply plugin:"org.grails.grails-web"
         apply plugin:"org.grails.grails-gsp"
-
+        return
+    }
+    else if(project.name.startsWith("examples/")) {
         return
     }
 
