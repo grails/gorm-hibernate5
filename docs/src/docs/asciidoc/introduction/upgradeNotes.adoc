@@ -1,0 +1,5 @@
+==== Changes to Configuration Model
+
+In preparation for Hibernate 5.2 support the previous "SessionFactoryBean" notion has been removed. Now if you wish to customize `SessionFactory` creation you should instead register a custom `org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory` in Spring.
+
+

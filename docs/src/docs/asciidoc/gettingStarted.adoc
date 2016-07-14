@@ -1,0 +1,23 @@
+To use GORM {version} for Hibernate 4 in Grails 3.x you can specify the following configuration in `build.gradle`:
+
+[source,groovy,subs="attributes"]
+----
+dependencies {
+    compile "org.grails.plugins:hibernate4:{version}"
+    compile "org.hibernate:hibernate-ehcache"
+}
+----
+
+If you are using a version of Grails 3 earlier than 3.2 then you may need to enforce the GORM version by adding the following block:
+
+[source,groovy,subs="attributes"]
+----
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if( details.requested.group == 'org.grails' &&
+            details.requested.name.startsWith('grails-datastore')) {
+            details.useVersion("{version}")
+        }
+    }
+}
+----

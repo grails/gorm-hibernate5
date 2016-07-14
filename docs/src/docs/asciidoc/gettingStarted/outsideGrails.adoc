@@ -1,0 +1,40 @@
+If you wish to use GORM for Hibernate outside of a Grails application you should declare the necessary dependencies for GORM and the database you are using, for example in Gradle:
+
+[source,groovy,subs="attributes"]
+----
+compile "org.grails:grails-datastore-gorm-hibernate5:{version}"
+runtime "com.h2database:h2:1.4.192"
+runtime "org.apache.tomcat:tomcat-jdbc:8.5.0"
+runtime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
+runtime "org.slf4j:slf4j:1.7.10"
+----
+
+NOTE: The above example also uses the http://www.h2database.com[H2 Database] and Tomcat connection pool.
+
+Then create your entities in the `src/main/groovy` directory and annotate them with the `grails.gorm.annotation.Entity` annotation:
+
+[source,groovy]
+----
+@Entity
+class Person implements GormEntity<Person> {
+    String firstName
+    String lastName
+    static constraints = {
+        firstName blank:false
+        lastName blank:false
+    }
+}
+----
+
+Then you need to place the bootstrap logic somewhere in your application which uses `HibernateDatastore`:
+
+[source,groovy]
+----
+import org.grails.orm.hibernate.HibernateDatastore
+Map configuration = [
+    'hibernate.hbm2ddl.auto':'create-drop',
+    'dataSource.url':'jdbc:h2:mem:myDB'
+]
+HibernateDatastore datastore = new HibernateDatastore( configuration, Person)
+----
+
