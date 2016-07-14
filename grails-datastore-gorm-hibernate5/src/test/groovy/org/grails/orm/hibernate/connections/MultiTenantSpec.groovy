@@ -26,7 +26,7 @@ class MultiTenantSpec extends Specification {
     @Shared @AutoCleanup HibernateDatastore datastore
     void setupSpec() {
         Map config = [
-                "grails.gorm.multiTenancy.mode":"MULTI",
+                "grails.gorm.multiTenancy.mode":"DISCRIMINATOR",
                 "grails.gorm.multiTenancy.tenantResolverClass":MyTenantResolver,
                 'dataSource.url':"jdbc:h2:mem:grailsDB;MVCC=TRUE;LOCK_TIMEOUT=10000",
                 'dataSource.dbCreate': 'update',

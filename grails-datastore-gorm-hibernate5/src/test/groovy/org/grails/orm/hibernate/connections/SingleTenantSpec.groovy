@@ -20,7 +20,7 @@ class SingleTenantSpec extends Specification {
         given:"A configuration for multiple data sources"
         System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, "")
         Map config = [
-                "grails.gorm.multiTenancy.mode":"SINGLE",
+                "grails.gorm.multiTenancy.mode":"DATABASE",
                 "grails.gorm.multiTenancy.tenantResolverClass":SystemPropertyTenantResolver,
                 'dataSource.url':"jdbc:h2:mem:grailsDB;MVCC=TRUE;LOCK_TIMEOUT=10000",
                 'dataSource.dbCreate': 'update',
