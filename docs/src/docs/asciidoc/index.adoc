@@ -253,12 +253,12 @@ include::programmaticTransactions.adoc[]
 [[multipleDataSources]]
 == Multiple Data Sources
 
-TODO
+include::multipleDataSources/index.adoc[]
 
 [[multiTenancy]]
 == Multi Tenancy
 
-TODO
+include::multiTenancy/index.adoc[]
 
 [[constraints]]
 == GORM and Constraints

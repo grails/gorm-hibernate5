@@ -1,0 +1,13 @@
+GORM supports the notion of multiple data sources where multiple individual SQL `DataSource` instances can be configured and switched between.
+
+=== Configuring Multiple Data Sources
+
+include::configuration.adoc[]
+
+=== Mapping Domain Classes to Data Sources
+
+include::mappingDomainsToDataSources.adoc[]
+
+=== Data Source Namespaces
+
+include::dataSourceNamespaces.adoc[]
