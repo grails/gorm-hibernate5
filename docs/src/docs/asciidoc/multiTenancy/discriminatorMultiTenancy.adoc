@@ -1,10 +1,10 @@
-Partitioned multi-tenancy is when a discriminator column is used each multi-tenant class in order to partition the data.
+Partitioned multi-tenancy is when a discriminator column is used in each multi-tenant class in order to partition the data.
 
 WARNING: When using a discriminator all data for all tenants is stored in a single database. This is means that, as a developer, you have to take much greater care to ensure that each tenants' data is correctly isolated.
 
 ==== Configuration
 
-In order to activate discriminator-based multi-tenancy you need to see the multi-tenancy mode to `DISCRIMINATOR` in your configuration and supply a link:../api/org/grails/datastore/mapping/multitenancy/TenantResolver.html[TenantResolver]:
+In order to activate discriminator-based multi-tenancy you need to set the multi-tenancy mode to `DISCRIMINATOR` in your configuration and supply a link:../api/org/grails/datastore/mapping/multitenancy/TenantResolver.html[TenantResolver]:
 
 [source,yaml]
 ----

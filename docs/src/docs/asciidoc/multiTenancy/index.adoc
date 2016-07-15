@@ -1,8 +1,8 @@
-Multitenancy, as it relates to software developments, is when a single instance of an application is used to service multiple clients (tenants) in a way that each tenants data is isolated from the other.
+Multi-Tenancy, as it relates to software developments, is when a single instance of an application is used to service multiple clients (tenants) in a way that each tenants' data is isolated from the other.
 
-This type of architecture is highly common in Software as a Service (SaaS) and cloud based architectures. There are a variety of approaches to multitenancy and GORM tries to be flexible in supporting as many as possible.
+This type of architecture is highly common in Software as a Service (SaaS) and Cloud architectures. There are a variety of approaches to multi-tenancy and GORM tries to be flexible in supporting as many as possible.
 
-=== Multi Tenancy Modes
+=== Multi-Tenancy Modes
 
 include::modes.adoc[]
 
@@ -14,6 +14,6 @@ include::databasePerTenant.adoc[]
 
 include::schemaPerTenant.adoc[]
 
-=== Partitioned Multi Tenancy
+=== Partitioned Multi-Tenancy
 
 include::discriminatorMultiTenancy.adoc[]

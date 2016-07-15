@@ -256,7 +256,7 @@ include::programmaticTransactions.adoc[]
 include::multipleDataSources/index.adoc[]
 
 [[multiTenancy]]
-== Multi Tenancy
+== Multi-Tenancy
 
 include::multiTenancy/index.adoc[]
 
