@@ -17,3 +17,7 @@ include::schemaPerTenant.adoc[]
 === Partitioned Multi-Tenancy
 
 include::discriminatorMultiTenancy.adoc[]
+
+=== Understanding Tenant Resolvers
+
+include::tenantResolvers.adoc[]
