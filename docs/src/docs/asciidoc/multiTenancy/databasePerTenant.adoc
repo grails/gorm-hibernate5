@@ -108,6 +108,6 @@ grails:
             mode: DATABASE
 ----
 
-The implementation could read the connection sources at startup from another database table and implement logic by overriding the `addConnectionSource` method to provisioning new databases at runtime.
+The implementation could read the connection sources at startup from another database table and implement logic by overriding the `addConnectionSource` method to provision a new databases at runtime.
 
 TIP: If you are interested in more examples, an https://github.com/grails/gorm-mongodb/blob/master/grails-datastore-gorm-mongodb/src/main/groovy/org/grails/datastore/mapping/mongo/connections/MongoConnectionSources.groovy[implementation exists for MongoDB] that reads connection sources from a MongoDB collection. However, it doesn't implement support for provision MongoDB instances at runtime.
