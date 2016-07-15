@@ -38,3 +38,5 @@ Map configuration = [
 HibernateDatastore datastore = new HibernateDatastore( configuration, Person)
 ----
 
+For more information on how to configure GORM see the <<configuration, Configuration>> section.
+

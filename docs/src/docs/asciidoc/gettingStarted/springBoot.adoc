@@ -2,7 +2,7 @@ To use GORM for Hibernate in Spring Boot add the necessary dependencies to your 
 
 [source,groovy,subs="attributes"]
 ----
-compile("org.grails:gorm-hibernate4-spring-boot:{version}")
+compile("org.grails:gorm-hibernate5-spring-boot:{version}")
 ----
 
 Ensure your Boot `Application` class is annotated with `ComponentScan`, for example:
