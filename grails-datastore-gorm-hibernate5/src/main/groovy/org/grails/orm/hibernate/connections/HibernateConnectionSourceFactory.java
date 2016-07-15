@@ -26,6 +26,7 @@ import org.springframework.core.io.Resource;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Constructs {@link SessionFactory} instances from a {@link HibernateMappingContext}
@@ -233,7 +234,8 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
         configuration.setHibernateMappingContext(mappingContext);
         configuration.setDataSourceName(name);
         configuration.setSessionFactoryBeanName(isDefault ? "sessionFactory" : "sessionFactory_" + name);
-        configuration.addProperties(settings.toProperties());
+        Properties hibernateProperties = settings.toProperties();
+        configuration.addProperties(hibernateProperties);
         SessionFactory sessionFactory = configuration.buildSessionFactory();
         return new HibernateConnectionSource(name, sessionFactory, dataSourceConnectionSource, settings);
     }
