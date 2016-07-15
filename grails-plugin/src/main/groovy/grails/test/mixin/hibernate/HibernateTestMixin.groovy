@@ -13,6 +13,7 @@ import grails.test.runtime.TestPluginUsage
 import grails.test.runtime.TestRuntime
 import grails.test.runtime.TestRuntimeUtil
 import grails.validation.ConstrainedProperty
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.TypeCheckingMode
 import org.grails.core.artefact.DomainClassArtefactHandler
@@ -21,9 +22,12 @@ import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.validation.PersistentConstraintFactory
 import org.grails.orm.hibernate.validation.UniqueConstraint
 import org.grails.test.support.GrailsTestTransactionInterceptor
+import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.core.env.PropertyResolver
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import javax.sql.DataSource
 
@@ -119,6 +123,29 @@ class HibernateTestMixin extends GrailsUnitTestMixin implements TestPluginRegist
                 runtime.putValue("hibernateInitializerConfig", initializerConfig)
             }
         }
+    }
+    @CompileDynamic
+    public PlatformTransactionManager getTransactionManager() {
+        getMainContext().getBean("transactionManager", PlatformTransactionManager)
+    }
+
+    @CompileDynamic
+    public Session getHibernateSession() {
+        Object value = TransactionSynchronizationManager.getResource(getSessionFactory());
+        if (value instanceof Session) {
+            return (Session) value;
+        }
+
+        // handle any SessionHolder (Hibdernate 4 or 5)
+        if (value != null && value.respondsTo('getSession')) {
+            return value.getSession();
+        }
+        return null
+    }
+
+    @CompileDynamic
+    public SessionFactory getSessionFactory() {
+        getMainContext().getBean("sessionFactory", SessionFactory)
     }
 
     GrailsApplication getGrailsApplication(TestRuntime runtime) {
