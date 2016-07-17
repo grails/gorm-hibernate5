@@ -106,7 +106,7 @@ class Nose {
 ===== Controlling the ends of the association
 
 
-Occasionally you may find yourself with domain classes that have multiple properties of the same type. They may even be self-referential, i.e. the association property has the same type as the domain class it's in. Such situations can cause problems because Grails may guess incorrectly the type of the association. Consider this simple class:
+Occasionally you may find yourself with domain classes that have multiple properties of the same type. They may even be self-referential, i.e. the association property has the same type as the domain class it's in. Such situations can cause problems because GORM may guess incorrectly the type of the association. Consider this simple class:
 
 [source,groovy]
 ----
@@ -120,9 +120,9 @@ class Person {
 }
 ----
 
-As far as Grails is concerned, the `parent` and `supervisor` properties are two directions of the same association. So when you set the `parent` property on a `Person` instance, Grails will automatically set the `supervisor` property on the other `Person` instance. This may be what you want, but if you look at the class, what we in fact have are two unidirectional relationships.
+As far as GORM is concerned, the `parent` and `supervisor` properties are two directions of the same association. So when you set the `parent` property on a `Person` instance, GORM will automatically set the `supervisor` property on the other `Person` instance. This may be what you want, but if you look at the class, what we in fact have are two unidirectional relationships.
 
-To guide Grails to the correct mapping, you can tell it that a particular association is unidirectional through the `mappedBy` property:
+To guide GORM to the correct mapping, you can tell it that a particular association is unidirectional through the `mappedBy` property:
 
 [source,groovy]
 ----

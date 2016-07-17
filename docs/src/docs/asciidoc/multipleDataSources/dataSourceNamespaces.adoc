@@ -1,5 +1,5 @@
 
-If a domain class uses more than one `DataSource` then you can use the namespace implied by each `DataSource` name to make GORM calls for a particular `DataSource`. For example, consider this class which uses two `DataSource`s:
+If a domain class uses more than one `DataSource` then you can use the namespace implied by each `DataSource` name to make GORM calls for a particular `DataSource`. For example, consider this class which uses two `DataSource` instances:
 
 [source,groovy]
 ----

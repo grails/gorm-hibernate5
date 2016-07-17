@@ -113,7 +113,7 @@ class Author {
 }
 
 def a = new Author()
-a.books = ["Grails[1590597583] Book"]
+a.books = ['1590597583':"My Book"]
 a.save()
 ----
 In this case the key and value of the map MUST be strings.

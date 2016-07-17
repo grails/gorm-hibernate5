@@ -16,7 +16,7 @@ class Person {
 }
 ----
 
-NOTE: If you have the configured the `dataSource.dbCreate` property and set it to "update", "create" or "create-drop", Grails will automatically generate/modify the database tables for you.
+NOTE: If you have the configured the `dataSource.dbCreate` property and set it to "update", "create" or "create-drop", GORM will automatically generate/modify the database tables for you.
 
 You can customize the class by adding properties:
 

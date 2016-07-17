@@ -42,7 +42,7 @@ NOTE: The `version` will only be updated after flushing the session.
 
 Pessimistic locking is equivalent to doing a SQL "SELECT * FOR UPDATE" statement and locking a row in the database. This has the implication that other read operations will be blocking until the lock is released.
 
-In Grails pessimistic locking is performed on an existing instance with the link:../api/org/grails/datastore/gorm/GormEntity.html#lock()[lock()] method:
+In GORM pessimistic locking is performed on an existing instance with the link:../api/org/grails/datastore/gorm/GormEntity.html#lock()[lock()] method:
 
 [source,groovy]
 ----
@@ -52,7 +52,7 @@ airport.name = "Heathrow"
 airport.save()
 ----
 
-Grails will automatically deal with releasing the lock for you once the transaction has been committed.
+GORM will automatically deal with releasing the lock for you once the transaction has been committed.
 
 However, in the above case what we are doing is "upgrading" from a regular SELECT to a SELECT..FOR UPDATE and another thread could still have updated the record in between the call to `get()` and the call to `lock()`.
 

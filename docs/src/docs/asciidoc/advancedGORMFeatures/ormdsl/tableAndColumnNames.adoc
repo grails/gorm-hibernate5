@@ -56,7 +56,7 @@ class Address {
 }
 ----
 
-Alternatively if you just wanted to map it to one of Hibernate's basic types other than the default chosen by Grails you could use:
+Alternatively if you just wanted to map it to one of Hibernate's basic types other than the default chosen by GORM you could use:
 
 [source,java]
 ----
@@ -142,7 +142,7 @@ class Person {
 ===== Many-to-Many Mapping
 
 
-Grails, by default maps a many-to-many association using a join table. For example consider this many-to-many association:
+GORM, by default maps a many-to-many association using a join table. For example consider this many-to-many association:
 
 [source,java]
 ----
@@ -161,7 +161,7 @@ class Person {
 }
 ----
 
-In this case Grails will create a join table called `group_person` containing foreign keys called `person_id` and `group_id` referencing the `person` and `group` tables. To change the column names you can specify a column within the mappings for each class.
+In this case GORM will create a join table called `group_person` containing foreign keys called `person_id` and `group_id` referencing the `person` and `group` tables. To change the column names you can specify a column within the mappings for each class.
 
 [source,java]
 ----

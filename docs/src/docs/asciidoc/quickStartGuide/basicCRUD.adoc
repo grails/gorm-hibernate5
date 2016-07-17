@@ -18,7 +18,7 @@ The `save()` method is defined by the link:../api/org/grails/datastore/gorm/Gorm
 
 ==== Read
 
-Grails transparently adds an implicit `id` property to your domain class which you can use for retrieval:
+GORM transparently adds an implicit `id` property to your domain class which you can use for retrieval:
 
 [source,groovy]
 ----

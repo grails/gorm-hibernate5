@@ -12,7 +12,7 @@ class ZipCode {
 }
 ----
 
-A domain class can also use two or more `DataSource`s. Use the `datasources` property with a list of names to configure more than one, for example:
+A domain class can also use two or more configured `DataSource` instances. Use the `datasources` property with a list of names to configure more than one, for example:
 
 [source,groovy]
 ----
@@ -42,7 +42,7 @@ class ZipCode {
 }
 ----
 
-If a domain class uses all configured `DataSource`s use the value `'ALL'`:
+If a domain class uses all configured `DataSource` instances use the value `ALL`:
 
 [source,groovy]
 ----

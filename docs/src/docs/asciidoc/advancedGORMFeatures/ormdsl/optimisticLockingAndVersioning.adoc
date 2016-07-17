@@ -19,7 +19,7 @@ NOTE: If you disable optimistic locking you are essentially on your own with reg
 ===== Version columns types
 
 
-By default Grails maps the `version` property as a `Long` that gets incremented by one each time an instance is updated. But Hibernate also supports using a `Timestamp`, for example:
+By default GORM maps the `version` property as a `Long` that gets incremented by one each time an instance is updated. But Hibernate also supports using a `Timestamp`, for example:
 
 [source,java]
 ----
