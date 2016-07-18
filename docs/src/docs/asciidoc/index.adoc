@@ -261,7 +261,7 @@ include::multipleDataSources/index.adoc[]
 include::multiTenancy/index.adoc[]
 
 [[constraints]]
-== GORM and Constraints
+== Validation and Constraints
 
-include::gormConstraints.adoc[]
+include::constraints/index.adoc[]
 

@@ -17,7 +17,7 @@ grails:
 
 However, if you are using Grails or Spring Boot then the `TenantResolver` can also be specified as a Spring bean and it will automatically be injected, this allows you to use dependency injection to configure the dependencies of the resolver.
 
-==== Built in Tenant Resolvers
+==== Built-in Tenant Resolvers
 
 The following table contains all of the `TenantResolver` implementations that ship with GORM and are usable out of the box. The package name has been shorted from `org.grails.datastore.mapping` to `o.g.d.m` for brevity:
 
@@ -38,6 +38,24 @@ The tenant resolvers in the `org.grails.datastore.mapping.multitenancy.web` pack
 ----
 compile "org.grails:grails-datastore-web:{version}"
 ----
+
+==== The AllTenantsResolver interface
+
+If you are using discriminator-based multi-tenancy then you may need to implement the link:../api/org/grails/datastore/mapping/multitenancy/AllTenantsResolver.html[AllTenantsResolver] interface in your `TenantResolver` implentation if you want to at any point iterate over all available tenants.
+
+Typically with discriminator-based multi-tenancy the tenants are identified by some other domain class property. So for example an implementation would look like:
+
+[source,groovy]
+----
+Iterable<Serializable> resolveTenantIds() {
+    new DetachedCriteria(Company)
+            .distinct('name')
+            .list()
+}
+----
+
+The above example uses the distinct names of each `Company` domain class to resolve all of the tenant identifiers.
+
 
 ==== Implementing Web Tenant Resolvers
 
