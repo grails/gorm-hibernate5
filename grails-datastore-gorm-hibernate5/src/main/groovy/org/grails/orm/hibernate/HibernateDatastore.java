@@ -27,6 +27,7 @@ import org.grails.datastore.mapping.core.connections.ConnectionSourcesInitialize
 import org.grails.datastore.mapping.core.connections.SingletonConnectionSources;
 import org.grails.datastore.mapping.core.exceptions.ConfigurationException;
 import org.grails.datastore.mapping.engine.event.DatastoreInitializedEvent;
+import org.grails.datastore.mapping.model.AbstractMappingContext;
 import org.grails.datastore.mapping.model.MappingContext;
 import org.grails.datastore.mapping.model.PersistentEntity;
 import org.grails.datastore.mapping.multitenancy.MultiTenancySettings;
@@ -215,6 +216,11 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
             ClosureEventTriggeringInterceptor interceptor = (ClosureEventTriggeringInterceptor) hibernateSettings.getEventTriggeringInterceptor();
             interceptor.setDatastore(this);
             interceptor.setEventPublisher(eventPublisher);
+            MappingContext mappingContext = getMappingContext();
+            // make messages from the application context available to validation
+            ((AbstractMappingContext) mappingContext).setValidatorRegistry(
+                    new DefaultValidatorRegistry(mappingContext, connectionSources.getBaseConfiguration(), applicationContext)
+            );
 
             registerEventListeners(eventPublisher);
         }
