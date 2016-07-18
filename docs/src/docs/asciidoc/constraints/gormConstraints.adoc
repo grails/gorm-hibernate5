@@ -1,4 +1,4 @@
-Although constraints are covered in the <<constraints,Validation>> section, it is important to mention them here as some of the constraints can affect the way in which the database schema is generated.
+Although constraints are primarily for validation, it is important to understand that constraints can affect the way in which the database schema is generated.
 
 Where feasible, GORM uses a domain class's constraints to influence the database columns generated for the corresponding domain class properties.
 
@@ -44,9 +44,9 @@ This constraint would provide both the application-based validation we want and 
 ==== Constraints Affecting String Properties
 
 
-* <<ref-constraints-inList,inList>>
-* <<ref-constraints-maxSize,maxSize>>
-* <<ref-constraints-size,size>>
+* `inList`
+* `maxSize`
+* `size`
 
 If either the `maxSize` or the `size` constraint is defined, Grails sets the maximum column length based on the constraint value.
 
@@ -58,15 +58,15 @@ If the `inList` constraint is defined (and the `maxSize` and the `size` constrai
 ==== Constraints Affecting Numeric Properties
 
 
-* <<ref-constraints-min,min>>
-* <<ref-constraints-max,max>>
-* <<ref-constraints-range,range>>
+* `min`
+* `max`
+* `range`
 
 If the `max`, `min`, or `range` constraint is defined, GORM attempts to set the column precision based on the constraint value.  (The success of this attempted influence is largely dependent on how Hibernate interacts with the underlying DBMS.)
 
 In general, it's not advisable to combine the pair `min`/`max` and `range` constraints together on the same domain class property.  However, if both of these constraints is defined, then GORM uses the minimum precision value from the constraints.  (GORM uses the minimum of the two, because any length that exceeds that minimum precision will result in a validation error.)
 
-* <<ref-constraints-scale,scale>>
+* `scale`
 
 If the scale constraint is defined, then GORM attempts to set the column <<ref-constraints-scale,scale>> based on the constraint value.  This rule only applies to floating point numbers (i.e., `java.lang.Float`, `java.Lang.Double`, `java.lang.BigDecimal`, or subclasses of `java.lang.BigDecimal`). The success of this attempted influence is largely dependent on how Hibernate interacts with the underlying DBMS.
 
