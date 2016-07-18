@@ -181,6 +181,15 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                         mappingContext = ref("grailsDomainClassMappingContext")
                     }
                 }
+                boolean osivEnabled = config.getProperty("hibernate.osiv.enabled", Boolean, true)
+                boolean isWebApplication = beanDefinitionRegistry?.containsBeanDefinition("dispatcherServlet") ||
+                        beanDefinitionRegistry?.containsBeanDefinition("grailsControllerHelper")
+
+                if (isWebApplication && osivEnabled) {
+                    openSessionInViewInterceptor(GrailsOpenSessionInViewInterceptor) {
+                        hibernateDatastore = ref("hibernateDatastore")
+                    }
+                }
             }
 
             for(dataSourceName in dataSources) {
@@ -214,16 +223,6 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                     getBeanDefinition(transactionManagerBeanName).beanClass = PlatformTransactionManager
                 }
 
-                boolean osivEnabled = config.getProperty("hibernate${suffix}.osiv.enabled", Boolean, true)
-                boolean isWebApplication = beanDefinitionRegistry?.containsBeanDefinition("dispatcherServlet") ||
-                        beanDefinitionRegistry?.containsBeanDefinition("grailsControllerHelper")
-
-                if (isWebApplication && osivEnabled) {
-                    "flushingRedirectEventListener$suffix"(FlushOnRedirectEventListener, ref(datastoreBeanName))
-                    "openSessionInViewInterceptor$suffix"(GrailsOpenSessionInViewInterceptor) {
-                        hibernateDatastore = ref(datastoreBeanName)
-                    }
-                }
             }
 
 
