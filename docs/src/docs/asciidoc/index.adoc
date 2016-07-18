@@ -265,3 +265,7 @@ include::multiTenancy/index.adoc[]
 
 include::constraints/index.adoc[]
 
+[[testing]]
+== GORM and Testing
+
+include::testing/index.adoc[]
