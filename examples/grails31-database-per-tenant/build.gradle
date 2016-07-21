@@ -21,7 +21,6 @@ dependencies {
     compile project(":grails-plugin")
 
     compile "org.hibernate:hibernate-core:5.1.0.Final"
-    compile "org.hibernate:hibernate-ehcache:5.1.0.Final"
 
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
     runtime "com.h2database:h2"

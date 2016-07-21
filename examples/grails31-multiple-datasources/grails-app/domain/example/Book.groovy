@@ -1,4 +1,4 @@
-package ds1
+package example
 
 import org.grails.datastore.gorm.GormEntity
 

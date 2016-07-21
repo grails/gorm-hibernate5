@@ -11,6 +11,7 @@ include 'grails-plugin'
 // Example
 include "examples/grails31-hibernate5"
 include "examples/grails31-multiple-datasources"
+include "examples/grails31-database-per-tenant"
 include "examples/standalone-hibernate5"
 
 findProject(':boot-plugin').name = 'gorm-hibernate5-spring-boot'

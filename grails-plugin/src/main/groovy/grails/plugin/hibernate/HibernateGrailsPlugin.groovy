@@ -9,11 +9,15 @@ import grails.plugins.Plugin
 import grails.util.Environment
 import grails.validation.ConstrainedProperty
 import groovy.transform.CompileStatic
+import org.grails.config.PropertySourcesConfig
 import org.grails.core.artefact.DomainClassArtefactHandler
 import org.grails.orm.hibernate.validation.PersistentConstraintFactory
 import org.grails.orm.hibernate.validation.UniqueConstraint
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
+import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.core.convert.converter.Converter
+import org.springframework.core.convert.support.ConfigurableConversionService
 import org.springframework.core.env.PropertyResolver
 /**
  * Plugin that integrates Hibernate into a Grails application
@@ -46,12 +50,25 @@ class HibernateGrailsPlugin extends Plugin {
     Set<String> dataSourceNames
 
     Closure doWithSpring() {{->
-        ConstrainedProperty.registerNewConstraint(UniqueConstraint.UNIQUE_CONSTRAINT,
-                new PersistentConstraintFactory((ApplicationContext)applicationContext,
-                        UniqueConstraint))
+        ConfigurableApplicationContext applicationContext = (ConfigurableApplicationContext) applicationContext
 
         GrailsApplication grailsApplication = grailsApplication
         Config config = grailsApplication.config
+        if(config instanceof PropertySourcesConfig) {
+            ConfigurableConversionService conversionService = applicationContext.getEnvironment().getConversionService()
+            conversionService.addConverter(new Converter<String, Class>() {
+                @Override
+                Class convert(String source) {
+                    Class.forName(source)
+                }
+            })
+            ((PropertySourcesConfig)config).setConversionService(conversionService)
+        }
+
+        ConstrainedProperty.registerNewConstraint(UniqueConstraint.UNIQUE_CONSTRAINT,
+                new PersistentConstraintFactory(applicationContext,
+                        UniqueConstraint))
+
 
         def domainClasses = grailsApplication.getArtefacts(DomainClassArtefactHandler.TYPE)
                 .findAll() { GrailsClass cls ->
