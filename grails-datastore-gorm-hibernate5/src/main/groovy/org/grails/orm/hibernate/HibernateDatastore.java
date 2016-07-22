@@ -312,6 +312,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
             );
 
             registerEventListeners(eventPublisher);
+            this.eventPublisher.publishEvent( new DatastoreInitializedEvent(this) );
         }
     }
 

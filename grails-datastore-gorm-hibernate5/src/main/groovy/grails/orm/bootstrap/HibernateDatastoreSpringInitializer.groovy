@@ -17,6 +17,8 @@ package grails.orm.bootstrap
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
+import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPublisher
+import org.grails.datastore.gorm.events.DefaultApplicationEventPublisher
 import org.grails.datastore.gorm.proxy.ProxyHandlerAdapter
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
 import org.grails.datastore.gorm.support.DatastorePersistenceContextInterceptor
@@ -37,6 +39,9 @@ import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.context.MessageSource
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.core.env.PropertyResolver
@@ -143,6 +148,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
     }
 
     public Closure getBeanDefinitions(BeanDefinitionRegistry beanDefinitionRegistry) {
+        ApplicationEventPublisher eventPublisher = super.findEventPublisher(beanDefinitionRegistry)
         Closure beanDefinitions = {
             def common = getCommonConfiguration(beanDefinitionRegistry, "hibernate")
             common.delegate = delegate
@@ -152,13 +158,12 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             hibernateProxyHandler(HibernateProxyHandler)
             proxyHandler(ProxyHandlerAdapter, ref('hibernateProxyHandler'))
 
-            // Useful interceptor for wrapping Hibernate behavior
 
 
             def config = this.configuration
             final boolean isGrailsPresent = isGrailsPresent()
             hibernateConnectionSourceFactory(HibernateConnectionSourceFactory, persistentClasses as Class[])
-            hibernateDatastore(HibernateDatastore, config, hibernateConnectionSourceFactory)
+            hibernateDatastore(HibernateDatastore, config, hibernateConnectionSourceFactory, eventPublisher)
             sessionFactory(hibernateDatastore:'getSessionFactory')
             transactionManager(hibernateDatastore:"getTransactionManager")
             getBeanDefinition("transactionManager").beanClass = PlatformTransactionManager
