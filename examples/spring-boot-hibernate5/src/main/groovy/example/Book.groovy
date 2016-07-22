@@ -1,6 +1,5 @@
 package example
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonView
 import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity

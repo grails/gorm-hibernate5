@@ -1,6 +1,5 @@
 package example
 
-import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -17,7 +16,7 @@ class Application {
     }
 
     @Bean
-    CommandLineRunner init(HibernateConnectionSourceFactory connectionSourceFactory) {
+    CommandLineRunner init() {
         return { String[] args ->
             Book.withTransaction {
                 new Book(title: "The Stand").save()
