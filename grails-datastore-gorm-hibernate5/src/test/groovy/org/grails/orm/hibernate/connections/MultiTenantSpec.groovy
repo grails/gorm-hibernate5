@@ -143,6 +143,7 @@ class MultiTenantSpec extends Specification {
         then:"The association ids are loaded with the tenant id"
         author.name == "Stephen King"
         author.books.size() == 2
+        author.books.every() { MultiTenantBook book -> book.tenantCode == 'books'}
 
 
     }
@@ -178,12 +179,16 @@ class MultiTenantAuthor implements GormEntity<MultiTenantAuthor>,MultiTenant<Mul
 class MultiTenantBook implements GormEntity<MultiTenantBook>,MultiTenant<MultiTenantBook> {
     Long id
     Long version
-    String tenantId
+    String tenantCode
     String title
 
     static belongsTo = [author:MultiTenantAuthor]
     static constraints = {
         title blank:false
+    }
+
+    static mapping = {
+        tenantId name:"tenantCode"
     }
 }
 
