@@ -36,7 +36,7 @@ public class HibernateProxyHandler extends SimpleHibernateProxyHandler {
     }
 
     public Object unwrapIfProxy(Object instance) {
-        if (instance instanceof AbstractPersistentCollection) {
+        if (instance instanceof PersistentCollection) {
             initialize(instance);
             return instance;
         }
@@ -45,12 +45,12 @@ public class HibernateProxyHandler extends SimpleHibernateProxyHandler {
     }
 
     public boolean isProxy(Object o) {
-        return super.isProxy(o) || (o instanceof AbstractPersistentCollection);
+        return super.isProxy(o) || (o instanceof PersistentCollection);
     }
 
     public void initialize(Object o) {
-        if (o instanceof AbstractPersistentCollection) {
-            final AbstractPersistentCollection col = (AbstractPersistentCollection)o;
+        if (o instanceof PersistentCollection) {
+            final PersistentCollection col = (PersistentCollection)o;
             if (!col.wasInitialized()) {
                 col.forceInitialization();
             }
