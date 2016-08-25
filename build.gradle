@@ -136,7 +136,11 @@ subprojects { project ->
     }
     else if(!isGrails2PluginProject) {
         apply plugin:"groovy"
-        apply plugin: 'com.bmuschko.nexus'                
+        apply plugin: 'com.bmuschko.nexus' 
+
+        modifyPom {
+            delegate.project pomInfo
+        }                               
     }
 
     apply plugin: 'maven-publish'
