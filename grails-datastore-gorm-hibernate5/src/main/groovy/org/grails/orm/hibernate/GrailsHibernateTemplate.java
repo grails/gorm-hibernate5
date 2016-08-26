@@ -129,6 +129,11 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
                 TransactionSynchronizationManager.bindResource(sessionFactory, sessionHolder);
             }
 
+            // set the session to be synchronized with a transaction to avoid binding a new synchronization
+            if(TransactionSynchronizationManager.isSynchronizationActive()) {
+                sessionHolder.setSynchronizedWithTransaction(true);
+            }
+
             return execute(new HibernateCallback<T>() {
                 @Override
                 public T doInHibernate(Session session) throws HibernateException, SQLException {
