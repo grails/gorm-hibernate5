@@ -2,12 +2,12 @@ package org.grails.orm.hibernate.cfg;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.model.PersistentEntity;
 import org.grails.orm.hibernate.EventListenerIntegrator;
 import org.grails.orm.hibernate.GrailsSessionContext;
 import org.grails.orm.hibernate.HibernateEventListeners;
-import org.grails.orm.hibernate.jdbc.connections.DataSourceSettings;
+import org.grails.datastore.mapping.core.connections.ConnectionSource;
+import org.grails.datastore.gorm.jdbc.connections.*;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.SessionFactory;
