@@ -8,7 +8,7 @@ if [[ $TRAVIS_REPO_SLUG == "grails/gorm-hibernate5" && $TRAVIS_PULL_REQUEST == '
 
   echo "Publishing archives"
   export GRADLE_OPTS="-Xmx1500m -Dfile.encoding=UTF-8"
-  # openssl aes-256-cbc -pass pass:$SIGNING_PASSPHRASE -in secring.gpg.enc -out secring.gpg -d
+  openssl aes-256-cbc -pass pass:$SIGNING_PASSPHRASE -in secring.gpg.enc -out secring.gpg -d
   
   gpg --keyserver keyserver.ubuntu.com --recv-key $SIGNING_KEY
   if [[ $TRAVIS_TAG =~ ^v[[:digit:]] ]]; then
