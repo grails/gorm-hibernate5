@@ -83,6 +83,7 @@ class MultiTenantSpec extends Specification {
         new MultiTenantAuthor(name: "Stephen King").save(flush: true)
 
         then:"The results are correct"
+        MultiTenantAuthor.findByName("Stephen King")
         MultiTenantAuthor.findAll("from MultiTenantAuthor a").size() == 1
         MultiTenantAuthor.count() == 1
 
@@ -99,6 +100,7 @@ class MultiTenantSpec extends Specification {
 
         then:"the correct tenant is used"
         MultiTenantAuthor.count() == 0
+        !MultiTenantAuthor.findByName("Stephen King")
         MultiTenantAuthor.findAll("from MultiTenantAuthor a").size() == 0
         MultiTenantAuthor.withTenant("moreBooks").count() == 2
         MultiTenantAuthor.withTenant("moreBooks") { String tenantId, Session s ->
