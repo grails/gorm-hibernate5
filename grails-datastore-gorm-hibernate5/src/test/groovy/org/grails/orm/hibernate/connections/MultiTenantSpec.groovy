@@ -80,9 +80,11 @@ class MultiTenantSpec extends Specification {
         MultiTenantAuthor.count() == 0
 
         when:"An object is saved"
-        new MultiTenantAuthor(name: "Stephen King").save(flush: true)
+        author = new MultiTenantAuthor(name: "Stephen King")
+        author.save(flush: true)
 
         then:"The results are correct"
+        author.tmp != null // the beforeInsert event was triggered
         MultiTenantAuthor.findByName("Stephen King")
         MultiTenantAuthor.findAll("from MultiTenantAuthor a").size() == 1
         MultiTenantAuthor.count() == 1
@@ -170,7 +172,11 @@ class MultiTenantAuthor implements GormEntity<MultiTenantAuthor>,MultiTenant<Mul
     Long version
     String tenantId
     String name
+    transient String tmp
 
+    def beforeInsert() {
+        tmp = "foo"
+    }
     static hasMany = [books:MultiTenantBook]
     static constraints = {
         name blank:false
@@ -183,6 +189,8 @@ class MultiTenantBook implements GormEntity<MultiTenantBook>,MultiTenant<MultiTe
     Long version
     String tenantCode
     String title
+
+
 
     static belongsTo = [author:MultiTenantAuthor]
     static constraints = {
