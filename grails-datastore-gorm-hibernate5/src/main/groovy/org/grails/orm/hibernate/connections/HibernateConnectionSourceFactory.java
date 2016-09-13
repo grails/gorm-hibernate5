@@ -82,6 +82,12 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
 
     @Override
     public ConnectionSource<SessionFactory, HibernateConnectionSourceSettings> create(String name, ConnectionSource<DataSource, DataSourceSettings> dataSourceConnectionSource, HibernateConnectionSourceSettings settings) {
+        HibernateMappingContextConfiguration configuration = buildConfiguration(name, dataSourceConnectionSource, settings);
+        SessionFactory sessionFactory = configuration.buildSessionFactory();
+        return new HibernateConnectionSource(name, sessionFactory, dataSourceConnectionSource, settings);
+    }
+
+    public HibernateMappingContextConfiguration buildConfiguration(String name, ConnectionSource<DataSource, DataSourceSettings> dataSourceConnectionSource, HibernateConnectionSourceSettings settings) {
         boolean isDefault = ConnectionSource.DEFAULT.equals(name);
 
         if(mappingContext == null) {
@@ -235,8 +241,7 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
         configuration.setSessionFactoryBeanName(isDefault ? "sessionFactory" : "sessionFactory_" + name);
         Properties hibernateProperties = settings.toProperties();
         configuration.addProperties(hibernateProperties);
-        SessionFactory sessionFactory = configuration.buildSessionFactory();
-        return new HibernateConnectionSource(name, sessionFactory, dataSourceConnectionSource, settings);
+        return configuration;
     }
 
     @Override

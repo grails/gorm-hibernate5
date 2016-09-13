@@ -20,12 +20,16 @@ import grails.dev.commands.ExecutionContext
 import grails.util.Environment
 import groovy.transform.CompileStatic
 import org.grails.build.parsing.CommandLine
+import org.grails.datastore.mapping.core.connections.ConnectionSource
+import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.HibernateMappingContextSessionFactoryBean
 import org.grails.orm.hibernate.cfg.HibernateMappingContextConfiguration
 import org.hibernate.boot.MetadataBuilder
 import org.hibernate.boot.MetadataSources
 import org.hibernate.boot.spi.MetadataImplementor
+import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.hibernate.service.ServiceRegistry
+import org.hibernate.service.spi.ServiceRegistryImplementor
 import org.hibernate.tool.hbm2ddl.SchemaExport as HibernateSchemaExport
 import org.hibernate.tool.schema.TargetType
 /**
@@ -57,16 +61,16 @@ class SchemaExportCommand implements ApplicationCommand {
         }
 
         def argsMap = commandLine.undeclaredOptions
-        String datasourceSuffix = argsMap.datasource ? '_' + argsMap.datasource : ''
+        String dataSourceName = argsMap.datasource ? argsMap.datasource : ConnectionSource.DEFAULT
 
         def file = new File(filename)
         file.parentFile.mkdirs()
 
-        def sessionFactory = applicationContext.getBean('&sessionFactory' + datasourceSuffix, HibernateMappingContextSessionFactoryBean)
-        HibernateMappingContextConfiguration configuration = (HibernateMappingContextConfiguration)sessionFactory.configuration
+        HibernateDatastore hibernateDatastore = applicationContext.getBean("hibernateDatastore", HibernateDatastore)
+        hibernateDatastore = hibernateDatastore.getDatastoreForConnection(dataSourceName)
 
-
-        def serviceRegistry = configuration.serviceRegistry
+        def serviceRegistry = ((SessionFactoryImplementor)hibernateDatastore.sessionFactory).getServiceRegistry()
+                                                                                            .getParentServiceRegistry()
         def metadata = buildMetadata(executionContext, serviceRegistry)
 
         def schemaExport = new HibernateSchemaExport()
@@ -79,7 +83,15 @@ class SchemaExportCommand implements ApplicationCommand {
         String ds = argsMap.datasource ? "for DataSource '$argsMap.datasource'" : "for the default DataSource"
         println "$action in environment '${Environment.current.name}' $ds"
 
-        schemaExport.execute(EnumSet.of(TargetType.SCRIPT, TargetType.STDOUT), HibernateSchemaExport.Action.CREATE, metadata, serviceRegistry)
+        EnumSet<TargetType> targetTypes
+        if(stdout) {
+            targetTypes = EnumSet.of(TargetType.SCRIPT, TargetType.STDOUT)
+        }
+        else {
+            targetTypes = EnumSet.of(TargetType.SCRIPT)
+        }
+
+        schemaExport.execute(targetTypes, HibernateSchemaExport.Action.CREATE, metadata, serviceRegistry)
 
         if (schemaExport.exceptions) {
             def e = (Exception)schemaExport.exceptions[0]
