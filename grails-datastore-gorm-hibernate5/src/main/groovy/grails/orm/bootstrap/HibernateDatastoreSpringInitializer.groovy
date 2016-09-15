@@ -161,7 +161,9 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
             def config = this.configuration
             final boolean isGrailsPresent = isGrailsPresent()
-            hibernateConnectionSourceFactory(HibernateConnectionSourceFactory, persistentClasses as Class[])
+            hibernateConnectionSourceFactory(HibernateConnectionSourceFactory, persistentClasses as Class[]) { bean ->
+                bean.autowire = true
+            }
             hibernateDatastore(HibernateDatastore, config, hibernateConnectionSourceFactory, eventPublisher)
             sessionFactory(hibernateDatastore:'getSessionFactory')
             transactionManager(hibernateDatastore:"getTransactionManager")
@@ -179,6 +181,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                 // override Validator beans with Hibernate aware instances
                 for(cls in persistentClasses) {
                     "${cls.name}Validator"(HibernateDomainClassValidator) {
+                        proxyHandler = ref("hibernateProxyHandler")
                         messageSource = ref("messageSource")
                         domainClass = ref("${cls.name}DomainClass")
                         grailsApplication = ref('grailsApplication')
