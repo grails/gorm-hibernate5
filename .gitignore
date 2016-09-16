@@ -5,6 +5,7 @@ out/
 target/
 *.zip
 *.iml
+secring.gpg
 grails2-plugin/plugins/
 
 # Ignore Gradle GUI config
