@@ -38,6 +38,10 @@ name,description,default value
 `hibernate.hbm2ddl.auto`, Whether to create the tables on startup, `none`
 `hibernate.cache.queries`, Whether to cache queries, `false`
 `hibernate.use_second_level_cache`, Whether to use the second level cache, `true`
+`hibernate.configLocations`, Location of additional Hibernate XML configuration files
+`hibernate.packagesToScan`, Specify packages to search for autodetection of your entity classes in the classpath
 |===
 
 In addition, any additional settings that start with `hibernate.` are passed through to Hibernate, so if there is any specific feature of Hibernate you wish to configure that is possible.
+
+TIP: The above table covers the common configuration options. For all configuration refer to properties of the link:../api/org/grails/orm/hibernate/connections/HibernateConnectionSourceSettings.html[HibernateConnectionSourceSettings] class.
