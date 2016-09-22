@@ -75,6 +75,13 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
     protected final HibernateGormEnhancer gormEnhancer;
     protected final Map<String, HibernateDatastore> datastoresByConnectionSource = new LinkedHashMap<>();
 
+    /**
+     * Create a new HibernateDatastore for the given connection sources and mapping context
+     *
+     * @param connectionSources The {@link ConnectionSources} instance
+     * @param mappingContext The {@link MappingContext} instance
+     * @param eventPublisher The {@link ConfigurableApplicationEventPublisher} instance
+     */
     public HibernateDatastore(ConnectionSources<SessionFactory, HibernateConnectionSourceSettings> connectionSources, HibernateMappingContext mappingContext, ConfigurableApplicationEventPublisher eventPublisher) {
         super(connectionSources, mappingContext);
 
@@ -188,21 +195,56 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
         this.eventPublisher.publishEvent( new DatastoreInitializedEvent(this) );
     }
 
+    /**
+     * Create a new HibernateDatastore for the given connection sources and mapping context
+     *
+     * @param configuration The configuration
+     * @param connectionSourceFactory The {@link HibernateConnectionSourceFactory} instance
+     * @param eventPublisher The {@link ConfigurableApplicationEventPublisher} instance
+     */
     public HibernateDatastore(PropertyResolver configuration, HibernateConnectionSourceFactory connectionSourceFactory, ConfigurableApplicationEventPublisher eventPublisher) {
         this(ConnectionSourcesInitializer.create(connectionSourceFactory, DatastoreUtils.preparePropertyResolver(configuration, "dataSource", "hibernate", "grails")), connectionSourceFactory.getMappingContext(), eventPublisher);
     }
 
+    /**
+     * Create a new HibernateDatastore for the given connection sources and mapping context
+     *
+     * @param configuration The configuration
+     * @param connectionSourceFactory The {@link HibernateConnectionSourceFactory} instance
+     */
     public HibernateDatastore(PropertyResolver configuration, HibernateConnectionSourceFactory connectionSourceFactory) {
         this(ConnectionSourcesInitializer.create(connectionSourceFactory, DatastoreUtils.preparePropertyResolver(configuration, "dataSource", "hibernate", "grails")), connectionSourceFactory.getMappingContext(), new DefaultApplicationEventPublisher());
     }
 
+    /**
+     * Create a new HibernateDatastore for the given connection sources and mapping context
+     *
+     * @param configuration The configuration
+     * @param eventPublisher The {@link ConfigurableApplicationEventPublisher} instance
+     * @param classes The persistent classes
+     */
     public HibernateDatastore(PropertyResolver configuration, ConfigurableApplicationEventPublisher eventPublisher, Class...classes) {
         this(configuration, new HibernateConnectionSourceFactory(classes), eventPublisher);
     }
 
+    /**
+     * Create a new HibernateDatastore for the given connection sources and mapping context
+     *
+     * @param configuration The configuration
+     * @param classes The persistent classes
+     */
     public HibernateDatastore(PropertyResolver configuration, Class...classes) {
         this(configuration, new HibernateConnectionSourceFactory(classes));
     }
+    /**
+     * Constructor used purely for testing purposes. Creates a datastore with an in-memory database and dbCreate set to 'create-drop'
+     *
+     * @param classes The classes
+     */
+    public HibernateDatastore(Map<String,Object> configuration, Class...classes) {
+        this(DatastoreUtils.createPropertyResolver(configuration), new HibernateConnectionSourceFactory(classes));
+    }
+
 
     /**
      * Constructor used purely for testing purposes. Creates a datastore with an in-memory database and dbCreate set to 'create-drop'
