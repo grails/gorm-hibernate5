@@ -13,9 +13,9 @@ NOTE: The above example also uses the http://www.h2database.com[H2 Database] and
 However other pool implementations are supported including `commons-dbcp`, `tomcat pool` or `hikari`.
 If a connection pool is not specified `org.springframework.jdbc.datasource.DriverManagerDataSource` is used,
 which creates a new connection to the database each time you request a connect.
-The latter with will probably cause issues with an H2 in-memory database in that it will create a new in-memory
+The latter will probably cause issues with an H2 in-memory database in that it will create a new in-memory
 database each time a connection is requested, losing previously created tables.
-Normal databases (`MySql`, `Postgres` or file-based `H2` are not affected.
+Normal databases (`MySql`, `Postgres` or even file-based `H2`) are not affected.
 
 Then create your entities in the `src/main/groovy` directory and annotate them with the `grails.gorm.annotation.Entity` annotation:
 
