@@ -9,14 +9,20 @@ runtime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
 runtime "org.slf4j:slf4j-api:1.7.10"
 ----
 
-NOTE: The above example also uses the http://www.h2database.com[H2 Database] and Tomcat connection pool. However other pool implementations are supported.
+NOTE: The above example also uses the http://www.h2database.com[H2 Database] and Tomcat connection pool.
+However other pool implementations are supported including `commons-dbcp`, `tomcat pool` or `hikari`.
+If a connection pool is not specified `org.springframework.jdbc.datasource.DriverManagerDataSource` is used,
+which creates a new connection to the database each time you request a connect.
+The latter will probably cause issues with an H2 in-memory database in that it will create a new in-memory
+database each time a connection is requested, losing previously created tables.
+Normal databases (`MySql`, `Postgres` or even file-based `H2`) are not affected.
 
 Then create your entities in the `src/main/groovy` directory and annotate them with the `grails.gorm.annotation.Entity` annotation:
 
 [source,groovy]
 ----
 @Entity
-class Person implements GormEntity<Person> {
+class Person implements GormEntity<Person> { // <1>
     String firstName
     String lastName
     static constraints = {
@@ -25,6 +31,9 @@ class Person implements GormEntity<Person> {
     }
 }
 ----
+<1> Use of `GormEntity` is merely to aid IDE support outside of Grails.
+When used inside a Grails context, some IDEs will use the
+`grails-app/domain` location as a hint to enable code completion.
 
 Then you need to place the bootstrap logic somewhere in your application which uses `HibernateDatastore`:
 
@@ -39,4 +48,3 @@ HibernateDatastore datastore = new HibernateDatastore( configuration, Person)
 ----
 
 For more information on how to configure GORM see the <<configuration, Configuration>> section.
-
