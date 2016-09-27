@@ -100,12 +100,14 @@ subprojects { project ->
 
     if(isPluginProject) {        
         group "org.grails.plugins"
+        version( project.gormVersion - '.RELEASE' )
     }
     else {
         group "org.grails"
+        version project.gormVersion
     }
 
-    version project.gormVersion
+    
 
 
     configurations {
