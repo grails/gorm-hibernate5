@@ -15,6 +15,7 @@ class HibernateSpecSpec extends HibernateSpec {
     void "test hibernate spec"() {
         expect:
         Book.count() == 1
+        !new Book(title: "").validate()
     }
     @Override
     List<Class> getDomainClasses() {

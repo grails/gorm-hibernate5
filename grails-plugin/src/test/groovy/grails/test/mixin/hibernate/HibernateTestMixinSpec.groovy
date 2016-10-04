@@ -20,4 +20,10 @@ class HibernateTestMixinSpec extends Specification {
 @Entity
 class Book {
     String title
+
+    static constraints = {
+        title validator: { val ->
+            val.asBoolean()
+        }
+    }
 }
