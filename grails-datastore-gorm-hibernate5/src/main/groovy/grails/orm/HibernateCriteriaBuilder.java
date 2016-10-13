@@ -238,5 +238,14 @@ public class HibernateCriteriaBuilder extends AbstractHibernateCriteriaBuilder {
         detachedCriteria.setProjection(projectionList);
     }
 
+    /**
+     * Closes the session if it is copen
+     */
+    @Override
+    protected void closeSession() {
+        if (hibernateSession != null && hibernateSession.isOpen() && !participate) {
+            hibernateSession.close();
+        }
+    }
 
 }
