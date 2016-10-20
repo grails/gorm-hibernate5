@@ -43,6 +43,7 @@ import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.cfg.SecondPass;
 import org.hibernate.engine.spi.FilterDefinition;
 import org.hibernate.id.PersistentIdentifierGenerator;
+import org.hibernate.id.enhanced.SequenceStyleGenerator;
 import org.hibernate.mapping.*;
 import org.hibernate.mapping.Collection;
 import org.hibernate.mapping.ManyToOne;
@@ -88,6 +89,7 @@ public class GrailsDomainBinder implements MetadataContributor {
     protected static final String ENUM_TYPE_PROP = "type";
     protected static final String DEFAULT_ENUM_TYPE = "default";
     protected static final Log LOG = LogFactory.getLog(GrailsDomainBinder.class);
+    public static final String SEQUENCE_KEY = "sequence";
     /**
      * Overrideable naming strategy. Defaults to <code>ImprovedNamingStrategy</code> but can
      * be configured in DataSource.groovy via <code>hibernate.naming_strategy = ...</code>.
@@ -2462,6 +2464,9 @@ public class GrailsDomainBinder implements MetadataContributor {
             }
             id.setIdentifierGeneratorStrategy(generator);
             params.putAll(mappedId.getParams());
+            if(params.containsKey(SEQUENCE_KEY)) {
+                params.put(SequenceStyleGenerator.SEQUENCE_PARAM,  params.getProperty(SEQUENCE_KEY));
+            }
             if ("assigned".equals(generator)) {
                 id.setNullValue("undefined");
             }
