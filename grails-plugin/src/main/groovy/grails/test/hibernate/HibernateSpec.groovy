@@ -1,9 +1,21 @@
 package grails.test.hibernate
 
+import grails.config.Config
+import grails.persistence.Entity
 import groovy.transform.CompileStatic
+import org.grails.config.PropertySourcesConfig
 import org.grails.datastore.mapping.core.DatastoreUtils
+import org.grails.io.support.DefaultResourceLoader
+import org.grails.io.support.ResourceLoader
 import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.cfg.Settings
+import org.springframework.beans.factory.config.BeanDefinition
+import org.springframework.boot.env.PropertySourcesLoader
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
+import org.springframework.core.env.MapPropertySource
+import org.springframework.core.env.MutablePropertySources
+import org.springframework.core.io.Resource
+import org.springframework.core.type.filter.AnnotationTypeFilter
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute
@@ -23,9 +35,28 @@ abstract class HibernateSpec extends Specification {
     @Shared PlatformTransactionManager transactionManager
 
     void setupSpec() {
+        PropertySourcesLoader loader = new PropertySourcesLoader()
+        ResourceLoader resourceLoader = new DefaultResourceLoader()
+        MutablePropertySources propertySources = loader.propertySources
+        propertySources.addFirst(new MapPropertySource("defaults", getConfiguration()))
+        loader.load resourceLoader.getResource("application.yml") as Resource
+        loader.load resourceLoader.getResource("application.groovy") as Resource
+        Config config = new PropertySourcesConfig(propertySources)
+        List<Class> domainClasses = getDomainClasses()
+        String packageName = config.getProperty('grails.codegen.defaultPackage', getClass().package.name)
+
+        if (!domainClasses) {
+            ClassPathScanningCandidateComponentProvider componentProvider = new ClassPathScanningCandidateComponentProvider(false)
+            componentProvider.addIncludeFilter(new AnnotationTypeFilter(Entity))
+
+            for (BeanDefinition candidate in componentProvider.findCandidateComponents(packageName)) {
+                Class persistentEntity = Class.forName(candidate.beanClassName)
+                domainClasses << persistentEntity
+            }
+        }
         hibernateDatastore = new HibernateDatastore(
                                         DatastoreUtils.createPropertyResolver(getConfiguration()),
-                                        getDomainClasses() as Class[])
+                                        domainClasses as Class[])
         transactionManager = hibernateDatastore.getTransactionManager()
     }
 
@@ -63,5 +94,5 @@ abstract class HibernateSpec extends Specification {
     /**
      * @return The domain classes
      */
-    abstract List<Class> getDomainClasses()
+    List<Class> getDomainClasses() { [] }
 }
