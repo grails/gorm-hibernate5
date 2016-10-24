@@ -13,11 +13,6 @@ class BookControllerUnitSpec extends HibernateSpec {
         controller.transactionManager = transactionManager
     }
 
-    @Override
-    List<Class> getDomainClasses() {
-        [Book]
-    }
-
     def populateValidParams(params) {
         assert params != null
 
