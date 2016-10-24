@@ -42,6 +42,7 @@ import org.hibernate.tool.schema.TargetType
 class SchemaExportCommand implements ApplicationCommand {
 
     final String description = "Creates a DDL file of the database schema"
+    Boolean skipBootstrap = true
 
     @Override
     boolean handle(ExecutionContext executionContext) {
