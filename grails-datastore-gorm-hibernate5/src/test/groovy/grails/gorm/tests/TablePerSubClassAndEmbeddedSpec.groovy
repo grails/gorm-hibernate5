@@ -4,6 +4,7 @@ import grails.gorm.DetachedCriteria
 import grails.gorm.annotation.Entity
 import grails.transaction.Rollback
 import org.grails.datastore.gorm.query.criteria.DetachedAssociationCriteria
+import org.grails.datastore.gorm.query.transform.ApplyDetachedCriteriaTransform
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
@@ -13,6 +14,7 @@ import spock.lang.Specification
 /**
  * Created by graemerocher on 04/11/16.
  */
+@ApplyDetachedCriteriaTransform
 class TablePerSubClassAndEmbeddedSpec extends Specification {
 
     @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(Company, Vendor)
@@ -27,7 +29,7 @@ class TablePerSubClassAndEmbeddedSpec extends Specification {
 
         when:"a query executed"
         def results = Vendor.where {
-//            like 'address.zip', '%44%'
+//            like 'address.zip', '%44%' ?
             address.zip =~ '%44%'
         }.list(max: 10, offset: 0)
 
