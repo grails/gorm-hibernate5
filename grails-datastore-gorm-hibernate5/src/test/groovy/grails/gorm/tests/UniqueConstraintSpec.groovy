@@ -1,7 +1,14 @@
 package grails.gorm.tests
 
 import grails.persistence.Entity
+import grails.transaction.Rollback
+import org.grails.datastore.gorm.GormEntity
+import org.grails.orm.hibernate.HibernateDatastore
 import org.junit.Ignore
+import org.springframework.transaction.PlatformTransactionManager
+import spock.lang.AutoCleanup
+import spock.lang.Shared
+import spock.lang.Specification
 
 /**
  * Tests the unique constraint
@@ -13,63 +20,92 @@ import org.junit.Ignore
  *  so we are covered.
  *
  */
-@Ignore
-class UniqueConstraintSpec extends GormDatastoreSpec {
+class UniqueConstraintSpec extends Specification {
+
+    @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(UniqueGroup, GroupWithin, Driver, License)
+    @Shared PlatformTransactionManager transactionManager = hibernateDatastore.getTransactionManager()
 
     void "Test simple unique constraint"() {
         when:"Two domain classes with the same name are saved"
-        def one = new UniqueGroup(name:"foo").save(flush:true)
-        def two = new UniqueGroup(name:"foo")
-        two.save(flush:true)
+        UniqueGroup one = UniqueGroup.withTransaction {
+            new UniqueGroup(name:"foo").save(flush:true)
+        }
+
+
+        UniqueGroup two = UniqueGroup.withTransaction {
+            def ug = new UniqueGroup(name: "foo")
+            ug.save(flush:true)
+            return ug
+        }
+
 
         then:"The second has errors"
-        one != null
         two.hasErrors()
-        UniqueGroup.count() == 1
+        UniqueGroup.withTransaction { UniqueGroup.count() } == 1
 
         when:"The first is saved again"
-        one = one.save(flush:true)
+        one = UniqueGroup.withTransaction {
+            def ug = UniqueGroup.findByName("foo")
+            ug.save(flush:true)
+            return ug
+        }
 
         then:"The are no errors"
         one != null
 
         when:"Three domain classes are saved within different uniqueness groups"
-        one = new GroupWithin(name:"foo", org:"mycompany").save(flush:true)
-        two = new GroupWithin(name:"foo", org:"othercompany").save(flush:true)
-        def three = new GroupWithin(name:"foo", org:"mycompany")
-        three.save(flush:true)
+        GroupWithin group1
+        GroupWithin group2
+        GroupWithin group3
+        GroupWithin.withTransaction {
+            group1 = new GroupWithin(name:"foo", org:"mycompany").save(flush:true)
+            group2 = new GroupWithin(name:"foo", org:"othercompany").save(flush:true)
+            group3 = new GroupWithin(name:"foo", org:"mycompany")
+            group3.save(flush:true)
+
+        }
 
         then:"Only the third has errors"
         one != null
         two != null
-        three.hasErrors()
-        GroupWithin.count() == 2
+        group3.hasErrors()
+        GroupWithin.withTransaction {  GroupWithin.count() } == 2
+
     }
 
+    @spock.lang.Ignore
     def "Test unique constraint with a hasOne association"() {
         when:"Two domain classes with the same license are saved"
-        def license = new License()
-        def one = new Driver(license: license).save(flush: true)
-        def two = new Driver(license: license)
-        two.save(flush: true)
+        Driver one
+        Driver two
+        License license
+        Driver.withTransaction {
+            license = new License()
+            def driver = new Driver(license: license)
+            driver.license = license
+            one = driver.save(flush: true)
+            two = new Driver(license: license)
+            two.license = license
+            two.save(flush: true)
+        }
 
         then:"The second has errors"
         one != null
         two.hasErrors()
-        Driver.count() == 1
-        License.count() == 1
+        Driver.withTransaction { Driver.count() } == 1
+        Driver.withTransaction { License.count() } == 1
 
         when:"The first is saved again"
-        one = one.save(flush:true)
+        one = Driver.withTransaction {
+            Driver d = Driver.findByLicense(license)
+            d.save(flush:true)
+            return d
+        }
 
         then:"The are no errors"
         one != null
     }
 
-    @Override
-    List getDomainClasses() {
-        [UniqueGroup, GroupWithin, Driver, License]
-    }
 }
 
 @Entity
@@ -84,7 +120,7 @@ class Driver implements Serializable {
 }
 
 @Entity
-class License implements Serializable {
+class License implements GormEntity<License> {
     Long id
     Long version
     Driver driver
