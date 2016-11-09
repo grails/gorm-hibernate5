@@ -106,8 +106,6 @@ public class EventListenerIntegrator implements Integrator {
             }
         }
 
-        // register workaround for GRAILS-8988 (do nullability checks for inserts in last PreInsertEventListener)
-        ClosureEventTriggeringInterceptor.addNullabilityCheckerPreInsertEventListener(listenerRegistry);
     }
 
     protected <T> void appendListeners(EventListenerRegistry listenerRegistry,
