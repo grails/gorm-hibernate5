@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.ProxyFactory;
 import org.hibernate.type.CompositeType;
@@ -61,7 +62,8 @@ public class GroovyAwareJavassistProxyFactory implements ProxyFactory, Serializa
         factory = GroovyAwareJavassistLazyInitializer.getProxyFactory(persistentClass, this.interfaces);
     }
 
-    public HibernateProxy getProxy(Serializable id, SessionImplementor session) throws HibernateException {
+    @Override
+    public HibernateProxy getProxy(Serializable id, SharedSessionContractImplementor session) throws HibernateException {
         return GroovyAwareJavassistLazyInitializer.getProxy(
                 factory,
                 entityName,

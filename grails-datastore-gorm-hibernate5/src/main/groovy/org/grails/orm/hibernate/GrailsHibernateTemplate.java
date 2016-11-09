@@ -74,9 +74,6 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
         Assert.notNull(sessionFactory, "Property 'sessionFactory' is required");
         this.sessionFactory = sessionFactory;
 
-        if(sessionFactory instanceof SessionFactoryProxy) {
-            sessionFactory = ((SessionFactoryProxy)sessionFactory).getCurrentSessionFactory();
-        }
         ConnectionProvider connectionProvider = ((SessionFactoryImpl) sessionFactory).getServiceRegistry().getService(ConnectionProvider.class);
         if(connectionProvider instanceof DatasourceConnectionProviderImpl) {
             jdbcExceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(((DatasourceConnectionProviderImpl) connectionProvider).getDataSource());
@@ -602,7 +599,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
         
         if (getFlushMode() == FLUSH_NEVER) {
             if (existingTransaction) {
-                FlushMode previousFlushMode = session.getFlushMode();
+                FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (!previousFlushMode.lessThan(FlushMode.COMMIT)) {
                     session.setFlushMode(FlushMode.MANUAL);
                     return previousFlushMode;
@@ -612,7 +609,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             }
         } else if (getFlushMode() == FLUSH_EAGER) {
             if (existingTransaction) {
-                FlushMode previousFlushMode = session.getFlushMode();
+                FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (!previousFlushMode.equals(FlushMode.AUTO)) {
                     session.setFlushMode(FlushMode.AUTO);
                     return previousFlushMode;
@@ -622,7 +619,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             }
         } else if (getFlushMode() == FLUSH_COMMIT) {
             if (existingTransaction) {
-                FlushMode previousFlushMode = session.getFlushMode();
+                FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (previousFlushMode.equals(FlushMode.AUTO) || previousFlushMode.equals(FlushMode.ALWAYS)) {
                     session.setFlushMode(FlushMode.COMMIT);
                     return previousFlushMode;
@@ -632,7 +629,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             }
         } else if (getFlushMode() == FLUSH_ALWAYS) {
             if (existingTransaction) {
-                FlushMode previousFlushMode = session.getFlushMode();
+                FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (!previousFlushMode.equals(FlushMode.ALWAYS)) {
                     session.setFlushMode(FlushMode.ALWAYS);
                     return previousFlushMode;

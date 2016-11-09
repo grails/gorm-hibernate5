@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.AbstractStandardBasicType;
 import org.hibernate.type.TypeResolver;
 import org.hibernate.usertype.ParameterizedType;
@@ -134,15 +135,18 @@ public class IdentityEnumType implements UserType, ParameterizedType, Serializab
         return o.hashCode();
     }
 
-    public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor session, Object owner) throws SQLException {
+    @Override
+    public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor session, Object owner) throws HibernateException, SQLException {
         Object id = type.nullSafeGet(resultSet, names[0], session);
         if ((!resultSet.wasNull()) && id != null) {
             return bidiMap.getEnumValue(id);
         }
         return null;
+
     }
 
-    public void nullSafeSet(PreparedStatement pstmt, Object value, int idx, SessionImplementor session) throws SQLException {
+    @Override
+    public void nullSafeSet(PreparedStatement pstmt, Object value, int idx, SharedSessionContractImplementor session) throws HibernateException, SQLException {
         if (value == null) {
             pstmt.setNull(idx, sqlTypes[0]);
         }

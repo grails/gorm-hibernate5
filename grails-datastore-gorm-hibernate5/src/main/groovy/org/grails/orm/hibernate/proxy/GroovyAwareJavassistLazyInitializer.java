@@ -36,6 +36,7 @@ import org.grails.datastore.mapping.proxy.EntityProxy;
 import org.grails.datastore.mapping.proxy.EntityProxyMethodHandler;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.internal.util.ReflectHelper;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
@@ -74,7 +75,7 @@ public class GroovyAwareJavassistLazyInitializer extends BasicLazyInitializer im
             final Method getIdentifierMethod,
             final Method setIdentifierMethod,
             final CompositeType componentIdType,
-            final SessionImplementor session,
+            final SharedSessionContractImplementor session,
             final boolean overridesEquals) {
         super(entityName, persistentClass, id, getIdentifierMethod, setIdentifierMethod, componentIdType, session, overridesEquals);
         this.interfaces = interfaces;
@@ -119,7 +120,7 @@ public class GroovyAwareJavassistLazyInitializer extends BasicLazyInitializer im
             final Method setIdentifierMethod,
             final CompositeType componentIdType,
             final Serializable id,
-            final SessionImplementor session) throws HibernateException {
+            final SharedSessionContractImplementor session) throws HibernateException {
 
         final GroovyAwareJavassistLazyInitializer instance = new GroovyAwareJavassistLazyInitializer(
                 entityName, persistentClass, interfaces, id, getIdentifierMethod,

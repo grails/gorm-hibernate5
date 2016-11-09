@@ -25,6 +25,7 @@ import org.hibernate.cache.spi.access.NaturalIdRegionAccessStrategy;
 import org.hibernate.engine.spi.Mapping;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.persister.entity.JoinedSubclassEntityPersister;
 import org.hibernate.persister.spi.PersisterCreationContext;
@@ -45,11 +46,12 @@ public class GroovyAwareJoinedSubclassEntityPersister extends JoinedSubclassEnti
     }
 
     @Override
-    public Object createProxy(Serializable id, SessionImplementor session) throws HibernateException {
+    public Object createProxy(Serializable id, SharedSessionContractImplementor session) throws HibernateException {
         if (proxyFactory != null) {
             return proxyFactory.getProxy(id,session);
         }
 
         return super.createProxy(id, session);
     }
+
 }

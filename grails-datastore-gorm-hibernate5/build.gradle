@@ -16,7 +16,7 @@ dependencies {
 
     String hibVersion = "${hibernate5Version}.Final"
 
-    compile 'org.springframework:spring-orm:4.2.3.RELEASE'
+    compile "org.springframework:spring-orm:$springVersion"
     compile("org.hibernate:hibernate-core:$hibVersion") {
         exclude group:'commons-logging', module:'commons-logging'
         exclude group:'dom4j', module:'dom4j'
