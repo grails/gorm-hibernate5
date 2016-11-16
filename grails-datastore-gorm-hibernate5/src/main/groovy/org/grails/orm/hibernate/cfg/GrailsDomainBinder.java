@@ -40,6 +40,7 @@ import org.hibernate.cfg.BinderHelper;
 import org.hibernate.cfg.ImprovedNamingStrategy;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.cfg.SecondPass;
+import org.hibernate.engine.OptimisticLockStyle;
 import org.hibernate.engine.spi.FilterDefinition;
 import org.hibernate.id.PersistentIdentifierGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
@@ -2418,11 +2419,11 @@ public class GrailsDomainBinder implements MetadataContributor {
             }
             Property prop = new Property();
             prop.setValue(val);
-
             bindProperty(version, prop, mappings);
+            prop.setLazy(false);
             val.setNullValue("undefined");
             entity.setVersion(prop);
-            entity.setOptimisticLockMode(0); // 0 is to use version column
+            entity.setOptimisticLockStyle(OptimisticLockStyle.VERSION);
             entity.addProperty(prop);
         }
     }
@@ -2544,7 +2545,13 @@ public class GrailsDomainBinder implements MetadataContributor {
     protected boolean getLaziness(PersistentProperty grailsProperty) {
         PropertyConfig config = getPropertyConfig(grailsProperty);
         final Boolean lazy = config.getLazy();
-        return lazy == null || lazy;
+        if(lazy == null && grailsProperty instanceof Association) {
+            return true;
+        }
+        else if(lazy != null) {
+            return lazy;
+        }
+        return false;
     }
 
     protected boolean getInsertableness(PersistentProperty grailsProperty) {
