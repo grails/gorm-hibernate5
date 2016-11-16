@@ -17,6 +17,7 @@ package org.grails.orm.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.grails.orm.hibernate.support.HibernateVersionSupport;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -91,9 +92,9 @@ public class GrailsSessionContext implements CurrentSessionContext {
                 sessionHolder.setSynchronizedWithTransaction(true);
                 // Switch to FlushMode.AUTO, as we have to assume a thread-bound Session
                 // with FlushMode.MANUAL, which needs to allow flushing within the transaction.
-                FlushMode flushMode = session.getFlushMode();
-                if (FlushMode.isManualFlushMode(flushMode) && !TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
-                    session.setFlushMode(FlushMode.AUTO);
+                FlushMode flushMode = HibernateVersionSupport.getFlushMode(session);
+                if (flushMode.equals(FlushMode.MANUAL) && !TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
+                    HibernateVersionSupport.setFlushMode(session, FlushMode.AUTO);
                     sessionHolder.setPreviousFlushMode(flushMode);
                 }
             }

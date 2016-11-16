@@ -45,6 +45,7 @@ import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.gorm.jdbc.connections.*;
 import org.grails.orm.hibernate.multitenancy.MultiTenantEventListener;
 import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor;
+import org.grails.orm.hibernate.support.HibernateVersionSupport;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.SchemaAutoTooling;
 import org.springframework.beans.BeansException;
@@ -371,8 +372,8 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
         Boolean reset = true;
         try {
             if (session != null) {
-                previousMode = session.getFlushMode();
-                session.setFlushMode(org.hibernate.FlushMode.valueOf(flushMode.name()));
+                previousMode = HibernateVersionSupport.getFlushMode(session);
+                HibernateVersionSupport.setFlushMode(session, org.hibernate.FlushMode.valueOf(flushMode.name()));
             }
             try {
                 reset = callable.call();
@@ -382,7 +383,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
         }
         finally {
             if (session != null && previousMode != null && reset) {
-                session.setFlushMode(previousMode);
+                HibernateVersionSupport.setFlushMode(session, previousMode);
             }
         }
     }

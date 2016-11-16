@@ -599,7 +599,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
         
         if (getFlushMode() == FLUSH_NEVER) {
             if (existingTransaction) {
-                FlushMode previousFlushMode = session.getFlushMode();
+                FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (!previousFlushMode.lessThan(FlushMode.COMMIT)) {
                     session.setFlushMode(FlushMode.MANUAL);
                     return previousFlushMode;
@@ -609,7 +609,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             }
         } else if (getFlushMode() == FLUSH_EAGER) {
             if (existingTransaction) {
-                FlushMode previousFlushMode = session.getFlushMode();
+                FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (!previousFlushMode.equals(FlushMode.AUTO)) {
                     session.setFlushMode(FlushMode.AUTO);
                     return previousFlushMode;
@@ -619,7 +619,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             }
         } else if (getFlushMode() == FLUSH_COMMIT) {
             if (existingTransaction) {
-                FlushMode previousFlushMode = session.getFlushMode();
+                FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (previousFlushMode.equals(FlushMode.AUTO) || previousFlushMode.equals(FlushMode.ALWAYS)) {
                     session.setFlushMode(FlushMode.COMMIT);
                     return previousFlushMode;
@@ -629,7 +629,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             }
         } else if (getFlushMode() == FLUSH_ALWAYS) {
             if (existingTransaction) {
-                FlushMode previousFlushMode = session.getFlushMode();
+                FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (!previousFlushMode.equals(FlushMode.ALWAYS)) {
                     session.setFlushMode(FlushMode.ALWAYS);
                     return previousFlushMode;
