@@ -246,7 +246,7 @@ public class GroovyAwareJavassistLazyInitializer extends BasicLazyInitializer im
         
         @Override
         protected Object isProxyInitiated(Object self) {
-            return target != null;
+            return target != null || !lazyInitializer.isUninitialized();
         }
 
         @Override

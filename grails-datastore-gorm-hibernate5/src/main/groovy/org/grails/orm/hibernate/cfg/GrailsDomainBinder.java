@@ -27,9 +27,8 @@ import org.grails.datastore.mapping.model.config.GormProperties;
 import org.grails.datastore.mapping.model.types.*;
 import org.grails.datastore.mapping.model.types.ToOne;
 import org.grails.datastore.mapping.reflect.NameUtils;
-import org.grails.orm.hibernate.HibernateDatastore;
-import org.grails.orm.hibernate.persister.entity.GroovyAwareJoinedSubclassEntityPersister;
-import org.grails.orm.hibernate.persister.entity.GroovyAwareSingleTableEntityPersister;
+import org.grails.orm.hibernate.proxy.GroovyAwarePojoEntityTuplizer;
+import org.hibernate.EntityMode;
 import org.hibernate.FetchMode;
 import org.hibernate.MappingException;
 import org.hibernate.boot.internal.ClassLoaderAccessImpl;
@@ -1355,6 +1354,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         persistentClass.setJpaEntityName(unqualify(entityName));
         persistentClass.setProxyInterfaceName(entityName);
         persistentClass.setClassName(entityName);
+        persistentClass.addTuplizer(EntityMode.POJO, GroovyAwarePojoEntityTuplizer.class.getName());
 
         // set dynamic insert to false
         persistentClass.setDynamicInsert(false);
@@ -1409,10 +1409,6 @@ public class GrailsDomainBinder implements MetadataContributor {
             }
             // bind the sub classes
             bindSubClasses(entity, root, mappings, sessionFactoryBeanName);
-        }
-
-        if (root.getEntityPersisterClass() == null) {
-            root.setEntityPersisterClass(getGroovyAwareSingleTableEntityPersisterClass());
         }
 
         if(entity.isMultiTenant()) {
@@ -1560,9 +1556,6 @@ public class GrailsDomainBinder implements MetadataContributor {
                                       InFlightMetadataCollector mappings, Mapping gormMapping, String sessionFactoryBeanName) {
         bindClass(sub, joinedSubclass, mappings);
 
-        if (joinedSubclass.getEntityPersisterClass() == null) {
-            joinedSubclass.getRootClass().setEntityPersisterClass(getGroovyAwareJoinedSubclassEntityPersisterClass());
-        }
         String schemaName = getSchemaName(mappings);
         String catalogName = getCatalogName(mappings);
 
@@ -1611,10 +1604,6 @@ public class GrailsDomainBinder implements MetadataContributor {
     protected void bindSubClass(HibernatePersistentEntity sub, Subclass subClass, InFlightMetadataCollector mappings,
                                 String sessionFactoryBeanName) {
         bindClass(sub, subClass, mappings);
-
-        if (subClass.getEntityPersisterClass() == null) {
-            subClass.getRootClass().setEntityPersisterClass(getGroovyAwareSingleTableEntityPersisterClass());
-        }
 
         if (LOG.isDebugEnabled())
             LOG.debug("Mapping subclass: " + subClass.getEntityName() +
@@ -3166,16 +3155,8 @@ public class GrailsDomainBinder implements MetadataContributor {
         return maxSize;
     }
 
-    protected Class<?> getGroovyAwareJoinedSubclassEntityPersisterClass() {
-        return GroovyAwareJoinedSubclassEntityPersister.class;
-    }
-
     protected void handleLazyProxy(PersistentEntity domainClass, PersistentProperty grailsProperty) {
         HibernateUtils.handleLazyProxy(domainClass, grailsProperty);
-    }
-
-    protected Class<?> getGroovyAwareSingleTableEntityPersisterClass() {
-        return GroovyAwareSingleTableEntityPersister.class;
     }
 
     protected void handleUniqueConstraint(PersistentProperty property, Column column, String path, Table table, String columnName, String sessionFactoryBeanName) {

@@ -15,6 +15,7 @@
  */
 package org.grails.orm.hibernate.proxy;
 
+import org.grails.orm.hibernate.cfg.GrailsHibernateUtil;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.property.access.spi.Getter;
 import org.hibernate.property.access.spi.Setter;
@@ -36,12 +37,12 @@ public class GroovyAwarePojoEntityTuplizer extends PojoEntityTuplizer {
 
     @Override
     protected ProxyFactory buildProxyFactoryInternal(PersistentClass persistentClass, Getter idGetter, Setter idSetter) {
-        return new GroovyAwareJavassistProxyFactory();
+        return GrailsHibernateUtil.buildProxyFactory(persistentClass);
     }
 
     @Override
     protected ProxyFactory buildProxyFactory(PersistentClass persistentClass, Getter idGetter, Setter idSetter) {
-        return new GroovyAwareJavassistProxyFactory();
+        return GrailsHibernateUtil.buildProxyFactory(persistentClass);
     }
 
 }
