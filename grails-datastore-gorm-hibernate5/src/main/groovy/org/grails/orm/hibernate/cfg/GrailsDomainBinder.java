@@ -2036,19 +2036,17 @@ public class GrailsDomainBinder implements MetadataContributor {
             enumProperties.put(ENUM_CLASS_PROP, propertyType.getName());
 
             String enumType = pc == null ? DEFAULT_ENUM_TYPE : pc.getEnumType();
-            if (enumType.equals(DEFAULT_ENUM_TYPE) && identityEnumTypeSupports(propertyType)) {
-                simpleValue.setTypeName("org.grails.orm.hibernate.cfg.IdentityEnumType");
-            } else {
-                simpleValue.setTypeName(ENUM_TYPE_CLASS);
-                if (enumType.equals(DEFAULT_ENUM_TYPE) || "string".equalsIgnoreCase(enumType)) {
-                    enumProperties.put(EnumType.TYPE, String.valueOf(Types.VARCHAR));
-                    enumProperties.put(EnumType.NAMED, Boolean.TRUE.toString());
-                }
-                else if (!"ordinal".equalsIgnoreCase(enumType)) {
-                    LOG.warn("Invalid enumType specified when mapping property [" + property.getName() +
-                            "] of class [" + owner.getName() +
-                            "]. Using defaults instead.");
-                }
+            boolean isDefaultEnumType = enumType.equals(DEFAULT_ENUM_TYPE);
+            simpleValue.setTypeName(ENUM_TYPE_CLASS);
+            if (isDefaultEnumType || "string".equalsIgnoreCase(enumType)) {
+                enumProperties.put(EnumType.TYPE, String.valueOf(Types.VARCHAR));
+                enumProperties.put(EnumType.NAMED, Boolean.TRUE.toString());
+            }
+            else if("identity".equals(enumType)) {
+                simpleValue.setTypeName(HibernateUtils.buildIdentityEnumTypeFactory().getName());
+            }
+            else if (!"ordinal".equalsIgnoreCase(enumType)) {
+                simpleValue.setTypeName(enumType);
             }
             simpleValue.setTypeParameters(enumProperties);
         }
@@ -3172,9 +3170,6 @@ public class GrailsDomainBinder implements MetadataContributor {
 
     }
 
-    protected boolean identityEnumTypeSupports(Class<?> propertyType) {
-        return IdentityEnumType.supports(propertyType);
-    }
 
     protected boolean isNotEmpty(String s) {
         return GrailsHibernateUtil.isNotEmpty(s);

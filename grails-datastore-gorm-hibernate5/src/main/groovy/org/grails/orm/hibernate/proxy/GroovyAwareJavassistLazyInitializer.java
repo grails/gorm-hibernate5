@@ -15,7 +15,6 @@
  */
 package org.grails.orm.hibernate.proxy;
 
-import grails.util.CollectionUtils;
 import groovy.lang.GroovyObject;
 
 import java.io.Serializable;
@@ -51,7 +50,7 @@ public class GroovyAwareJavassistLazyInitializer extends BasicLazyInitializer im
 
     private static final String WRITE_CLASSES_DIRECTORY = System.getProperty("javassist.writeDirectory");
 
-    private static final Set<String> GROOVY_METHODS = CollectionUtils.newSet("$getStaticMetaClass");
+    private static final Set<String> GROOVY_METHODS = new HashSet<>(Arrays.asList("$getStaticMetaClass"));
 
     private static final MethodFilter METHOD_FILTERS = new MethodFilter() {
         public boolean isHandled(Method m) {
@@ -62,11 +61,12 @@ public class GroovyAwareJavassistLazyInitializer extends BasicLazyInitializer im
         }
     };
 
-    private Class<?>[] interfaces;
+    private final Class<?>[] interfaces;
+    private final Class factory;
     private boolean constructed = false;
     HibernateGroovyObjectMethodHandler groovyObjectMethodHandler;
 
-    protected GroovyAwareJavassistLazyInitializer(
+    public GroovyAwareJavassistLazyInitializer(
             final String entityName,
             final Class<?> persistentClass,
             final Class<?>[] interfaces,
@@ -74,61 +74,31 @@ public class GroovyAwareJavassistLazyInitializer extends BasicLazyInitializer im
             final Method getIdentifierMethod,
             final Method setIdentifierMethod,
             final CompositeType componentIdType,
-            final SessionImplementor session,
+            final Object session,
             final boolean overridesEquals) {
-        super(entityName, persistentClass, id, getIdentifierMethod, setIdentifierMethod, componentIdType, session, overridesEquals);
+        super(entityName, persistentClass, id, getIdentifierMethod, setIdentifierMethod, componentIdType, (SessionImplementor)session, overridesEquals);
         this.interfaces = interfaces;
+        this.factory = getProxyFactory(persistentClass, interfaces);
     }
 
-    public static HibernateProxy getProxy(
-            final String entityName,
-            final Class<?> persistentClass,
-            final Class<?>[] interfaces,
-            final Method getIdentifierMethod,
-            final Method setIdentifierMethod,
-            CompositeType componentIdType,
-            final Serializable id,
-            final SessionImplementor session) throws HibernateException {
-        // note: interface is assumed to already contain HibernateProxy.class
-        final GroovyAwareJavassistLazyInitializer instance = new GroovyAwareJavassistLazyInitializer(
-                entityName, persistentClass, interfaces, id, getIdentifierMethod,
-                setIdentifierMethod, componentIdType, session, ReflectHelper.overridesEquals(persistentClass));
-        return createProxyInstance(getProxyFactory(persistentClass, interfaces), instance);
-    }
+    /**
+     * @return Creates a proxy
+     */
+    HibernateProxy createProxy() {
 
-    protected static HibernateProxy createProxyInstance(Class<?> proxyClass,
-            final GroovyAwareJavassistLazyInitializer instance) {
         final HibernateProxy proxy;
         try {
-            proxy = (HibernateProxy)proxyClass.newInstance();
+            proxy = (HibernateProxy)factory.newInstance();
         } catch (Exception e) {
-            throw new HibernateException("Javassist Enhancement failed: " + proxyClass.getName(), e);
+            throw new HibernateException("Javassist Enhancement failed: " + persistentClass.getName(), e);
         }
-        ((ProxyObject) proxy).setHandler(instance);
-        instance.groovyObjectMethodHandler = new HibernateGroovyObjectMethodHandler(proxyClass, proxy, instance);
-        instance.constructed = true;
+        ((ProxyObject) proxy).setHandler(this);
+        groovyObjectMethodHandler = new HibernateGroovyObjectMethodHandler(persistentClass, proxy, this);
+        constructed = true;
         return proxy;
     }
 
-    public static HibernateProxy getProxy(
-            final Class<?> factory,
-            final String entityName,
-            final Class<?> persistentClass,
-            final Class<?>[] interfaces,
-            final Method getIdentifierMethod,
-            final Method setIdentifierMethod,
-            final CompositeType componentIdType,
-            final Serializable id,
-            final SessionImplementor session) throws HibernateException {
-
-        final GroovyAwareJavassistLazyInitializer instance = new GroovyAwareJavassistLazyInitializer(
-                entityName, persistentClass, interfaces, id, getIdentifierMethod,
-                setIdentifierMethod, componentIdType, session, ReflectHelper.overridesEquals(persistentClass));
-
-        return createProxyInstance(factory, instance);
-    }
-
-    public static Class<?> getProxyFactory(Class<?> persistentClass, Class<?>[] interfaces) throws HibernateException {
+    private static Class<?> getProxyFactory(Class<?> persistentClass, Class<?>[] interfaces) throws HibernateException {
         // note: interfaces is assumed to already contain HibernateProxy.class
 
         try {
@@ -168,7 +138,7 @@ public class GroovyAwareJavassistLazyInitializer extends BasicLazyInitializer im
         if (thisMethod.getName().equals("getHibernateLazyInitializer")) {
             return this;
         }
-        
+
         Object result = groovyObjectMethodHandler.handleInvocation(proxy, thisMethod, args);
         if (groovyObjectMethodHandler.wasHandled(result)) {
            return result;
@@ -243,7 +213,7 @@ public class GroovyAwareJavassistLazyInitializer extends BasicLazyInitializer im
             }
             return target;
         }
-        
+
         @Override
         protected Object isProxyInitiated(Object self) {
             return target != null || !lazyInitializer.isUninitialized();
@@ -252,6 +222,6 @@ public class GroovyAwareJavassistLazyInitializer extends BasicLazyInitializer im
         @Override
         protected Object getProxyKey(Object self) {
             return lazyInitializer.getIdentifier();
-        }        
+        }
     }
 }

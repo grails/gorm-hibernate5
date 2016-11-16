@@ -19,7 +19,6 @@ import groovy.lang.GroovySystem;
 import groovy.lang.MetaClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.grails.datastore.mapping.config.Entity;
 import org.grails.datastore.mapping.model.PersistentEntity;
 import org.grails.datastore.mapping.model.PersistentProperty;
 import org.grails.datastore.mapping.model.config.GormProperties;
@@ -27,10 +26,9 @@ import org.grails.datastore.mapping.model.types.Association;
 import org.grails.datastore.mapping.model.types.Embedded;
 import org.grails.datastore.mapping.reflect.ClassUtils;
 import org.grails.orm.hibernate.AbstractHibernateDatastore;
-import org.grails.orm.hibernate.HibernateDatastore;
 import org.grails.orm.hibernate.datasource.MultipleDataSourceSupport;
-import org.grails.orm.hibernate.proxy.GroovyAwareJavassistProxyFactory;
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler;
+import org.grails.orm.hibernate.proxy.ProxyFactorySupport;
 import org.grails.orm.hibernate.support.HibernateRuntimeUtils;
 import org.hibernate.*;
 import org.hibernate.criterion.Order;
@@ -41,6 +39,7 @@ import org.hibernate.internal.util.StringHelper;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Property;
 import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.ProxyFactory;
 import org.hibernate.type.CompositeType;
 import org.hibernate.type.Type;
 import org.springframework.core.convert.ConversionService;
@@ -405,11 +404,17 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
         return proxyHandler.isInitialized(obj, associationName);
     }
 
-    public static GroovyAwareJavassistProxyFactory buildProxyFactory(PersistentClass persistentClass) {
-        GroovyAwareJavassistProxyFactory proxyFactory = new GroovyAwareJavassistProxyFactory();
+    /**
+     * Constructs a proxy factory instance
+     *
+     * @param persistentClass The persistent class
+     * @return The factory
+     */
+    public static ProxyFactory buildProxyFactory(PersistentClass persistentClass) {
+        ProxyFactory proxyFactory = ProxyFactorySupport.createProxyFactory();
 
         @SuppressWarnings("unchecked")
-        Set<Class<HibernateProxy>> proxyInterfaces = new HashSet<Class<HibernateProxy>>();
+        Set<Class> proxyInterfaces = new HashSet<>();
         proxyInterfaces.add(HibernateProxy.class);
 
         final Class<?> javaClass = persistentClass.getMappedClass();

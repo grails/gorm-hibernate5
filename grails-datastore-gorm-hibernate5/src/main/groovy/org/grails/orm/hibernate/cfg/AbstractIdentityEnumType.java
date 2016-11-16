@@ -15,12 +15,10 @@
  */
 package org.grails.orm.hibernate.cfg;
 
-import grails.util.Holders;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
-import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.type.AbstractStandardBasicType;
 import org.hibernate.type.TypeResolver;
 import org.hibernate.usertype.ParameterizedType;
@@ -30,22 +28,21 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 /**
  * Hibernate Usertype that enum values by their ID.
  *
  * @author Siegfried Puchbauer
+ * @author Graeme Rocher
+ *
  * @since 1.1
  */
-public class IdentityEnumType implements UserType, ParameterizedType, Serializable {
+public abstract class AbstractIdentityEnumType implements UserType, ParameterizedType, Serializable {
 
     private static final long serialVersionUID = -6625622185856547501L;
 
-    private static final Log LOG = LogFactory.getLog(IdentityEnumType.class);
+    private static final Log LOG = LogFactory.getLog(AbstractIdentityEnumType.class);
 
     private static TypeResolver typeResolver = new TypeResolver();
     public static final String ENUM_ID_ACCESSOR = "getId";
@@ -53,10 +50,10 @@ public class IdentityEnumType implements UserType, ParameterizedType, Serializab
     public static final String PARAM_ENUM_CLASS = "enumClass";
 
     private static final Map<Class<? extends Enum<?>>, BidiEnumMap> ENUM_MAPPINGS = new HashMap<Class<? extends Enum<?>>, BidiEnumMap>();
-    private Class<? extends Enum<?>> enumClass;
-    private BidiEnumMap bidiMap;
-    private AbstractStandardBasicType<?> type;
-    private int[] sqlTypes;
+    protected Class<? extends Enum<?>> enumClass;
+    protected BidiEnumMap bidiMap;
+    protected AbstractStandardBasicType<?> type;
+    protected  int[] sqlTypes;
 
     public static BidiEnumMap getBidiEnumMap(Class<? extends Enum<?>> cls) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         BidiEnumMap m = ENUM_MAPPINGS.get(cls);
@@ -74,14 +71,9 @@ public class IdentityEnumType implements UserType, ParameterizedType, Serializab
         return m;
     }
 
-    public static boolean isEnabled() {
-        Object disableConfigOption = Holders.getFlatConfig().get("grails.orm.enum.id.mapping");
-        return disableConfigOption == null || !(Boolean.FALSE.equals(disableConfigOption));
-    }
 
     @SuppressWarnings("unchecked")
     public static boolean supports(@SuppressWarnings("rawtypes") Class enumClass) {
-        if (!isEnabled()) return false;
         if (enumClass.isEnum()) {
             try {
                 Method idAccessor = enumClass.getMethod(ENUM_ID_ACCESSOR);
@@ -132,23 +124,6 @@ public class IdentityEnumType implements UserType, ParameterizedType, Serializab
 
     public int hashCode(Object o) throws HibernateException {
         return o.hashCode();
-    }
-
-    public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor session, Object owner) throws SQLException {
-        Object id = type.nullSafeGet(resultSet, names[0], session);
-        if ((!resultSet.wasNull()) && id != null) {
-            return bidiMap.getEnumValue(id);
-        }
-        return null;
-    }
-
-    public void nullSafeSet(PreparedStatement pstmt, Object value, int idx, SessionImplementor session) throws SQLException {
-        if (value == null) {
-            pstmt.setNull(idx, sqlTypes[0]);
-        }
-        else {
-            type.nullSafeSet(pstmt, bidiMap.getKey(value), idx, session);
-        }
     }
 
     public Object deepCopy(Object o) throws HibernateException {
