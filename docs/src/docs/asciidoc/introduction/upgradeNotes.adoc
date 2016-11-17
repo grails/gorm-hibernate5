@@ -2,4 +2,26 @@
 
 In preparation for Hibernate 5.2 support the previous "SessionFactoryBean" notion has been removed. Now if you wish to customize `SessionFactory` creation you should instead register a custom `org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory` in Spring.
 
+==== IdentityEnumType Handling Changed
 
+Previous versions of GORM shipped with a `org.grails.orm.hibernate.cfg.IdentityEnumType` class for altering the handling of enums. In order to support different versions of Hibernate 5.x which feature different signatures for the `org.hibernate.usertype.UserType` interface this class has been removed.
+
+If you wish to obtain the same functionality you need to change your `mapping` block to:
+
+[source,groovy]
+----
+static mapping = {
+   myEnum enumType:"identity"
+}
+----
+
+==== Changes to Support Hibernate 5.2
+
+Hibernate 5.2 includes many breaking API changes, in order to support Hibernate 5.2 several classes have been removed or rewritten. Including:
+
+* `org.grails.orm.hibernate.proxy.GroovyAwareJavassistLazyInitializer`
+* `org.grails.orm.hibernate.proxy.GroovyAwareJavassistProxyFactory`
+* `org.grails.orm.hibernate.persister.entity.GroovyAwareJoinedSubclassEntityPersister`
+* `org.grails.orm.hibernate.persister.entity.GroovyAwareSingleTableEntityPersister`
+
+Most of these classes are considered internal, however if you have extended or references these classes you may need to modify your code appropriately.
