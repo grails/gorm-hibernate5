@@ -25,6 +25,7 @@ import org.grails.datastore.gorm.finders.FinderMethod
 import org.grails.datastore.mapping.query.api.BuildableCriteria as GrailsCriteria
 import org.grails.datastore.mapping.query.event.PostQueryEvent
 import org.grails.datastore.mapping.query.event.PreQueryEvent
+import org.grails.orm.hibernate.exceptions.GrailsQueryException
 import org.grails.orm.hibernate.query.GrailsHibernateQueryUtils
 import org.grails.orm.hibernate.query.HibernateHqlQuery
 import org.grails.orm.hibernate.query.HibernateQuery
@@ -108,6 +109,12 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
 
     @Override
     Integer executeUpdate(CharSequence query, Map params, Map args) {
+
+        if(query instanceof GString) {
+            params = new LinkedHashMap(params)
+            query = buildNamedParameterQueryFromGString((GString) query, params)
+        }
+
         def template = hibernateTemplate
         SessionFactory sessionFactory = this.sessionFactory
         return (Integer) template.execute { Session session ->
@@ -130,6 +137,10 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
 
     @Override
     Integer executeUpdate(CharSequence query, Collection params, Map args) {
+        if(query instanceof GString) {
+            throw new GrailsQueryException("Unsafe query [$query]. GORM cannot automatically escape a GString value when combined with ordinal parameters, so this query is potentially vulnerable to HQL injection attacks. Please embed the parameters within the GString so they can be safely escaped.");
+        }
+
         def template = hibernateTemplate
         SessionFactory sessionFactory = this.sessionFactory
 
