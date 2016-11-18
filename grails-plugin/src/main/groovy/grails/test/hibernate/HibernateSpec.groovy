@@ -4,6 +4,7 @@ import grails.config.Config
 import grails.persistence.Entity
 import groovy.transform.CompileStatic
 import org.grails.config.PropertySourcesConfig
+import org.grails.datastore.gorm.utils.ClasspathEntityScanner
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.cfg.Settings
@@ -42,20 +43,18 @@ abstract class HibernateSpec extends Specification {
         loader.load resourceLoader.getResource("application.groovy")
         Config config = new PropertySourcesConfig(propertySources)
         List<Class> domainClasses = getDomainClasses()
-        String packageName = config.getProperty('grails.codegen.defaultPackage', getClass().package.name)
+        String packageName = getPackageToScan(config)
 
         if (!domainClasses) {
-            ClassPathScanningCandidateComponentProvider componentProvider = new ClassPathScanningCandidateComponentProvider(false)
-            componentProvider.addIncludeFilter(new AnnotationTypeFilter(Entity))
-
-            for (BeanDefinition candidate in componentProvider.findCandidateComponents(packageName)) {
-                Class persistentEntity = Class.forName(candidate.beanClassName)
-                domainClasses << persistentEntity
-            }
+            hibernateDatastore = new HibernateDatastore(
+                    DatastoreUtils.createPropertyResolver(getConfiguration()),
+                    Package.getPackage(packageName))
         }
-        hibernateDatastore = new HibernateDatastore(
-                                        DatastoreUtils.createPropertyResolver(getConfiguration()),
-                                        domainClasses as Class[])
+        else {
+            hibernateDatastore = new HibernateDatastore(
+                    DatastoreUtils.createPropertyResolver(getConfiguration()),
+                    domainClasses as Class[])
+        }
         transactionManager = hibernateDatastore.getTransactionManager()
     }
 
@@ -90,8 +89,19 @@ abstract class HibernateSpec extends Specification {
     boolean isRollback() {
         return true
     }
+
     /**
      * @return The domain classes
      */
     List<Class> getDomainClasses() { [] }
+
+    /**
+     * Obtains the default package to scan
+     *
+     * @param config The configuration
+     * @return The package to scan
+     */
+    protected String getPackageToScan(Config config) {
+        config.getProperty('grails.codegen.defaultPackage', getClass().package.name)
+    }
 }

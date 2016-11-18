@@ -19,6 +19,7 @@ import org.grails.datastore.gorm.events.AutoTimestampEventListener;
 import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPublisher;
 import org.grails.datastore.gorm.events.ConfigurableApplicationEventPublisher;
 import org.grails.datastore.gorm.events.DefaultApplicationEventPublisher;
+import org.grails.datastore.gorm.utils.ClasspathEntityScanner;
 import org.grails.datastore.gorm.validation.constraints.MappingContextAwareConstraintFactory;
 import org.grails.datastore.gorm.validation.constraints.builtin.UniqueConstraint;
 import org.grails.datastore.gorm.validation.constraints.registry.DefaultValidatorRegistry;
@@ -227,7 +228,16 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
     public HibernateDatastore(PropertyResolver configuration, ConfigurableApplicationEventPublisher eventPublisher, Class...classes) {
         this(configuration, new HibernateConnectionSourceFactory(classes), eventPublisher);
     }
-
+    /**
+     * Construct a Hibernate datastore scanning the given packages
+     *
+     * @param configuration The configuration
+     * @param eventPublisher The event publisher
+     * @param packagesToScan The packages to scan
+     */
+    public HibernateDatastore(PropertyResolver configuration, ConfigurableApplicationEventPublisher eventPublisher,  Package...packagesToScan) {
+        this(configuration, eventPublisher, new ClasspathEntityScanner().scan(packagesToScan));
+    }
     /**
      * Create a new HibernateDatastore for the given connection sources and mapping context
      *
@@ -236,6 +246,16 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
      */
     public HibernateDatastore(PropertyResolver configuration, Class...classes) {
         this(configuration, new HibernateConnectionSourceFactory(classes));
+    }
+
+    /**
+     * Construct a Hibernate datastore scanning the given packages
+     *
+     * @param configuration The configuration
+     * @param packagesToScan The packages to scan
+     */
+    public HibernateDatastore(PropertyResolver configuration, Package...packagesToScan) {
+        this(configuration, new ClasspathEntityScanner().scan(packagesToScan));
     }
     /**
      * Constructor used purely for testing purposes. Creates a datastore with an in-memory database and dbCreate set to 'create-drop'
@@ -246,6 +266,15 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
         this(DatastoreUtils.createPropertyResolver(configuration), new HibernateConnectionSourceFactory(classes));
     }
 
+    /**
+     * Construct a Hibernate datastore scanning the given packages
+     *
+     * @param configuration The configuration
+     * @param packagesToScan The packages to scan
+     */
+    public HibernateDatastore(Map<String,Object> configuration, Package...packagesToScan) {
+        this(DatastoreUtils.createPropertyResolver(configuration), packagesToScan);
+    }
 
     /**
      * Constructor used purely for testing purposes. Creates a datastore with an in-memory database and dbCreate set to 'create-drop'
@@ -254,6 +283,15 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
      */
     public HibernateDatastore(Class...classes) {
         this(DatastoreUtils.createPropertyResolver(Collections.singletonMap(Settings.SETTING_DB_CREATE, (Object) "create-drop")), new HibernateConnectionSourceFactory(classes));
+    }
+
+    /**
+     * Construct a Hibernate datastore scanning the given packages
+     *
+     * @param packagesToScan The packages to scan
+     */
+    public HibernateDatastore(Package...packagesToScan) {
+        this(new ClasspathEntityScanner().scan(packagesToScan));
     }
 
     @Override
