@@ -17,8 +17,6 @@ package grails.orm.bootstrap
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
-import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPublisher
-import org.grails.datastore.gorm.events.DefaultApplicationEventPublisher
 import org.grails.datastore.gorm.proxy.ProxyHandlerAdapter
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
 import org.grails.datastore.gorm.support.DatastorePersistenceContextInterceptor
@@ -27,11 +25,9 @@ import org.grails.datastore.mapping.core.connections.ConnectionSource
 import org.grails.datastore.mapping.validation.BeanFactoryValidatorRegistry
 import org.grails.orm.hibernate.GrailsHibernateTransactionManager
 import org.grails.orm.hibernate.HibernateDatastore
-import org.grails.orm.hibernate.cfg.Mapping
 import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
-import org.grails.orm.hibernate.support.FlushOnRedirectEventListener
 import org.grails.orm.hibernate.validation.HibernateDomainClassValidator
 import org.grails.orm.hibernate5.support.AggregatePersistenceContextInterceptor
 import org.grails.orm.hibernate5.support.GrailsOpenSessionInViewInterceptor
@@ -40,15 +36,13 @@ import org.springframework.beans.factory.config.MethodInvokingFactoryBean
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.context.ConfigurableApplicationContext
-import org.springframework.context.MessageSource
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.core.env.PropertyResolver
-import org.springframework.orm.hibernate5.HibernateTransactionManager
 import org.springframework.transaction.PlatformTransactionManager
 
 import javax.sql.DataSource
+
 /**
  * Class that handles the details of initializing GORM for Hibernate
  *
