@@ -15,7 +15,6 @@
 
 package org.grails.datastore.gorm.boot.compiler
 
-import grails.persistence.Entity
 import groovy.transform.CompileStatic
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.control.CompilationFailedException
@@ -35,7 +34,7 @@ import org.springframework.boot.cli.compiler.DependencyCustomizer;
 class GormCompilerAutoConfiguration extends CompilerAutoConfiguration{
     @Override
     boolean matches(ClassNode classNode) {
-        return AstUtils.hasAtLeastOneAnnotation(classNode, Entity.name, "Entity")
+        return AstUtils.hasAtLeastOneAnnotation(classNode, "grails.persistence.Entity", "Entity")
     }
 
     @Override
