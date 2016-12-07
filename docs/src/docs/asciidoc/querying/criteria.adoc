@@ -132,6 +132,57 @@ def numberOfBranches = c.get {
 When multiple fields are specified in the projection, a List of values will be returned. A single value will be returned otherwise.
 
 
+==== Transforming Projection Results
+
+
+If the raw value or simple object array returned by the criteria method doesn't suit your needs, the result can be transformed with a http://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/transform/ResultTransformer.html[ResultTransformer]. Let's say we want to transform the criteria results into a Map so that we can easily reference values by key:
+
+[source,java]
+----
+def c = Account.createCriteria()
+
+def accountsOverview = c.get {
+    resultTransformer(CriteriaSpecification.ALIAS_TO_ENTITY_MAP)
+    projections {
+        sum('balance', 'allBalances')
+        countDistinct('holderLastName', 'lastNames')
+    }
+}
+
+// accountsOverview.allBalances
+// accountsOverview.lastNames
+----
+
+Note that we've added an alias to each projection as an additional parameter to be used as the key. For this to work, all projections must have aliases defined, otherwise the corresponding map entry will not be built.
+
+We can also transform the result into an object of our choosing via the http://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/transform/Transformers.html#aliasToBean-java.lang.Class-[Transformers.aliasToBean()] method. In this case, we'll transform it into an `AccountsOverview`:
+
+[source,java]
+----
+class AccountsOverview {
+    Number allBalances
+    Number lastNames
+}
+----
+
+[source,java]
+----
+def c = Account.createCriteria()
+
+def accountsOverview = c.get {
+    resultTransformer(Transformers.aliasToBean(AccountsOverview))
+    projections {
+        sum('balance', 'allBalances')
+        countDistinct('holderLastName', 'lastNames')
+    }
+}
+
+// accountsOverview instanceof AccountsOverview
+----
+
+Each alias must have a corresponding property or explicit setter on the bean otherwise an exception will be thrown.
+
+
 ==== SQL Projections
 
 
