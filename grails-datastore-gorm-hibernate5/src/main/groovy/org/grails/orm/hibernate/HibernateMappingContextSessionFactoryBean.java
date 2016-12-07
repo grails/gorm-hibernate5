@@ -2,13 +2,12 @@ package org.grails.orm.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.orm.hibernate.cfg.HibernateMappingContext;
 import org.grails.orm.hibernate.cfg.HibernateMappingContextConfiguration;
-import org.grails.orm.hibernate.cfg.Mapping;
 import org.hibernate.HibernateException;
 import org.hibernate.Interceptor;
 import org.hibernate.SessionFactory;
-import org.hibernate.cache.CacheException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.NamingStrategy;
@@ -34,7 +33,6 @@ import org.springframework.util.Assert;
 import javax.naming.NameNotFoundException;
 import javax.sql.DataSource;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -75,7 +73,7 @@ public class HibernateMappingContextSessionFactoryBean extends HibernateExceptio
     protected ApplicationContext applicationContext;
     protected boolean proxyIfReloadEnabled = false;
     protected String sessionFactoryBeanName = "sessionFactory";
-    protected String dataSourceName = Mapping.DEFAULT_DATA_SOURCE;
+    protected String dataSourceName = ConnectionSource.DEFAULT;
     protected ClassLoader classLoader;
 
 
@@ -466,45 +464,10 @@ public class HibernateMappingContextSessionFactoryBean extends HibernateExceptio
         }
 
         sessionFactory = doBuildSessionFactory();
-
-        buildSessionFactoryProxy();
     }
 
     protected SessionFactory doBuildSessionFactory() {
         return configuration.buildSessionFactory();
-    }
-
-    protected void buildSessionFactoryProxy() {
-        try {
-            if (!proxyIfReloadEnabled) {
-                return;
-            }
-
-            // if reloading is enabled in this environment then we need to use a SessionFactoryProxy instance
-            SessionFactoryProxy sfp = new SessionFactoryProxy();
-            String suffix = dataSourceName.equals(Mapping.DEFAULT_DATA_SOURCE) ? "" : '_' + dataSourceName;
-            SessionFactoryHolder sessionFactoryHolder = applicationContext.getBean(
-                    SessionFactoryHolder.BEAN_ID + suffix, SessionFactoryHolder.class);
-            sessionFactoryHolder.setSessionFactory(sessionFactory);
-            sfp.setApplicationContext(applicationContext);
-            sfp.setCurrentSessionContextClass(currentSessionContextClass);
-            sfp.setTargetBean(SessionFactoryHolder.BEAN_ID + suffix);
-            sfp.afterPropertiesSet();
-            sessionFactory = sfp;
-        }
-        catch (HibernateException e) {
-            Throwable cause = e.getCause();
-            if (isCacheConfigurationError(cause)) {
-                LOG.error("There was an error configuring the Hibernate second level cache: " + getCauseMessage(e));
-                LOG.error("This is normally due to one of two reasons. Either you have incorrectly specified the cache " +
-                        "provider class name in [DataSource.groovy] or you do not have the cache provider on your classpath " +
-                        "(eg. runtime (\"net.sf.ehcache:ehcache:2.4.8\"))");
-                if (grails.util.Environment.isDevelopmentMode()) {
-                    System.exit(1);
-                }
-            }
-            throw e;
-        }
     }
 
     /**
@@ -556,28 +519,6 @@ public class HibernateMappingContextSessionFactoryBean extends HibernateExceptio
             config.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, currentSessionContextClass.getName());
         }
         return config;
-    }
-
-//    protected void configureGrailsJdbcTransactionFactory(Configuration config) {
-//        String configuredStrategy = config.getProperty(Environment.TRANSACTION_STRATEGY);
-//        if(configuredStrategy == null || "jdbc".equals(configuredStrategy)) {
-//            config.setProperty(Environment.TRANSACTION_STRATEGY, GrailsJdbcTransactionFactory.class.getName());
-//        }
-//    }
-
-    protected String getCauseMessage(HibernateException e) {
-        Throwable cause = e.getCause();
-        if (cause instanceof InvocationTargetException) {
-            cause = ((InvocationTargetException)cause).getTargetException();
-        }
-        return cause.getMessage();
-    }
-
-    protected boolean isCacheConfigurationError(Throwable cause) {
-        if (cause instanceof InvocationTargetException) {
-            cause = ((InvocationTargetException)cause).getTargetException();
-        }
-        return cause != null && (cause instanceof CacheException);
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
