@@ -37,10 +37,7 @@ import org.hibernate.boot.internal.MetadataBuildingContextRootImpl;
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
 import org.hibernate.boot.spi.*;
-import org.hibernate.cfg.BinderHelper;
-import org.hibernate.cfg.ImprovedNamingStrategy;
-import org.hibernate.cfg.NamingStrategy;
-import org.hibernate.cfg.SecondPass;
+import org.hibernate.cfg.*;
 import org.hibernate.engine.spi.FilterDefinition;
 import org.hibernate.id.PersistentIdentifierGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
@@ -2534,7 +2531,10 @@ public class GrailsDomainBinder implements MetadataContributor {
             prop.setUpdateable(getUpdateableness(grailsProperty));
         }
 
-        prop.setPropertyAccessorName(mappings.getMetadataBuildingOptions().getMappingDefaults().getImplicitPropertyAccessorName());
+        AccessType accessType = AccessType.getAccessStrategy(
+                grailsProperty.getMapping().getMappedForm().getAccessType()
+        );
+        prop.setPropertyAccessorName( accessType.getType() );
         prop.setOptional(grailsProperty.isNullable());
 
         setCascadeBehaviour(grailsProperty, prop);
