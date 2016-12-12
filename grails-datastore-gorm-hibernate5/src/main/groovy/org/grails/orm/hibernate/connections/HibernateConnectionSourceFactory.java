@@ -44,7 +44,6 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
     protected Class[] persistentClasses = new Class[0];
     private ApplicationContext applicationContext;
     protected HibernateEventListeners hibernateEventListeners;
-    protected AbstractClosureEventTriggeringInterceptor closureEventTriggeringInterceptor;
     protected Interceptor interceptor;
     protected MetadataContributor metadataContributor;
 
@@ -59,11 +58,6 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
     @Autowired(required = false)
     public void setHibernateEventListeners(HibernateEventListeners hibernateEventListeners) {
         this.hibernateEventListeners = hibernateEventListeners;
-    }
-
-    @Autowired(required = false)
-    public void setClosureEventTriggeringInterceptor(AbstractClosureEventTriggeringInterceptor closureEventTriggeringInterceptor) {
-        this.closureEventTriggeringInterceptor = closureEventTriggeringInterceptor;
     }
 
     @Autowired(required = false)
@@ -210,19 +204,13 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
         AbstractClosureEventTriggeringInterceptor eventTriggeringInterceptor;
 
         if(closureEventTriggeringInterceptorClass == null) {
-            if(this.closureEventTriggeringInterceptor != null) {
-                eventTriggeringInterceptor = this.closureEventTriggeringInterceptor;
-                hibernateSettings.eventTriggeringInterceptor(this.closureEventTriggeringInterceptor);
-            }
-            else {
-                AbstractClosureEventTriggeringInterceptor fromConfiguration = hibernateSettings.getEventTriggeringInterceptor();
-                eventTriggeringInterceptor = fromConfiguration != null ? fromConfiguration : new ClosureEventTriggeringInterceptor();
-                hibernateSettings.eventTriggeringInterceptor(eventTriggeringInterceptor);
-            }
+            eventTriggeringInterceptor = new ClosureEventTriggeringInterceptor();
         }
         else {
             eventTriggeringInterceptor = BeanUtils.instantiate(closureEventTriggeringInterceptorClass);
         }
+
+        hibernateSettings.eventTriggeringInterceptor(eventTriggeringInterceptor);
 
         try {
             Class<? extends NamingStrategy> namingStrategy = hibernateSettings.getNaming_strategy();

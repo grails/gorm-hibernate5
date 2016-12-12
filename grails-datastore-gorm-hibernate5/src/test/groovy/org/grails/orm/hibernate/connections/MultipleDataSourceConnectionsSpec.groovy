@@ -51,6 +51,19 @@ class MultipleDataSourceConnectionsSpec extends Specification {
             assert s.connection().metaData.getURL() == "jdbc:h2:mem:moreBooks"
             return true
         }
+
+        when:"A book is saved"
+        Book b =  Book.withTransaction {
+            new Book(name: "The Stand").save(flush:true)
+            Book.first()
+        }
+
+
+
+        then:"The data was saved correctly"
+        b.name == 'The Stand'
+        b.dateCreated
+        b.lastUpdated
     }
 }
 
@@ -59,6 +72,8 @@ class Book {
     Long id
     Long version
     String name
+    Date dateCreated
+    Date lastUpdated
 
     static mapping = {
         datasources( ['books', 'moreBooks'] )
