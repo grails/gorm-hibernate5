@@ -42,6 +42,8 @@ import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.cfg.SecondPass;
 import org.hibernate.engine.OptimisticLockStyle;
 import org.hibernate.engine.spi.FilterDefinition;
+import org.hibernate.engine.spi.ManagedEntity;
+import org.hibernate.engine.spi.PersistentAttributeInterceptable;
 import org.hibernate.id.PersistentIdentifierGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
 import org.hibernate.mapping.*;
@@ -2529,15 +2531,16 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         // lazy to true
         final boolean isToOne = grailsProperty instanceof ToOne;
+        PersistentEntity propertyOwner = grailsProperty.getOwner();
         boolean isLazyable = isToOne ||
-                !(grailsProperty instanceof Association) && !grailsProperty.equals(grailsProperty.getOwner().getIdentity());
+                !(grailsProperty instanceof Association) && !grailsProperty.equals(propertyOwner.getIdentity());
 
         if (isLazyable) {
             final boolean isLazy = getLaziness(grailsProperty);
             prop.setLazy(isLazy);
 
-            if (isLazy && isToOne) {
-                handleLazyProxy(grailsProperty.getOwner(), grailsProperty);
+            if (isLazy && isToOne && !(PersistentAttributeInterceptable.class.isAssignableFrom(propertyOwner.getJavaClass()))) {
+                handleLazyProxy(propertyOwner, grailsProperty);
             }
         }
     }
