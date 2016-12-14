@@ -36,13 +36,9 @@ import org.hibernate.boot.internal.MetadataBuildingContextRootImpl;
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
 import org.hibernate.boot.spi.*;
-import org.hibernate.cfg.BinderHelper;
-import org.hibernate.cfg.ImprovedNamingStrategy;
-import org.hibernate.cfg.NamingStrategy;
-import org.hibernate.cfg.SecondPass;
+import org.hibernate.cfg.*;
 import org.hibernate.engine.OptimisticLockStyle;
 import org.hibernate.engine.spi.FilterDefinition;
-import org.hibernate.engine.spi.ManagedEntity;
 import org.hibernate.engine.spi.PersistentAttributeInterceptable;
 import org.hibernate.id.PersistentIdentifierGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
@@ -96,7 +92,7 @@ public class GrailsDomainBinder implements MetadataContributor {
      * Overrideable naming strategy. Defaults to <code>ImprovedNamingStrategy</code> but can
      * be configured in DataSource.groovy via <code>hibernate.naming_strategy = ...</code>.
      */
-    public static Map<String, NamingStrategy> NAMING_STRATEGIES = new HashMap<String, NamingStrategy>();
+    public static Map<String, NamingStrategy> NAMING_STRATEGIES = new HashMap<>();
     static {
         NAMING_STRATEGIES.put(Mapping.DEFAULT_DATA_SOURCE, ImprovedNamingStrategy.INSTANCE);
     }
@@ -2524,7 +2520,10 @@ public class GrailsDomainBinder implements MetadataContributor {
             prop.setUpdateable(getUpdateableness(grailsProperty));
         }
 
-        prop.setPropertyAccessorName(mappings.getMetadataBuildingOptions().getMappingDefaults().getImplicitPropertyAccessorName());
+        AccessType accessType = AccessType.getAccessStrategy(
+                grailsProperty.getMapping().getMappedForm().getAccessType()
+        );
+        prop.setPropertyAccessorName( accessType.getType() );
         prop.setOptional(grailsProperty.isNullable());
 
         setCascadeBehaviour(grailsProperty, prop);

@@ -17,8 +17,6 @@ package grails.orm.bootstrap
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
-import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPublisher
-import org.grails.datastore.gorm.events.DefaultApplicationEventPublisher
 import org.grails.datastore.gorm.proxy.ProxyHandlerAdapter
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
 import org.grails.datastore.gorm.support.DatastorePersistenceContextInterceptor
@@ -44,6 +42,7 @@ import org.springframework.core.env.PropertyResolver
 import org.springframework.transaction.PlatformTransactionManager
 
 import javax.sql.DataSource
+
 /**
  * Class that handles the details of initializing GORM for Hibernate
  *

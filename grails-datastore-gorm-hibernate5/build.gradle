@@ -5,6 +5,8 @@ dependencies {
         exclude group:'org.hibernate', module:'hibernate-ehcache'
         exclude group:'org.hibernate', module:'hibernate-commons-annotations'
     }
+
+    // only needed by HibernateDatastoreSpringInitializer
     compile("org.grails:grails-datastore-gorm-support:$gormVersion") {
         exclude group:'org.grails', module:'grails-datastore-gorm-hibernate-core'
     }
@@ -19,7 +21,6 @@ dependencies {
     compile "org.springframework:spring-orm:$springVersion"
     compile("org.hibernate:hibernate-core:$hibVersion") {
         exclude group:'commons-logging', module:'commons-logging'
-        exclude group:'dom4j', module:'dom4j'
         exclude group:'com.h2database', module:'h2'
         exclude group:'commons-collections', module:'commons-collections'
         exclude group:'org.slf4j', module:'jcl-over-slf4j'
@@ -34,10 +35,6 @@ dependencies {
     }
     runtime('javax.el:javax.el-api:2.2.4')
 
-    runtime('dom4j:dom4j:1.6.1') {
-        exclude group: 'xml-apis', module:'xml-apis'
-    }
-
     compileOnly ("net.sf.ehcache:ehcache-core:2.4.8") {
         exclude group: 'commons-logging', module:'commons-logging'
     }
@@ -46,7 +43,6 @@ dependencies {
         exclude group:'commons-collections', module:'commons-collections'
         exclude group:'commons-logging', module:'commons-logging'
         exclude group:'com.h2database', module:'h2'
-        exclude group:'dom4j', module:'dom4j'
         exclude group:'net.sf.ehcache', module:'ehcache'
         exclude group:'net.sf.ehcache', module:'ehcache-core'
         exclude group:'org.hibernate', module:'hibernate-core'
@@ -62,9 +58,7 @@ dependencies {
 
     testCompile "net.sf.ehcache:ehcache-core:2.4.6"
     testCompile "org.hibernate:hibernate-ehcache:$hibVersion"
-
-    compileOnly "javax.servlet:javax.servlet-api:$servletApiVersion"
-
+    
     def tomcatVersion = '7.0.50'
     testCompile "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
     testRuntime "org.springframework:spring-aop:$springVersion"

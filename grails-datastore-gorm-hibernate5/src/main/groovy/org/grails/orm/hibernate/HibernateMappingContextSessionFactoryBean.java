@@ -2,13 +2,12 @@ package org.grails.orm.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.orm.hibernate.cfg.HibernateMappingContext;
 import org.grails.orm.hibernate.cfg.HibernateMappingContextConfiguration;
-import org.grails.orm.hibernate.cfg.Mapping;
 import org.hibernate.HibernateException;
 import org.hibernate.Interceptor;
 import org.hibernate.SessionFactory;
-import org.hibernate.cache.CacheException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.NamingStrategy;
@@ -34,7 +33,6 @@ import org.springframework.util.Assert;
 import javax.naming.NameNotFoundException;
 import javax.sql.DataSource;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -75,7 +73,7 @@ public class HibernateMappingContextSessionFactoryBean extends HibernateExceptio
     protected ApplicationContext applicationContext;
     protected boolean proxyIfReloadEnabled = false;
     protected String sessionFactoryBeanName = "sessionFactory";
-    protected String dataSourceName = Mapping.DEFAULT_DATA_SOURCE;
+    protected String dataSourceName = ConnectionSource.DEFAULT;
     protected ClassLoader classLoader;
 
 

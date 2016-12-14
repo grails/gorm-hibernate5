@@ -1,13 +1,10 @@
 package org.grails.orm.hibernate.cfg;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.grails.datastore.mapping.model.PersistentEntity;
+import org.grails.datastore.gorm.jdbc.connections.DataSourceSettings;
+import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.orm.hibernate.EventListenerIntegrator;
 import org.grails.orm.hibernate.GrailsSessionContext;
 import org.grails.orm.hibernate.HibernateEventListeners;
-import org.grails.datastore.mapping.core.connections.ConnectionSource;
-import org.grails.datastore.gorm.jdbc.connections.*;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.SessionFactory;
@@ -23,7 +20,6 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.context.spi.CurrentSessionContext;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.internal.util.config.ConfigurationHelper;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.spi.ServiceRegistryImplementor;
@@ -56,7 +52,6 @@ import java.util.*;
 public class HibernateMappingContextConfiguration extends Configuration implements ApplicationContextAware {
     private static final long serialVersionUID = -7115087342689305517L;
 
-    protected static final Log LOG = LogFactory.getLog(HibernateMappingContextConfiguration.class);
     private static final String RESOURCE_PATTERN = "/**/*.class";
 
     private static final TypeFilter[] ENTITY_TYPE_FILTERS = new TypeFilter[] {
@@ -65,7 +60,7 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
             new AnnotationTypeFilter(MappedSuperclass.class, false)};
 
     protected String sessionFactoryBeanName = "sessionFactory";
-    protected String dataSourceName = Mapping.DEFAULT_DATA_SOURCE;
+    protected String dataSourceName = ConnectionSource.DEFAULT;
     protected HibernateMappingContext hibernateMappingContext;
     private Class<? extends CurrentSessionContext> currentSessionContext = GrailsSessionContext.class;
     private HibernateEventListeners hibernateEventListeners;
@@ -81,7 +76,7 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         resourcePatternResolver = ResourcePatternUtils.getResourcePatternResolver(applicationContext);
-        String dsName = Mapping.DEFAULT_DATA_SOURCE.equals(dataSourceName) ? "dataSource" : "dataSource_" + dataSourceName;
+        String dsName = ConnectionSource.DEFAULT.equals(dataSourceName) ? "dataSource" : "dataSource_" + dataSourceName;
         Properties properties = getProperties();
 
         if(applicationContext.containsBean(dsName)) {
@@ -188,7 +183,7 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
         // set the class loader to load Groovy classes
 
         // work around for HHH-2624
-        SessionFactory sessionFactory = null;
+        SessionFactory sessionFactory;
 
         Object classLoaderObject = getProperties().get(AvailableSettings.CLASSLOADERS);
         Collection<ClassLoader> appClassLoaders;
@@ -197,7 +192,7 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
             appClassLoaders = (Collection<ClassLoader>) classLoaderObject;
         }
         else if(classLoaderObject instanceof ClassLoader) {
-            appClassLoaders = Collections.<ClassLoader>singletonList((ClassLoader) classLoaderObject);
+            appClassLoaders = Collections.singletonList((ClassLoader) classLoaderObject);
         }
         else {
             appClassLoaders = Collections.emptyList();
@@ -244,7 +239,7 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
                 }
             };
             EventListenerIntegrator eventListenerIntegrator = new EventListenerIntegrator(hibernateEventListeners, eventListeners);
-            BootstrapServiceRegistry bootstrapServiceRegistry = new BootstrapServiceRegistryBuilder()
+            BootstrapServiceRegistry bootstrapServiceRegistry = createBootstrapServiceRegistryBuilder()
                                                                         .applyIntegrator(eventListenerIntegrator)
                                                                         .applyClassLoaderService(classLoaderService)
                                                                         .build();
@@ -257,7 +252,7 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
                 }
             });
 
-            StandardServiceRegistryBuilder standardServiceRegistryBuilder = new StandardServiceRegistryBuilder(bootstrapServiceRegistry)
+            StandardServiceRegistryBuilder standardServiceRegistryBuilder = createStandardServiceRegistryBuilder(bootstrapServiceRegistry)
                                                                                         .applySettings(getProperties());
 
             StandardServiceRegistry serviceRegistry = standardServiceRegistryBuilder.build();
@@ -271,6 +266,25 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
         }
 
         return sessionFactory;
+    }
+
+    /**
+     * Creates the {@link BootstrapServiceRegistryBuilder} to use
+     *
+     * @return The {@link BootstrapServiceRegistryBuilder}
+     */
+    protected BootstrapServiceRegistryBuilder createBootstrapServiceRegistryBuilder() {
+        return new BootstrapServiceRegistryBuilder();
+    }
+
+    /**
+     * Creates the standard service registry builder. Subclasses can override to customize the creation of the StandardServiceRegistry
+     *
+     * @param bootstrapServiceRegistry The {@link BootstrapServiceRegistry}
+     * @return The {@link StandardServiceRegistryBuilder}
+     */
+    protected StandardServiceRegistryBuilder createStandardServiceRegistryBuilder(BootstrapServiceRegistry bootstrapServiceRegistry) {
+        return new StandardServiceRegistryBuilder(bootstrapServiceRegistry);
     }
 
     /**
