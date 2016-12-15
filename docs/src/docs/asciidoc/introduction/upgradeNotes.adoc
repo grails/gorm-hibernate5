@@ -25,3 +25,30 @@ Hibernate 5.2 includes many breaking API changes, in order to support Hibernate 
 * `org.grails.orm.hibernate.persister.entity.GroovyAwareSingleTableEntityPersister`
 
 Most of these classes are considered internal, however if you have extended or references these classes you may need to modify your code appropriately.
+
+==== Domain Autowiring Disabled by Default
+
+Spring autowiring of domain instances has been disabled by default because it represents a performance bottleneck. If you are autowiring services into your domain instances you will need to re-enable using the `mapping` block:
+
+[source,groovy]
+----
+static mapping = {
+   autowire true
+}
+----
+
+Note that if enabled read performance will degrade.
+
+==== Field AccessType by Default
+
+Previous versions of GORM used property access to read and write values to entities by default. In other words the respective getters and setters were used when reflecting on the instances. GORM 6.1 uses field access by default instead, which means the field is used when reading and writing data via reflection to instances.
+
+If you wish to continue to use property access this can be configured by altering the default mapping in your configuration:
+
+[source,groovy]
+----
+import javax.persistence.*
+grails.gorm.default.mapping = {
+   '*'(accessType: AccessType.PROPERTY)
+}
+----
