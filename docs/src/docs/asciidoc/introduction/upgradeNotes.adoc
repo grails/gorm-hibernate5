@@ -2,4 +2,6 @@
 
 In preparation for Hibernate 5.2 support the previous "SessionFactoryBean" notion has been removed. Now if you wish to customize `SessionFactory` creation you should instead register a custom `org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory` in Spring.
 
+==== Fail on Error Package Setting Renamed
 
+The `grails.gorm.failOnError` setting can no longer be used to configure the packages to enable fail on error. Instead `grails.gorm.failOnErrorPackages` should be used.
