@@ -9,6 +9,7 @@ import spock.lang.Ignore
  */
 class GroovyProxySpec extends GormDatastoreSpec {
 
+    // this test is ignored because Groovy proxies are not used with Hibernate
     @Ignore
     void "Test creation and behavior of Groovy proxies"() {
 
