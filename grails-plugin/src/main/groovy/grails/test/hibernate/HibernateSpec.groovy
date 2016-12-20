@@ -96,7 +96,7 @@ abstract class HibernateSpec extends Specification {
     /**
      * @return the current Hibernate session
      */
-    Session getSession() {
+    Session getHibernateSession() {
         getSessionFactory().getCurrentSession()
     }
 

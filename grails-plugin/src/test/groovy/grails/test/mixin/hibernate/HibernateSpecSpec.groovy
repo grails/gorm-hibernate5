@@ -18,7 +18,7 @@ class HibernateSpecSpec extends HibernateSpec {
         Book.count() == 1
         !new Book().validate()
         !new Book(title: "").validate()
-        session != null
+        hibernateSession != null
         sessionFactory != null
     }
 
