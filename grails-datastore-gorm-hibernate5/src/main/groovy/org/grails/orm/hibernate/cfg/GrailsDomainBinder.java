@@ -53,6 +53,7 @@ import org.hibernate.type.*;
 import org.jboss.jandex.IndexView;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.Entity;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -155,8 +156,10 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         java.util.Collection<PersistentEntity> persistentEntities = hibernateMappingContext.getPersistentEntities();
         for (PersistentEntity persistentEntity : persistentEntities) {
-            if(ConnectionSourcesSupport.usesConnectionSource(persistentEntity, dataSourceName) && persistentEntity.isRoot()) {
-                bindRoot((HibernatePersistentEntity) persistentEntity, metadataCollector, sessionFactoryName);
+            if(!persistentEntity.getJavaClass().isAnnotationPresent(Entity.class)) {
+                if(ConnectionSourcesSupport.usesConnectionSource(persistentEntity, dataSourceName) && persistentEntity.isRoot()) {
+                    bindRoot((HibernatePersistentEntity) persistentEntity, metadataCollector, sessionFactoryName);
+                }
             }
         }
     }
