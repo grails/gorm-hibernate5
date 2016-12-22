@@ -31,6 +31,7 @@ import org.grails.orm.hibernate.proxy.GroovyAwarePojoEntityTuplizer;
 import org.hibernate.EntityMode;
 import org.hibernate.FetchMode;
 import org.hibernate.MappingException;
+import org.hibernate.annotations.common.reflection.java.JavaReflectionManager;
 import org.hibernate.boot.internal.ClassLoaderAccessImpl;
 import org.hibernate.boot.internal.MetadataBuildingContextRootImpl;
 import org.hibernate.boot.model.naming.Identifier;
@@ -154,6 +155,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         );
 
 
+        JavaReflectionManager javaReflectionManager = new JavaReflectionManager();
         java.util.Collection<PersistentEntity> persistentEntities = hibernateMappingContext.getPersistentEntities();
         for (PersistentEntity persistentEntity : persistentEntities) {
             if(!persistentEntity.getJavaClass().isAnnotationPresent(Entity.class)) {

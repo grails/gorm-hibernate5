@@ -23,7 +23,6 @@ class SimpleJpaEntitySpec extends Specification {
     @Shared PlatformTransactionManager transactionManager = hibernateDatastore.getTransactionManager()
 
     @Rollback
-    @NotYetImplemented
     void "test that JPA entities can be treated as GORM entities"() {
         when:"A basic entity is persisted"
         Customer c = new Customer(firstName: "Fred", lastName: "Flinstone")
@@ -45,5 +44,4 @@ class Customer {
 
     @OneToMany
     Set<Customer> related
-
 }

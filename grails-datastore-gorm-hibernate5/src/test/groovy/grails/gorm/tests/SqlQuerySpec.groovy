@@ -16,6 +16,19 @@ class SqlQuerySpec extends Specification {
     @Shared @AutoCleanup HibernateDatastore datastore = new HibernateDatastore(Club)
     @Shared PlatformTransactionManager transactionManager = datastore.getTransactionManager()
 
+    void "test simple query returns a single result"() {
+        given:
+        setupTestData()
+
+        when:"Some test data is saved"
+        String name = "Arsenal"
+        Club c = Club.findWithSql("select * from club c where c.name = $name")
+
+        then:"The results are correct"
+        c != null
+        c.name == name
+
+    }
 
     void "test simple sql query"() {
         given:
