@@ -87,12 +87,6 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
         }
         properties.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, currentSessionContext.getName());
         properties.put(AvailableSettings.CLASSLOADERS, applicationContext.getClassLoader());
-
-        if(JavaxValidatorRegistry.isAvailable()) {
-            ValidatorRegistry registry = new JavaxValidatorRegistry(hibernateMappingContext, applicationContext.getEnvironment(), applicationContext );
-            hibernateMappingContext.setValidatorRegistry(registry);
-            properties.put("javax.persistence.validation.factory", registry);
-        }
     }
 
     /**

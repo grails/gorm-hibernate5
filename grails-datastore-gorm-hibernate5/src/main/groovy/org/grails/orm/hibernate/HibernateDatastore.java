@@ -409,7 +409,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
             MappingContext mappingContext = getMappingContext();
             // make messages from the application context available to validation
             mappingContext.setValidatorRegistry(
-                    new DefaultValidatorRegistry(mappingContext, connectionSources.getBaseConfiguration(), applicationContext)
+                createValidatorRegistry(applicationContext)
             );
 
             registerEventListeners(eventPublisher);
