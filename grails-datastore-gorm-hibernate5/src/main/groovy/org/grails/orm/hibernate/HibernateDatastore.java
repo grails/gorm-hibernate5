@@ -337,7 +337,8 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
     public void setMessageSource(MessageSource messageSource) {
         HibernateMappingContext mappingContext = getMappingContext();
         ValidatorRegistry validatorRegistry = createValidatorRegistry(messageSource);
-        configureValidatorRegistry(getConnectionSources().getDefaultConnectionSource().getSettings(), mappingContext, validatorRegistry, messageSource);
+        HibernateConnectionSourceSettings settings = getConnectionSources().getDefaultConnectionSource().getSettings();
+        configureValidatorRegistry(settings, mappingContext, validatorRegistry, messageSource);
     }
 
     protected void registerEventListeners(ConfigurableApplicationEventPublisher eventPublisher) {
@@ -404,14 +405,17 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
                 }
             }
             this.eventPublisher = new ConfigurableApplicationContextEventPublisher((ConfigurableApplicationContext) applicationContext);
-            HibernateConnectionSourceSettings.HibernateSettings hibernateSettings = getConnectionSources().getDefaultConnectionSource().getSettings().getHibernate();
+            HibernateConnectionSourceSettings settings = getConnectionSources().getDefaultConnectionSource().getSettings();
+            HibernateConnectionSourceSettings.HibernateSettings hibernateSettings = settings.getHibernate();
             ClosureEventTriggeringInterceptor interceptor = (ClosureEventTriggeringInterceptor) hibernateSettings.getEventTriggeringInterceptor();
             interceptor.setDatastore(this);
             interceptor.setEventPublisher(eventPublisher);
             MappingContext mappingContext = getMappingContext();
             // make messages from the application context available to validation
+            ValidatorRegistry validatorRegistry = createValidatorRegistry(applicationContext);
+            configureValidatorRegistry(settings, (HibernateMappingContext) mappingContext, validatorRegistry, applicationContext);
             mappingContext.setValidatorRegistry(
-                createValidatorRegistry(applicationContext)
+                    validatorRegistry
             );
 
             registerEventListeners(eventPublisher);
