@@ -1,8 +1,10 @@
 package org.grails.orm.hibernate.cfg;
 
 import org.grails.datastore.gorm.jdbc.connections.DataSourceSettings;
+import org.grails.datastore.gorm.validation.javax.JavaxValidatorRegistry;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.model.PersistentEntity;
+import org.grails.datastore.mapping.validation.ValidatorRegistry;
 import org.grails.orm.hibernate.EventListenerIntegrator;
 import org.grails.orm.hibernate.GrailsSessionContext;
 import org.grails.orm.hibernate.HibernateEventListeners;
@@ -85,6 +87,12 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
         }
         properties.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, currentSessionContext.getName());
         properties.put(AvailableSettings.CLASSLOADERS, applicationContext.getClassLoader());
+
+        if(JavaxValidatorRegistry.isAvailable()) {
+            ValidatorRegistry registry = new JavaxValidatorRegistry(hibernateMappingContext, applicationContext.getEnvironment(), applicationContext );
+            hibernateMappingContext.setValidatorRegistry(registry);
+            properties.put("javax.persistence.validation.factory", registry);
+        }
     }
 
     /**

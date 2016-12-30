@@ -19,9 +19,11 @@ import org.grails.datastore.gorm.events.AutoTimestampEventListener;
 import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPublisher;
 import org.grails.datastore.gorm.events.ConfigurableApplicationEventPublisher;
 import org.grails.datastore.gorm.events.DefaultApplicationEventPublisher;
+import org.grails.datastore.gorm.jdbc.connections.DataSourceSettings;
 import org.grails.datastore.gorm.utils.ClasspathEntityScanner;
 import org.grails.datastore.gorm.validation.constraints.MappingContextAwareConstraintFactory;
 import org.grails.datastore.gorm.validation.constraints.builtin.UniqueConstraint;
+import org.grails.datastore.gorm.validation.constraints.registry.ConstraintRegistry;
 import org.grails.datastore.gorm.validation.constraints.registry.DefaultValidatorRegistry;
 import org.grails.datastore.mapping.core.ConnectionNotFoundException;
 import org.grails.datastore.mapping.core.Datastore;
@@ -30,29 +32,26 @@ import org.grails.datastore.mapping.core.Session;
 import org.grails.datastore.mapping.core.connections.*;
 import org.grails.datastore.mapping.core.exceptions.ConfigurationException;
 import org.grails.datastore.mapping.engine.event.DatastoreInitializedEvent;
-import org.grails.datastore.mapping.model.AbstractMappingContext;
 import org.grails.datastore.mapping.model.DatastoreConfigurationException;
 import org.grails.datastore.mapping.model.MappingContext;
 import org.grails.datastore.mapping.model.PersistentEntity;
 import org.grails.datastore.mapping.multitenancy.AllTenantsResolver;
 import org.grails.datastore.mapping.multitenancy.MultiTenancySettings;
+import org.grails.datastore.mapping.validation.ValidatorRegistry;
 import org.grails.orm.hibernate.cfg.GrailsDomainBinder;
 import org.grails.orm.hibernate.cfg.HibernateMappingContext;
 import org.grails.orm.hibernate.cfg.Settings;
 import org.grails.orm.hibernate.connections.HibernateConnectionSource;
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory;
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceSettings;
-import org.grails.datastore.mapping.core.connections.ConnectionSource;
-import org.grails.datastore.gorm.jdbc.connections.*;
 import org.grails.orm.hibernate.multitenancy.MultiTenantEventListener;
 import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor;
 import org.grails.orm.hibernate.support.HibernateVersionSupport;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.SchemaAutoTooling;
 import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.*;
+import org.springframework.context.support.StaticMessageSource;
 import org.springframework.core.env.PropertyResolver;
 
 import javax.sql.DataSource;
@@ -71,7 +70,7 @@ import java.util.concurrent.Callable;
  * @author Graeme Rocher
  * @since 2.0
  */
-public class HibernateDatastore extends AbstractHibernateDatastore {
+public class HibernateDatastore extends AbstractHibernateDatastore implements MessageSourceAware {
     protected final GrailsHibernateTransactionManager transactionManager;
     protected ConfigurableApplicationEventPublisher eventPublisher;
     protected final HibernateGormEnhancer gormEnhancer;
@@ -328,6 +327,17 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
         }
     }
 
+    @Override
+    public HibernateMappingContext getMappingContext() {
+        return (HibernateMappingContext) super.getMappingContext();
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        HibernateMappingContext mappingContext = getMappingContext();
+        ValidatorRegistry validatorRegistry = createValidatorRegistry(messageSource);
+        configureValidatorRegistry(getConnectionSources().getBaseConfiguration(), mappingContext, validatorRegistry, messageSource);
+    }
+
     protected void registerEventListeners(ConfigurableApplicationEventPublisher eventPublisher) {
         eventPublisher.addApplicationListener(new AutoTimestampEventListener(this));
         if(multiTenantMode == MultiTenancySettings.MultiTenancyMode.DISCRIMINATOR) {
@@ -337,14 +347,23 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
     }
 
     protected void configureValidationRegistry(PropertyResolver configuration, HibernateMappingContext mappingContext) {
-        DefaultValidatorRegistry defaultValidatorRegistry = new DefaultValidatorRegistry(mappingContext, configuration);
-        defaultValidatorRegistry.addConstraintFactory(
-                new MappingContextAwareConstraintFactory(UniqueConstraint.class, defaultValidatorRegistry.getMessageSource(), mappingContext)
-        );
+        StaticMessageSource messageSource = new StaticMessageSource();
+        ValidatorRegistry defaultValidatorRegistry = createValidatorRegistry(messageSource);
+        configureValidatorRegistry(configuration, mappingContext, defaultValidatorRegistry, messageSource);
+    }
+
+    protected void configureValidatorRegistry(PropertyResolver configuration, HibernateMappingContext mappingContext, ValidatorRegistry validatorRegistry, MessageSource messageSource) {
+        if(validatorRegistry instanceof ConstraintRegistry) {
+            ((ConstraintRegistry)validatorRegistry).addConstraintFactory(
+                    new MappingContextAwareConstraintFactory(UniqueConstraint.class, messageSource, mappingContext)
+            );
+        }
         mappingContext.setValidatorRegistry(
-                defaultValidatorRegistry
+                validatorRegistry
         );
     }
+
+
 
     protected HibernateGormEnhancer initialize() {
         if(multiTenantMode == MultiTenancySettings.MultiTenancyMode.SCHEMA) {
@@ -389,7 +408,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
             interceptor.setEventPublisher(eventPublisher);
             MappingContext mappingContext = getMappingContext();
             // make messages from the application context available to validation
-            ((AbstractMappingContext) mappingContext).setValidatorRegistry(
+            mappingContext.setValidatorRegistry(
                     new DefaultValidatorRegistry(mappingContext, connectionSources.getBaseConfiguration(), applicationContext)
             );
 
