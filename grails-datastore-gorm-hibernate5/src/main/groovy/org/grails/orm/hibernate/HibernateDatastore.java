@@ -101,7 +101,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
         interceptor.setDatastore(this);
         interceptor.setEventPublisher(eventPublisher);
         registerEventListeners(this.eventPublisher);
-        configureValidationRegistry(settings, mappingContext);
+        configureValidatorRegistry(settings, mappingContext);
         this.mappingContext.addMappingContextListener(new MappingContext.Listener() {
             @Override
             public void persistentEntityAdded(PersistentEntity entity) {
@@ -348,7 +348,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
         eventPublisher.addApplicationListener(eventTriggeringInterceptor);
     }
 
-    protected void configureValidationRegistry(HibernateConnectionSourceSettings settings, HibernateMappingContext mappingContext) {
+    protected void configureValidatorRegistry(HibernateConnectionSourceSettings settings, HibernateMappingContext mappingContext) {
         StaticMessageSource messageSource = new StaticMessageSource();
         ValidatorRegistry defaultValidatorRegistry = createValidatorRegistry(messageSource);
         configureValidatorRegistry(settings, mappingContext, defaultValidatorRegistry, messageSource);
