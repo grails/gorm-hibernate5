@@ -24,7 +24,6 @@ import org.grails.datastore.gorm.utils.ClasspathEntityScanner;
 import org.grails.datastore.gorm.validation.constraints.MappingContextAwareConstraintFactory;
 import org.grails.datastore.gorm.validation.constraints.builtin.UniqueConstraint;
 import org.grails.datastore.gorm.validation.constraints.registry.ConstraintRegistry;
-import org.grails.datastore.gorm.validation.constraints.registry.DefaultValidatorRegistry;
 import org.grails.datastore.mapping.core.ConnectionNotFoundException;
 import org.grails.datastore.mapping.core.Datastore;
 import org.grails.datastore.mapping.core.DatastoreUtils;
@@ -50,6 +49,7 @@ import org.grails.orm.hibernate.support.HibernateVersionSupport;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.SchemaAutoTooling;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.*;
 import org.springframework.context.support.StaticMessageSource;
 import org.springframework.core.env.PropertyResolver;
@@ -70,7 +70,7 @@ import java.util.concurrent.Callable;
  * @author Graeme Rocher
  * @since 2.0
  */
-public class HibernateDatastore extends AbstractHibernateDatastore implements MessageSourceAware {
+public class HibernateDatastore extends AbstractHibernateDatastore {
     protected final GrailsHibernateTransactionManager transactionManager;
     protected ConfigurableApplicationEventPublisher eventPublisher;
     protected final HibernateGormEnhancer gormEnhancer;
@@ -94,13 +94,14 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         this.eventPublisher = eventPublisher;
         this.eventTriggeringInterceptor = new EventTriggeringInterceptor(this);
 
-        HibernateConnectionSourceSettings.HibernateSettings hibernateSettings = defaultConnectionSource.getSettings().getHibernate();
+        HibernateConnectionSourceSettings settings = defaultConnectionSource.getSettings();
+        HibernateConnectionSourceSettings.HibernateSettings hibernateSettings = settings.getHibernate();
 
         ClosureEventTriggeringInterceptor interceptor = (ClosureEventTriggeringInterceptor) hibernateSettings.getEventTriggeringInterceptor();
         interceptor.setDatastore(this);
         interceptor.setEventPublisher(eventPublisher);
         registerEventListeners(this.eventPublisher);
-        configureValidationRegistry(connectionSources.getBaseConfiguration(), mappingContext);
+        configureValidationRegistry(settings, mappingContext);
         this.mappingContext.addMappingContextListener(new MappingContext.Listener() {
             @Override
             public void persistentEntityAdded(PersistentEntity entity) {
@@ -137,17 +138,17 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
                     HibernateConnectionSourceFactory factory = (HibernateConnectionSourceFactory) connectionSources.getFactory();
                     
                     for (Serializable tenantId : tenantIds) {
-                        HibernateConnectionSourceSettings settings;
+                        HibernateConnectionSourceSettings tenantSettings;
                         try {
-                            settings = connectionSources.getDefaultConnectionSource().getSettings().clone();
+                            tenantSettings = connectionSources.getDefaultConnectionSource().getSettings().clone();
                         } catch (CloneNotSupportedException e) {
                             throw new ConfigurationException("Couldn't clone default Hibernate settings! " + e.getMessage(), e);
                         }
                         String schemaName = tenantId.toString();
-                        DefaultConnectionSource<DataSource, DataSourceSettings> dataSourceConnectionSource = new DefaultConnectionSource<>(schemaName, defaultConnectionSource.getDataSource(), settings.getDataSource());
-                        settings.getHibernate().put("default_schema", schemaName);
+                        DefaultConnectionSource<DataSource, DataSourceSettings> dataSourceConnectionSource = new DefaultConnectionSource<>(schemaName, defaultConnectionSource.getDataSource(), tenantSettings.getDataSource());
+                        tenantSettings.getHibernate().put("default_schema", schemaName);
 
-                        String dbCreate = settings.getDataSource().getDbCreate();
+                        String dbCreate = tenantSettings.getDataSource().getDbCreate();
 
                         if(dbCreate != null && SchemaAutoTooling.interpret(dbCreate) != SchemaAutoTooling.VALIDATE) {
 
@@ -174,7 +175,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
                             }
                         }
 
-                        ConnectionSource<SessionFactory, HibernateConnectionSourceSettings> connectionSource = factory.create(schemaName, dataSourceConnectionSource, settings);
+                        ConnectionSource<SessionFactory, HibernateConnectionSourceSettings> connectionSource = factory.create(schemaName, dataSourceConnectionSource, tenantSettings);
                         SingletonConnectionSources<SessionFactory, HibernateConnectionSourceSettings>  singletonConnectionSources = new SingletonConnectionSources(connectionSource, connectionSources.getBaseConfiguration());
                         HibernateDatastore childDatastore = new HibernateDatastore(singletonConnectionSources, mappingContext, eventPublisher) {
                             @Override
@@ -332,10 +333,11 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         return (HibernateMappingContext) super.getMappingContext();
     }
 
+    @Autowired(required = false)
     public void setMessageSource(MessageSource messageSource) {
         HibernateMappingContext mappingContext = getMappingContext();
         ValidatorRegistry validatorRegistry = createValidatorRegistry(messageSource);
-        configureValidatorRegistry(getConnectionSources().getBaseConfiguration(), mappingContext, validatorRegistry, messageSource);
+        configureValidatorRegistry(getConnectionSources().getDefaultConnectionSource().getSettings(), mappingContext, validatorRegistry, messageSource);
     }
 
     protected void registerEventListeners(ConfigurableApplicationEventPublisher eventPublisher) {
@@ -346,13 +348,13 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         eventPublisher.addApplicationListener(eventTriggeringInterceptor);
     }
 
-    protected void configureValidationRegistry(PropertyResolver configuration, HibernateMappingContext mappingContext) {
+    protected void configureValidationRegistry(HibernateConnectionSourceSettings settings, HibernateMappingContext mappingContext) {
         StaticMessageSource messageSource = new StaticMessageSource();
         ValidatorRegistry defaultValidatorRegistry = createValidatorRegistry(messageSource);
-        configureValidatorRegistry(configuration, mappingContext, defaultValidatorRegistry, messageSource);
+        configureValidatorRegistry(settings, mappingContext, defaultValidatorRegistry, messageSource);
     }
 
-    protected void configureValidatorRegistry(PropertyResolver configuration, HibernateMappingContext mappingContext, ValidatorRegistry validatorRegistry, MessageSource messageSource) {
+    protected void configureValidatorRegistry(HibernateConnectionSourceSettings settings, HibernateMappingContext mappingContext, ValidatorRegistry validatorRegistry, MessageSource messageSource) {
         if(validatorRegistry instanceof ConstraintRegistry) {
             ((ConstraintRegistry)validatorRegistry).addConstraintFactory(
                     new MappingContextAwareConstraintFactory(UniqueConstraint.class, messageSource, mappingContext)
