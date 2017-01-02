@@ -3,6 +3,8 @@ package grails.gorm.tests.jpa
 import grails.gorm.hibernate.HibernateEntity
 import grails.transaction.Rollback
 import groovy.transform.NotYetImplemented
+import org.grails.datastore.mapping.model.PersistentEntity
+import org.grails.datastore.mapping.model.types.Association
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
@@ -68,6 +70,16 @@ class SimpleJpaEntitySpec extends Specification {
         then:"The object was saved"
         thrown(ConstraintViolationException)
         c.errors.hasErrors()
+    }
+
+    void "Test persistent entity model"() {
+        given:
+        PersistentEntity entity = hibernateDatastore.mappingContext.getPersistentEntity(Customer.name)
+
+        expect:
+        entity.identity.name == 'myId'
+        entity.associations.size() == 1
+        entity.associations.find { Association a -> a.name == 'related' }
     }
 }
 
