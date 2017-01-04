@@ -22,6 +22,7 @@ dependencies {
     compile "org.grails:grails-datastore-web:$gormVersion"
     compile "org.grails:grails-datastore-simple:$gormVersion"
     compile "org.grails:grails-datastore-gorm-support:$gormVersion"
+    compile "org.grails:grails-datastore-gorm-async:$gormVersion"
     compile project(":grails-datastore-gorm-hibernate5"), {
         exclude group:'org.springframework', module:'spring-context'
         exclude group:'org.springframework', module:'spring-core'
