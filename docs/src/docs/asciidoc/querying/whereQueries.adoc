@@ -398,8 +398,8 @@ Method,Description
 *day*,The day of the month of a date property
 *month*,The month of a date property
 *year*,The year of a date property
-*lower*,Converts a string property to upper case
-*upper*,Converts a string property to lower case
+*lower*,Converts a string property to lower case
+*upper*,Converts a string property to upper case
 *length*,The length of a string property
 *trim*,Trims a string property
 |===
