@@ -28,6 +28,7 @@ import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
+import org.grails.orm.hibernate.support.DataSourceFactoryBean
 import org.grails.orm.hibernate.validation.HibernateDomainClassValidator
 import org.grails.orm.hibernate5.support.AggregatePersistenceContextInterceptor
 import org.grails.orm.hibernate5.support.GrailsOpenSessionInViewInterceptor
@@ -196,9 +197,14 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             for(dataSourceName in dataSources) {
 
                 boolean isDefault = dataSourceName == Settings.SETTING_DATASOURCE || dataSourceName == ConnectionSource.DEFAULT
+
+                String suffix = isDefault ? '' : "_$dataSourceName"
+                String beanName = isDefault ? Settings.SETTING_DATASOURCE : "dataSource_$dataSourceName"
+
+                "$beanName"(DataSourceFactoryBean, ref("hibernateDatastore"), isDefault ? ConnectionSource.DEFAULT : dataSourceName)
+
                 if(isDefault) continue
 
-                String suffix = '_' + dataSourceName
                 def sessionFactoryName = isDefault ? defaultSessionFactoryBeanName : "sessionFactory$suffix"
                 String datastoreBeanName = "hibernateDatastore$suffix"
                 "$datastoreBeanName"(MethodInvokingFactoryBean) {
@@ -206,6 +212,9 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                     targetMethod = "getDatastoreForConnection"
                     arguments = [dataSourceName]
                 }
+
+                ""
+
                 // the main SessionFactory bean
                 if(!beanDefinitionRegistry.containsBeanDefinition(sessionFactoryName)) {
                     "$sessionFactoryName"((datastoreBeanName):"getSessionFactory")
