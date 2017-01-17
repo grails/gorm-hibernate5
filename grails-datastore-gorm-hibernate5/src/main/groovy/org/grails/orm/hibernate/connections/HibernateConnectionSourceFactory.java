@@ -236,9 +236,6 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         if(applicationContext != null) {
             this.applicationContext = applicationContext;
-            SpringDataSourceConnectionSourceFactory springDataSourceConnectionSourceFactory = new SpringDataSourceConnectionSourceFactory();
-            springDataSourceConnectionSourceFactory.setApplicationContext(applicationContext);
-            this.dataSourceConnectionSourceFactory = springDataSourceConnectionSourceFactory;
         }
     }
 }
