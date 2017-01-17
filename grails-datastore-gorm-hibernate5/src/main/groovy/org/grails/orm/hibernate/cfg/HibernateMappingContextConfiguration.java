@@ -1,7 +1,10 @@
 package org.grails.orm.hibernate.cfg;
 
 import org.grails.datastore.gorm.jdbc.connections.DataSourceSettings;
+import org.grails.datastore.gorm.validation.javax.JavaxValidatorRegistry;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
+import org.grails.datastore.mapping.model.PersistentEntity;
+import org.grails.datastore.mapping.validation.ValidatorRegistry;
 import org.grails.orm.hibernate.EventListenerIntegrator;
 import org.grails.orm.hibernate.GrailsSessionContext;
 import org.grails.orm.hibernate.HibernateEventListeners;
@@ -221,6 +224,16 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
             ConfigurationHelper.resolvePlaceHolders(getProperties());
 
             final GrailsDomainBinder domainBinder = new GrailsDomainBinder(dataSourceName, sessionFactoryBeanName, hibernateMappingContext);
+
+            List<Class> annotatedClasses = new ArrayList<>();
+            for (PersistentEntity persistentEntity : hibernateMappingContext.getPersistentEntities()) {
+                Class javaClass = persistentEntity.getJavaClass();
+                if(javaClass.isAnnotationPresent(Entity.class)) {
+                    annotatedClasses.add(javaClass);
+                }
+            }
+
+            addAnnotatedClasses( annotatedClasses.toArray(new Class[annotatedClasses.size()]));
 
             ClassLoaderService classLoaderService = new ClassLoaderServiceImpl(appClassLoaders) {
                 @Override

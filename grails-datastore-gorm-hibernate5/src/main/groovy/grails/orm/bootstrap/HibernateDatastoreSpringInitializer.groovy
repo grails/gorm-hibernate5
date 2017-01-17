@@ -14,16 +14,14 @@
  */
 package grails.orm.bootstrap
 
-import grails.util.GrailsUtil
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
-import org.grails.datastore.gorm.proxy.ProxyHandlerAdapter
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
-import org.grails.datastore.gorm.support.DatastorePersistenceContextInterceptor
 import org.grails.datastore.mapping.core.connections.AbstractConnectionSources
 import org.grails.datastore.mapping.core.connections.ConnectionSource
 import org.grails.datastore.mapping.core.grailsversion.GrailsVersion
+import org.grails.datastore.mapping.reflect.ClassUtils
 import org.grails.datastore.mapping.validation.BeanFactoryValidatorRegistry
 import org.grails.orm.hibernate.GrailsHibernateTransactionManager
 import org.grails.orm.hibernate.HibernateDatastore
@@ -31,9 +29,6 @@ import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
 import org.grails.orm.hibernate.support.DataSourceFactoryBean
-import org.grails.orm.hibernate.validation.HibernateDomainClassValidator
-import org.grails.orm.hibernate5.support.AggregatePersistenceContextInterceptor
-import org.grails.orm.hibernate5.support.GrailsOpenSessionInViewInterceptor
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
@@ -116,7 +111,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
     @Override
     protected Class<AbstractDatastorePersistenceContextInterceptor> getPersistenceInterceptorClass() {
-        DatastorePersistenceContextInterceptor
+        getClass().classLoader.loadClass('org.grails.orm.hibernate5.support.HibernatePersistenceContextInterceptor')
     }
 
     /**
@@ -152,9 +147,6 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
             // for unwrapping / inspecting proxies
             hibernateProxyHandler(HibernateProxyHandler)
-            proxyHandler(ProxyHandlerAdapter, ref('hibernateProxyHandler'))
-
-
 
             def config = this.configuration
             final boolean isGrailsPresent = isGrailsPresent()
@@ -166,7 +158,6 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             sessionFactory(hibernateDatastore:'getSessionFactory')
             transactionManager(hibernateDatastore:"getTransactionManager")
             getBeanDefinition("transactionManager").beanClass = PlatformTransactionManager
-            persistenceInterceptor(AggregatePersistenceContextInterceptor, ref("hibernateDatastore"))
 
             // domain model mapping context, used for configuration
             grailsDomainClassMappingContext(hibernateDatastore:"getMappingContext") {
@@ -176,22 +167,34 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             }
 
             if(isGrailsPresent) {
+                if(ClassUtils.isPresent("org.grails.orm.hibernate5.support.AggregatePersistenceContextInterceptor")) {
+                    ClassLoader cl = ClassUtils.getClassLoader()
+                    persistenceInterceptor(cl.loadClass("org.grails.orm.hibernate5.support.AggregatePersistenceContextInterceptor"), ref("hibernateDatastore"))
+                    proxyHandler(cl.loadClass("org.grails.datastore.gorm.proxy.ProxyHandlerAdapter"), ref('hibernateProxyHandler'))
+                }
+
+
                 // override Validator beans with Hibernate aware instances
-                for(cls in persistentClasses) {
-                    "${cls.name}Validator"(HibernateDomainClassValidator) {
-                        proxyHandler = ref("hibernateProxyHandler")
-                        messageSource = ref("messageSource")
-                        domainClass = ref("${cls.name}DomainClass")
-                        grailsApplication = ref('grailsApplication')
-                        mappingContext = ref("grailsDomainClassMappingContext")
+                if(ClassUtils.isPresent("org.grails.orm.hibernate.validation.HibernateDomainClassValidator")) {
+                    ClassLoader cl = ClassUtils.getClassLoader()
+                    Class hibernateValidatorClass = cl.loadClass("org.grails.orm.hibernate.validation.HibernateDomainClassValidator")
+                    for(cls in persistentClasses) {
+                        "${cls.name}Validator"(hibernateValidatorClass) {
+                            proxyHandler = ref("hibernateProxyHandler")
+                            messageSource = ref("messageSource")
+                            domainClass = ref("${cls.name}DomainClass")
+                            grailsApplication = ref('grailsApplication')
+                            mappingContext = ref("grailsDomainClassMappingContext")
+                        }
                     }
                 }
                 boolean osivEnabled = config.getProperty("hibernate.osiv.enabled", Boolean, true)
                 boolean isWebApplication = beanDefinitionRegistry?.containsBeanDefinition("dispatcherServlet") ||
                         beanDefinitionRegistry?.containsBeanDefinition("grailsControllerHelper")
 
-                if (isWebApplication && osivEnabled) {
-                    openSessionInViewInterceptor(GrailsOpenSessionInViewInterceptor) {
+                if (isWebApplication && osivEnabled && ClassUtils.isPresent("org.grails.orm.hibernate5.support.GrailsOpenSessionInViewInterceptor")) {
+                    ClassLoader cl = ClassUtils.getClassLoader()
+                    openSessionInViewInterceptor(cl.loadClass("org.grails.orm.hibernate5.support.GrailsOpenSessionInViewInterceptor")) {
                         hibernateDatastore = ref("hibernateDatastore")
                     }
                 }
@@ -224,8 +227,6 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                     targetMethod = "getDatastoreForConnection"
                     arguments = [dataSourceName]
                 }
-
-                ""
 
                 // the main SessionFactory bean
                 if(!beanDefinitionRegistry.containsBeanDefinition(sessionFactoryName)) {

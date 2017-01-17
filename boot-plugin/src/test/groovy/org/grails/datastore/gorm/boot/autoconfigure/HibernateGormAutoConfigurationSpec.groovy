@@ -1,6 +1,6 @@
 package org.grails.datastore.gorm.boot.autoconfigure
 
-import grails.persistence.Entity
+import grails.gorm.annotation.Entity
 import org.springframework.beans.factory.support.DefaultListableBeanFactory
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration

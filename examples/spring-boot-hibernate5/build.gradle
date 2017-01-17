@@ -25,7 +25,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.springframework.boot:spring-boot-starter-tomcat"
-
+    compile "org.grails:grails-core:3.2.4"
     compile project(":gorm-hibernate5-spring-boot")
     compile "org.hibernate:hibernate-core:5.1.0.Final"
     compile "org.hibernate:hibernate-ehcache:5.1.0.Final"

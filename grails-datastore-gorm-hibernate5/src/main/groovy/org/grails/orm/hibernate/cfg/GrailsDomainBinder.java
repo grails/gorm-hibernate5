@@ -18,6 +18,7 @@ import groovy.lang.Closure;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
+import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.core.connections.ConnectionSourcesSupport;
 import org.grails.datastore.mapping.model.DatastoreConfigurationException;
 import org.grails.datastore.mapping.model.MappingContext;
@@ -31,6 +32,7 @@ import org.grails.orm.hibernate.proxy.GroovyAwarePojoEntityTuplizer;
 import org.hibernate.EntityMode;
 import org.hibernate.FetchMode;
 import org.hibernate.MappingException;
+import org.hibernate.annotations.common.reflection.java.JavaReflectionManager;
 import org.hibernate.boot.internal.ClassLoaderAccessImpl;
 import org.hibernate.boot.internal.MetadataBuildingContextRootImpl;
 import org.hibernate.boot.model.naming.Identifier;
@@ -53,6 +55,7 @@ import org.hibernate.type.*;
 import org.jboss.jandex.IndexView;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.Entity;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -94,7 +97,7 @@ public class GrailsDomainBinder implements MetadataContributor {
      */
     public static Map<String, NamingStrategy> NAMING_STRATEGIES = new HashMap<>();
     static {
-        NAMING_STRATEGIES.put(Mapping.DEFAULT_DATA_SOURCE, ImprovedNamingStrategy.INSTANCE);
+        NAMING_STRATEGIES.put(ConnectionSource.DEFAULT, ImprovedNamingStrategy.INSTANCE);
     }
 
     protected final CollectionType CT = new CollectionType(null, this) {
@@ -121,7 +124,7 @@ public class GrailsDomainBinder implements MetadataContributor {
     }
 
     /**
-     * The default mapping defined by {@link GrailsDomainConfiguration#DEFAULT_MAPPING}
+     * The default mapping defined by {@link org.grails.datastore.mapping.config.Settings#SETTING_DEFAULT_MAPPING}
      * @param defaultMapping The default mapping
      */
     public void setDefaultMapping(Closure defaultMapping) {
@@ -152,11 +155,12 @@ public class GrailsDomainBinder implements MetadataContributor {
                 metadataCollector
         );
 
-
-        java.util.Collection<PersistentEntity> persistentEntities = hibernateMappingContext.getPersistentEntities();
+            java.util.Collection<PersistentEntity> persistentEntities = hibernateMappingContext.getPersistentEntities();
         for (PersistentEntity persistentEntity : persistentEntities) {
-            if(ConnectionSourcesSupport.usesConnectionSource(persistentEntity, dataSourceName) && persistentEntity.isRoot()) {
-                bindRoot((HibernatePersistentEntity) persistentEntity, metadataCollector, sessionFactoryName);
+            if(!persistentEntity.getJavaClass().isAnnotationPresent(Entity.class)) {
+                if(ConnectionSourcesSupport.usesConnectionSource(persistentEntity, dataSourceName) && persistentEntity.isRoot()) {
+                    bindRoot((HibernatePersistentEntity) persistentEntity, metadataCollector, sessionFactoryName);
+                }
             }
         }
     }
@@ -166,12 +170,12 @@ public class GrailsDomainBinder implements MetadataContributor {
     /**
      * Override the default naming strategy for the default datasource given a Class or a full class name.
      * @param strategy the class or name
-     * @throws ClassNotFoundException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
+     * @throws ClassNotFoundException When the class was not found for specified strategy
+     * @throws InstantiationException When an error occurred instantiating the strategy
+     * @throws IllegalAccessException When an error occurred instantiating the strategy
      */
     public static void configureNamingStrategy(final Object strategy) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        configureNamingStrategy(Mapping.DEFAULT_DATA_SOURCE, strategy);
+        configureNamingStrategy(ConnectionSource.DEFAULT, strategy);
     }
 
     /**
@@ -180,9 +184,9 @@ public class GrailsDomainBinder implements MetadataContributor {
      *
      * @param datasourceName the datasource name
      * @param strategy  the class, name, or instance
-     * @throws ClassNotFoundException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
+     * @throws ClassNotFoundException When the class was not found for specified strategy
+     * @throws InstantiationException When an error occurred instantiating the strategy
+     * @throws IllegalAccessException When an error occurred instantiating the strategy
      */
     public static void configureNamingStrategy(final String datasourceName, final Object strategy) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Class<?> namingStrategyClass = null;
@@ -778,8 +782,8 @@ public class GrailsDomainBinder implements MetadataContributor {
     }
 
     /**
-     * @param property
-     * @param manyToOne
+     * @param property The property to bind
+     * @param manyToOne The inverse side
      */
     protected void bindUnidirectionalOneToManyInverseValues(ToMany property, ManyToOne manyToOne) {
         PropertyConfig config = getPropertyConfig(property);
@@ -838,6 +842,7 @@ public class GrailsDomainBinder implements MetadataContributor {
      * @param property The property
      * @param key      The key
      * @param mappings The mappings
+     * @param sessionFactoryBeanName The name of the session factory
      */
     protected void bindDependentKeyValue(PersistentProperty property, DependantValue key,
                                          InFlightMetadataCollector mappings, String sessionFactoryBeanName) {

@@ -1,8 +1,13 @@
 package org.grails.orm.hibernate.connections;
 
+import org.grails.datastore.gorm.validation.javax.JavaxValidatorRegistry;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.core.exceptions.ConfigurationException;
+<<<<<<< HEAD
 import org.grails.datastore.mapping.core.grailsversion.GrailsVersion;
+=======
+import org.grails.datastore.mapping.validation.ValidatorRegistry;
+>>>>>>> master
 import org.grails.orm.hibernate.HibernateEventListeners;
 import org.grails.orm.hibernate.cfg.GrailsDomainBinder;
 import org.grails.orm.hibernate.cfg.HibernateMappingContext;
@@ -20,6 +25,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.StaticMessageSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -34,7 +42,7 @@ import java.util.Properties;
  * @author Graeme Rocher
  * @since 6.0
  */
-public class HibernateConnectionSourceFactory extends AbstractHibernateConnectionSourceFactory implements ApplicationContextAware {
+public class HibernateConnectionSourceFactory extends AbstractHibernateConnectionSourceFactory implements ApplicationContextAware, MessageSourceAware {
 
     static {
         // use Slf4j logging by default
@@ -47,6 +55,7 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
     protected HibernateEventListeners hibernateEventListeners;
     protected Interceptor interceptor;
     protected MetadataContributor metadataContributor;
+    protected MessageSource messageSource = new StaticMessageSource();
 
     public HibernateConnectionSourceFactory(Class...classes) {
         this.persistentClasses = classes;
@@ -103,6 +112,12 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
         }
         else {
             configuration = new HibernateMappingContextConfiguration();
+        }
+
+        if(JavaxValidatorRegistry.isAvailable() && messageSource != null) {
+            ValidatorRegistry registry = new JavaxValidatorRegistry(mappingContext,dataSourceConnectionSource.getSettings(), messageSource );
+            mappingContext.setValidatorRegistry(registry);
+            configuration.getProperties().put("javax.persistence.validation.factory", registry);
         }
 
         if(applicationContext != null && applicationContext.containsBean(dataSourceConnectionSource.getName())) {
@@ -237,6 +252,8 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         if(applicationContext != null) {
             this.applicationContext = applicationContext;
+            this.messageSource = applicationContext;
+
             GrailsVersion currentVersion = GrailsVersion.getCurrent();
             if (currentVersion != null) {
                 //If 3.3.0.M1 is greater than the current version
@@ -246,6 +263,12 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
                     this.dataSourceConnectionSourceFactory = springDataSourceConnectionSourceFactory;
                 }
             }
+
         }
+    }
+
+    @Override
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
     }
 }
