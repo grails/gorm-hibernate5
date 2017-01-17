@@ -3,11 +3,8 @@ package org.grails.orm.hibernate.connections;
 import org.grails.datastore.gorm.validation.javax.JavaxValidatorRegistry;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.core.exceptions.ConfigurationException;
-<<<<<<< HEAD
 import org.grails.datastore.mapping.core.grailsversion.GrailsVersion;
-=======
 import org.grails.datastore.mapping.validation.ValidatorRegistry;
->>>>>>> master
 import org.grails.orm.hibernate.HibernateEventListeners;
 import org.grails.orm.hibernate.cfg.GrailsDomainBinder;
 import org.grails.orm.hibernate.cfg.HibernateMappingContext;
@@ -28,7 +25,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.StaticMessageSource;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
