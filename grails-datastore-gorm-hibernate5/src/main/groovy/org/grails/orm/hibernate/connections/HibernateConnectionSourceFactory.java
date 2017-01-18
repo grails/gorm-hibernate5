@@ -3,6 +3,7 @@ package org.grails.orm.hibernate.connections;
 import org.grails.datastore.gorm.validation.javax.JavaxValidatorRegistry;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.core.exceptions.ConfigurationException;
+import org.grails.datastore.mapping.core.grailsversion.GrailsVersion;
 import org.grails.datastore.mapping.validation.ValidatorRegistry;
 import org.grails.orm.hibernate.HibernateEventListeners;
 import org.grails.orm.hibernate.cfg.GrailsDomainBinder;
@@ -24,7 +25,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.StaticMessageSource;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
@@ -248,10 +248,18 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         if(applicationContext != null) {
             this.applicationContext = applicationContext;
-            SpringDataSourceConnectionSourceFactory springDataSourceConnectionSourceFactory = new SpringDataSourceConnectionSourceFactory();
-            springDataSourceConnectionSourceFactory.setApplicationContext(applicationContext);
-            this.dataSourceConnectionSourceFactory = springDataSourceConnectionSourceFactory;
             this.messageSource = applicationContext;
+
+            GrailsVersion currentVersion = GrailsVersion.getCurrent();
+            if (currentVersion != null) {
+                //If 3.3.0.M1 is greater than the current version
+                if (currentVersion.compareTo(new GrailsVersion("3.3.0.M1")) == -1) {
+                    SpringDataSourceConnectionSourceFactory springDataSourceConnectionSourceFactory = new SpringDataSourceConnectionSourceFactory();
+                    springDataSourceConnectionSourceFactory.setApplicationContext(applicationContext);
+                    this.dataSourceConnectionSourceFactory = springDataSourceConnectionSourceFactory;
+                }
+            }
+
         }
     }
 

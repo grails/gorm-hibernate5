@@ -20,6 +20,7 @@ import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
 import org.grails.datastore.mapping.core.connections.AbstractConnectionSources
 import org.grails.datastore.mapping.core.connections.ConnectionSource
+import org.grails.datastore.mapping.core.grailsversion.GrailsVersion
 import org.grails.datastore.mapping.reflect.ClassUtils
 import org.grails.datastore.mapping.validation.BeanFactoryValidatorRegistry
 import org.grails.orm.hibernate.GrailsHibernateTransactionManager
@@ -27,6 +28,7 @@ import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
+import org.grails.orm.hibernate.support.DataSourceFactoryBean
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
@@ -148,6 +150,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
             def config = this.configuration
             final boolean isGrailsPresent = isGrailsPresent()
+
             hibernateConnectionSourceFactory(HibernateConnectionSourceFactory, persistentClasses as Class[]) { bean ->
                 bean.autowire = true
             }
@@ -197,12 +200,26 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                 }
             }
 
+            boolean shouldConfigureDataSourceBean = !isGrailsPresent
+            if (isGrailsPresent) {
+                def currentVersion = GrailsVersion.current
+                shouldConfigureDataSourceBean = currentVersion == null || new GrailsVersion("3.3.0.M1") <= currentVersion
+            }
+
             for(dataSourceName in dataSources) {
 
                 boolean isDefault = dataSourceName == Settings.SETTING_DATASOURCE || dataSourceName == ConnectionSource.DEFAULT
+
+                String suffix = isDefault ? '' : "_$dataSourceName"
+                String beanName = isDefault ? Settings.SETTING_DATASOURCE : "dataSource_$dataSourceName"
+
+
+                if (shouldConfigureDataSourceBean) {
+                    "$beanName"(DataSourceFactoryBean, ref("hibernateDatastore"), isDefault ? ConnectionSource.DEFAULT : dataSourceName)
+                }
+
                 if(isDefault) continue
 
-                String suffix = '_' + dataSourceName
                 def sessionFactoryName = isDefault ? defaultSessionFactoryBeanName : "sessionFactory$suffix"
                 String datastoreBeanName = "hibernateDatastore$suffix"
                 "$datastoreBeanName"(MethodInvokingFactoryBean) {
@@ -210,6 +227,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                     targetMethod = "getDatastoreForConnection"
                     arguments = [dataSourceName]
                 }
+
                 // the main SessionFactory bean
                 if(!beanDefinitionRegistry.containsBeanDefinition(sessionFactoryName)) {
                     "$sessionFactoryName"((datastoreBeanName):"getSessionFactory")
