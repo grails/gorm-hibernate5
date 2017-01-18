@@ -2,6 +2,8 @@ package org.grails.orm.hibernate.connections
 
 import grails.gorm.DetachedCriteria
 import grails.gorm.MultiTenant
+import grails.gorm.multitenancy.CurrentTenant
+import grails.gorm.multitenancy.Tenant
 import grails.gorm.multitenancy.Tenants
 import grails.persistence.Entity
 import org.grails.datastore.gorm.GormEntity
@@ -129,6 +131,13 @@ class MultiTenantSpec extends Specification {
         then:"The result is correct"
         tenantIds == [moreBooks:2, books:1]
 
+        when:"A tenant service is used"
+        MultiTenantAuthorService authorService = new MultiTenantAuthorService()
+
+        then:"The service works correctly"
+        authorService.countAuthors() == 1
+        authorService.countMoreAuthors() == 2
+
     }
 
     void "test multi tenancy and associations"() {
@@ -180,6 +189,18 @@ class MultiTenantAuthor implements GormEntity<MultiTenantAuthor>,MultiTenant<Mul
     static hasMany = [books:MultiTenantBook]
     static constraints = {
         name blank:false
+    }
+}
+
+@CurrentTenant
+class MultiTenantAuthorService {
+    int countAuthors() {
+        MultiTenantAuthor.count()
+    }
+
+    @Tenant({ "moreBooks" })
+    int countMoreAuthors() {
+        MultiTenantAuthor.count()
     }
 }
 

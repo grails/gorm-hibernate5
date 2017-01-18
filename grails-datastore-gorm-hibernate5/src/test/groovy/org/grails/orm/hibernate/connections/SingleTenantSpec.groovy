@@ -1,6 +1,8 @@
 package org.grails.orm.hibernate.connections
 
 import grails.gorm.MultiTenant
+import grails.gorm.multitenancy.CurrentTenant
+import grails.gorm.multitenancy.Tenant
 import grails.gorm.multitenancy.Tenants
 import grails.persistence.Entity
 import org.grails.datastore.gorm.GormEntity
@@ -105,6 +107,13 @@ class SingleTenantSpec extends Specification {
 
         then:"The result is correct"
         tenantIds == [moreBooks:2, books:0]
+
+        when:"A tenant service is used"
+        SingleTenantAuthorService authorService = new SingleTenantAuthorService()
+
+        then:"The service works correctly"
+        authorService.countAuthors() == 0
+        authorService.countMoreAuthors() == 2
     }
 
 
@@ -122,3 +131,14 @@ class SingleTenantAuthor implements GormEntity<SingleTenantAuthor>,MultiTenant<S
     }
 }
 
+@CurrentTenant
+class SingleTenantAuthorService {
+    int countAuthors() {
+        SingleTenantAuthor.count()
+    }
+
+    @Tenant({ "moreBooks" })
+    int countMoreAuthors() {
+        SingleTenantAuthor.count()
+    }
+}
