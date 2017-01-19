@@ -20,9 +20,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.MySQLDialect;
-import org.hibernate.dialect.Oracle8iDialect;
+import org.hibernate.dialect.*;
 import org.hibernate.engine.spi.TypedValue;
 
 /**
@@ -51,7 +49,7 @@ public class RlikeExpression implements Criterion {
         Dialect dialect = criteriaQuery.getFactory().getDialect();
         String[] columns = criteriaQuery.getColumnsUsingProjection(criteria, propertyName);
         if (columns.length != 1) {
-            throw new HibernateException("ilike may only be used with single-column properties");
+            throw new HibernateException("rlike may only be used with single-column properties");
         }
 
         if (dialect instanceof MySQLDialect) {
@@ -62,7 +60,15 @@ public class RlikeExpression implements Criterion {
             return " REGEXP_LIKE (" + columns[0] + ", ?)";
         }
 
-        return columns[0] + " like ?";
+        if (dialect instanceof PostgreSQL81Dialect) {
+            return columns[0] + " ~* ?";
+        }
+
+        if (dialect instanceof H2Dialect) {
+            return columns[0] + " REGEXP ?";
+        }
+
+        throw new HibernateException("rlike is not supported with the configured dialect " + dialect.getClass().getCanonicalName());
     }
 
     private boolean isOracleDialect(Dialect dialect) {

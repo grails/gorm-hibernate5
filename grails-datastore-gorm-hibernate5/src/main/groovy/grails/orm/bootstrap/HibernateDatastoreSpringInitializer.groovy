@@ -200,6 +200,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                 }
             }
 
+            //Configure the dataSource bean if grails is not present or the grails version is less than 3.3.x
             boolean shouldConfigureDataSourceBean = !isGrailsPresent
             if (isGrailsPresent) {
                 def currentVersion = GrailsVersion.current
