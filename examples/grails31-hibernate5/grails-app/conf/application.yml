@@ -67,12 +67,12 @@ grails:
                 staticparts: none
 ---
 hibernate:
-    cache:
-        queries: false
-        use_second_level_cache: true
-        use_query_cache: false
-        region.factory_class: 'org.hibernate.cache.ehcache.EhCacheRegionFactory'
-
+  configClass: functional.tests.CustomHibernateMappingContextConfiguration
+  cache:
+      queries: false
+      use_second_level_cache: true
+      use_query_cache: false
+      region.factory_class: 'org.hibernate.cache.ehcache.EhCacheRegionFactory'
 endpoints:
     jmx:
         unique-names: true
