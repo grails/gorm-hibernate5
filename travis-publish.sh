@@ -48,9 +48,13 @@ if [[ $TRAVIS_REPO_SLUG == "grails/gorm-hibernate5" && $TRAVIS_PULL_REQUEST == '
         version="$TRAVIS_TAG"
         version=${version:1}
 
-        mkdir -p latest/hibernate/
-        cp -r ../docs/build/docs/. ./latest/hibernate/
-        git add latest/hibernate/*
+        if [[ $TRAVIS_TAG =~ [M\d|RC\d] ]]; then            
+           echo "Publishing Milestone Release"  
+        else 
+            mkdir -p latest/hibernate/
+            cp -r ../docs/build/docs/. ./latest/hibernate/
+            git add latest/hibernate/*
+        fi     
 
         majorVersion=${version:0:4}
         majorVersion="${majorVersion}x"
@@ -65,7 +69,7 @@ if [[ $TRAVIS_REPO_SLUG == "grails/gorm-hibernate5" && $TRAVIS_PULL_REQUEST == '
 
     else
         # If this is the master branch then update the snapshot
-        mkdir -p snapshothibernate/
+        mkdir -p snapshot/hibernate/
         cp -r ../docs/build/docs/. ./snapshot/hibernate/
 
         git add snapshot/hibernate/*
