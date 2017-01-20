@@ -8,9 +8,10 @@ dependencies {
 }
 ----
 
-If you are using a version of Grails 3 earlier than 3.2 then you may need to enforce the GORM version by adding the following block:
+If you are using a version of Grails 3 earlier than 3.3 then you may need to enforce the GORM version by adding the following block directly above the `dependencies` block:
 
 [source,groovy,subs="attributes"]
+.build.gradle
 ----
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
@@ -19,5 +20,8 @@ configurations.all {
             details.useVersion("{version}")
         }
     }
+}
+dependencies {
+    ...
 }
 ----
