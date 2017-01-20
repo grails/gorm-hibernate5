@@ -22,6 +22,34 @@ class Person implements AsyncEntity<Person> {
 }
 ----
 
+==== Removal of grails-datastore-simple
+
+The `grails-datastore-simple` and `grails-datastore-gorm-test` dependencies have been combined into a single `grails-datastore-gorm-test` dependency.
+
+Unfortunately existing versions of Grails still depend on the old `grails-datastore-simple` dependency. And you may receive an error such as:
+
+[source,groovy,subs="attributes"]
+----
+> Could not resolve all dependencies for configuration ':example:runtime'.
+   > Could not find org.grails:grails-datastore-simple:{version}.
+     Searched in the following locations:
+         https://repo.grails.org/grails/core/org/grails/grails-datastore-simple/{version}/grails-datastore-simple-{version}.pom
+         https://repo.grails.org/grails/core/org/grails/grails-datastore-simple/{version}/grails-datastore-simple-{version}.jar
+     Required by:
+         project :example > org.grails:grails-dependencies:3.2.4 >
+            ...
+----
+
+If you are upgrading you will need to exclude this dependency from `grails-dependencies` and remove any references from `build.gradle`. For example:
+
+[source,groovy]
+.build.gradle
+----
+    compile "org.grails:grails-dependencies:$grailsVersion", {
+        exclude module:'grails-datastore-simple'
+    }
+----
+
 ==== Changes to Configuration Model
 
 In preparation for Hibernate 5.2 support the previous "SessionFactoryBean" notion has been removed. Now if you wish to customize `SessionFactory` creation you should instead register a custom `org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory` in Spring.
