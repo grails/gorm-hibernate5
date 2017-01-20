@@ -1,3 +1,16 @@
+==== GORM 6.1
+
+GORM 6.1 includes a variety of enhancements to GORM 6.0 including:
+
+* Multi-Tenancy Transformations
+* Support for Bean Validation API
+* Built-in Package Scanning
+* JPA Annotation Mapping Support
+* Hibernate transformations for dirty checking, managed entities and so on
+* HQL & SQL query escaping for GString queries
+
+See the http://gorm.grails.org/6.1.x/whatsNew/manual[What's New in GORM 6.1] guide for more information.
+
 ==== GORM 6.0
 
 GORM 6.0 continues to evolve the new trait based model and includes the following new features:

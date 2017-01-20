@@ -1,3 +1,27 @@
+==== Separation of GORM Async
+
+GORM Async has been separated from GORM core and is no longer added by default to entities.
+
+This was done in order to reduce the number of dependencies necessary to use GORM and to add flexibility in terms of the Async API used in the future.
+
+In order to enable GORM Async you need to add the necessary dependency to `build.gradle`:
+
+[source,groovy,subs="attributes"]
+----
+compile "org.grails:grails-datastore-gorm-async:{version}"
+----
+
+And make your entities implement the `AsyncEntity` trait:
+
+[source,groovy]
+----
+import grails.gorm.async.*
+
+class Person implements AsyncEntity<Person> {
+  ...
+}
+----
+
 ==== Changes to Configuration Model
 
 In preparation for Hibernate 5.2 support the previous "SessionFactoryBean" notion has been removed. Now if you wish to customize `SessionFactory` creation you should instead register a custom `org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory` in Spring.
