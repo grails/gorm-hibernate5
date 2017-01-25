@@ -1,5 +1,7 @@
+prodDb.mv.db
 .gradle
 build/
+classes/
 out/
 .idea
 target/
