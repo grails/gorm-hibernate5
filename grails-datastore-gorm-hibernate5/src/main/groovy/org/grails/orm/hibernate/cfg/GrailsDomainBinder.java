@@ -2689,12 +2689,28 @@ public class GrailsDomainBinder implements MetadataContributor {
             simpleValue.addFormula(formula);
         } else {
             Table table = simpleValue.getTable();
+            boolean hasConfig = propertyConfig != null;
+
+            String generator = hasConfig ? propertyConfig.getGenerator() : null;
+            if(generator != null) {
+                simpleValue.setIdentifierGeneratorStrategy(generator);
+                Properties params = propertyConfig.getTypeParams();
+                if(params != null) {
+                    Properties generatorProps = new Properties();
+                    generatorProps.putAll(params);
+
+                    if(generatorProps.containsKey(SEQUENCE_KEY)) {
+                        generatorProps.put(SequenceStyleGenerator.SEQUENCE_PARAM,  generatorProps.getProperty(SEQUENCE_KEY));
+                    }
+                    simpleValue.setIdentifierGeneratorProperties( generatorProps );
+                }
+            }
 
             // Add the column definitions for this value/property. Note that
             // not all custom mapped properties will have column definitions,
             // in which case we still need to create a Hibernate column for
             // this value.
-            List<?> columnDefinitions = propertyConfig != null ? propertyConfig.getColumns()
+            List<?> columnDefinitions = hasConfig ? propertyConfig.getColumns()
                     : Arrays.asList(new Object[] { null });
             if (columnDefinitions.isEmpty()) {
                 columnDefinitions = Arrays.asList(new Object[] { null });
