@@ -1189,31 +1189,6 @@ public class GrailsDomainBinder implements MetadataContributor {
             if(namingStrategy != null) {
                 tableName = namingStrategy.resolveTableName(domainClass);
             }
-            // TODO: Reinstate plugin config
-//            final GrailsApplication grailsApplication = domainClass.getApplication();
-//            if (grailsApplication != null) {
-//                final ApplicationContext mainContext = grailsApplication.getMainContext();
-//                if (mainContext != null && mainContext.containsBean("pluginManager")) {
-//                    final GrailsPluginManager pluginManager = (GrailsPluginManager) mainContext.getBean("pluginManager");
-//                    final GrailsPlugin pluginForClass = pluginManager.getPluginForClass(domainClass.getClazz());
-//                    if (pluginForClass != null) {
-//                        final String pluginName = pluginForClass.getName();
-//                        boolean shouldApplyPluginPrefix = false;
-//                        if (!shortName.toLowerCase().startsWith(pluginName.toLowerCase())) {
-//                            final String pluginSpecificConfigProperty = "grails.gorm." + GrailsNameUtils.getPropertyName(pluginName) + ".table.prefix.enabled";
-//                            final Config config = grailsApplication.getConfig();
-//                            if (config.containsKey(pluginSpecificConfigProperty)) {
-//                                shouldApplyPluginPrefix = config.getProperty(pluginSpecificConfigProperty, Boolean.class, false);
-//                            } else {
-//                                shouldApplyPluginPrefix = config.getProperty("grails.gorm.table.prefix.enabled", Boolean.class, false);
-//                            }
-//                        }
-//                        if (shouldApplyPluginPrefix) {
-//                            shortName = pluginName + shortName;
-//                        }
-//                    }
-//                }
-//            }
             if(tableName == null) {
                 tableName = getNamingStrategy(sessionFactoryBeanName).classToTableName(shortName);
             }
@@ -2330,12 +2305,26 @@ public class GrailsDomainBinder implements MetadataContributor {
         String[] propertyNames = compositeId.getPropertyNames();
         PropertyConfig config = getPropertyConfig(property);
 
-        if (config.getColumns().size() != propertyNames.length) {
+        List<ColumnConfig> columns = config.getColumns();
+        int i = columns.size();
+        if (i != propertyNames.length) {
+            int j = 0;
             for (String propertyName : propertyNames) {
-                final ColumnConfig cc = new ColumnConfig();
-                cc.setName(addUnderscore(namingStrategy.classToTableName(refDomainClass.getJavaClass().getSimpleName()),
-                        getDefaultColumnName(refDomainClass.getPropertyByName(propertyName), sessionFactoryBeanName)));
-                config.getColumns().add(cc);
+                ColumnConfig cc;
+                if(j == 0 && i > 0) {
+                    cc = columns.get(j++);
+                    if(cc.getName() == null) {
+                        cc.setName(addUnderscore(namingStrategy.classToTableName(refDomainClass.getJavaClass().getSimpleName()),
+                                getDefaultColumnName(refDomainClass.getPropertyByName(propertyName), sessionFactoryBeanName)));
+                    }
+                }
+                else {
+                    cc = new ColumnConfig();
+                    cc.setName(addUnderscore(namingStrategy.classToTableName(refDomainClass.getJavaClass().getSimpleName()),
+                            getDefaultColumnName(refDomainClass.getPropertyByName(propertyName), sessionFactoryBeanName)));
+
+                }
+                columns.add(cc);
             }
         }
         bindSimpleValue(property, value, path, config, sessionFactoryBeanName);
