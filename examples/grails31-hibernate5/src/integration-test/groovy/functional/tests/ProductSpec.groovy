@@ -1,5 +1,6 @@
 package functional.tests
 
+import another.Item
 import grails.test.mixin.integration.Integration
 import grails.transaction.Rollback
 import groovy.transform.NotYetImplemented
@@ -24,6 +25,12 @@ class ProductSpec extends Specification {
         !product.errors.hasErrors()
         Product.count() == 2
         query.count() == 0
+    }
+
+    @Rollback
+    void "test entity in different package to application"() {
+        expect:
+        Item.count() == 0
     }
 
     @Rollback
