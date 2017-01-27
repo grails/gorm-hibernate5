@@ -8,6 +8,8 @@ import org.grails.datastore.gorm.utils.ClasspathEntityScanner
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.cfg.Settings
+import org.hibernate.Session
+import org.hibernate.SessionFactory
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.boot.env.PropertySourcesLoader
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
@@ -81,6 +83,20 @@ abstract class HibernateSpec extends Specification {
      */
     Map getConfiguration() {
         Collections.singletonMap(Settings.SETTING_DB_CREATE, "create-drop")
+    }
+
+    /**
+     * @return the current session factory
+     */
+    SessionFactory getSessionFactory() {
+        hibernateDatastore.getSessionFactory()
+    }
+
+    /**
+     * @return the current Hibernate session
+     */
+    Session getHibernateSession() {
+        getSessionFactory().getCurrentSession()
     }
 
     /**

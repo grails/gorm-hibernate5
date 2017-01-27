@@ -6,11 +6,6 @@ dependencies {
         exclude group:'org.hibernate', module:'hibernate-commons-annotations'
     }
 
-    // only needed by HibernateDatastoreSpringInitializer
-//    compile("org.grails:grails-datastore-gorm-support:$gormVersion") {
-//        exclude group:'org.grails', module:'grails-datastore-gorm-hibernate-core'
-//    }
-
     // Web dependencies provided
     compileOnly "javax.servlet:javax.servlet-api:$servletApiVersion"
     compileOnly "org.grails:grails-web-url-mappings:$grailsVersion"

@@ -20,10 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.core.connections.ConnectionSourcesSupport;
-import org.grails.datastore.mapping.model.DatastoreConfigurationException;
-import org.grails.datastore.mapping.model.MappingContext;
-import org.grails.datastore.mapping.model.PersistentEntity;
-import org.grails.datastore.mapping.model.PersistentProperty;
+import org.grails.datastore.mapping.model.*;
 import org.grails.datastore.mapping.model.config.GormProperties;
 import org.grails.datastore.mapping.model.types.*;
 import org.grails.datastore.mapping.model.types.ToOne;
@@ -1195,31 +1192,6 @@ public class GrailsDomainBinder implements MetadataContributor {
             if(namingStrategy != null) {
                 tableName = namingStrategy.resolveTableName(domainClass);
             }
-            // TODO: Reinstate plugin config
-//            final GrailsApplication grailsApplication = domainClass.getApplication();
-//            if (grailsApplication != null) {
-//                final ApplicationContext mainContext = grailsApplication.getMainContext();
-//                if (mainContext != null && mainContext.containsBean("pluginManager")) {
-//                    final GrailsPluginManager pluginManager = (GrailsPluginManager) mainContext.getBean("pluginManager");
-//                    final GrailsPlugin pluginForClass = pluginManager.getPluginForClass(domainClass.getClazz());
-//                    if (pluginForClass != null) {
-//                        final String pluginName = pluginForClass.getName();
-//                        boolean shouldApplyPluginPrefix = false;
-//                        if (!shortName.toLowerCase().startsWith(pluginName.toLowerCase())) {
-//                            final String pluginSpecificConfigProperty = "grails.gorm." + GrailsNameUtils.getPropertyName(pluginName) + ".table.prefix.enabled";
-//                            final Config config = grailsApplication.getConfig();
-//                            if (config.containsKey(pluginSpecificConfigProperty)) {
-//                                shouldApplyPluginPrefix = config.getProperty(pluginSpecificConfigProperty, Boolean.class, false);
-//                            } else {
-//                                shouldApplyPluginPrefix = config.getProperty("grails.gorm.table.prefix.enabled", Boolean.class, false);
-//                            }
-//                        }
-//                        if (shouldApplyPluginPrefix) {
-//                            shortName = pluginName + shortName;
-//                        }
-//                    }
-//                }
-//            }
             if(tableName == null) {
                 tableName = getNamingStrategy(sessionFactoryBeanName).classToTableName(shortName);
             }
@@ -2324,15 +2296,77 @@ public class GrailsDomainBinder implements MetadataContributor {
         String[] propertyNames = compositeId.getPropertyNames();
         PropertyConfig config = getPropertyConfig(property);
 
-        if (config.getColumns().size() != propertyNames.length) {
+        List<ColumnConfig> columns = config.getColumns();
+        int i = columns.size();
+        int expectedForeignKeyColumnLength = calculateForeignKeyColumnCount(refDomainClass, propertyNames);
+        if (i != expectedForeignKeyColumnLength) {
+            int j = 0;
             for (String propertyName : propertyNames) {
-                final ColumnConfig cc = new ColumnConfig();
-                cc.setName(addUnderscore(namingStrategy.classToTableName(refDomainClass.getJavaClass().getSimpleName()),
-                        getDefaultColumnName(refDomainClass.getPropertyByName(propertyName), sessionFactoryBeanName)));
-                config.getColumns().add(cc);
+                ColumnConfig cc;
+                // if a column configuration exists in the mapping use it
+                if(j < i) {
+                    cc = columns.get(j++);
+                }
+                // otherwise create a new one to represent the composite column
+                else {
+                    cc = new ColumnConfig();
+                }
+                // if the name is null then configure the name by convention
+                if(cc.getName() == null) {
+                    // use the referenced table name as a prefix
+                    String prefix = getTableName(refDomainClass, sessionFactoryBeanName);
+                    PersistentProperty referencedProperty = refDomainClass.getPropertyByName(propertyName);
+
+                    // if the referenced property is a ToOne and it has a composite id
+                    // then a column is needed for each property that forms the composite id
+                    if(referencedProperty instanceof ToOne) {
+                        ToOne toOne = (ToOne) referencedProperty;
+                        PersistentProperty[] compositeIdentity = toOne.getAssociatedEntity().getCompositeIdentity();
+                        if(compositeIdentity != null) {
+                            for (PersistentProperty cip : compositeIdentity) {
+                                // for each property of a composite id by default we use the table name and the property name as a prefix
+                                String compositeIdPrefix = addUnderscore(prefix, namingStrategy.propertyToColumnName(referencedProperty.getName()));
+                                String suffix = getDefaultColumnName(cip, sessionFactoryBeanName);
+                                String finalColumnName = addUnderscore(compositeIdPrefix, suffix);
+                                cc = new ColumnConfig();
+                                cc.setName(finalColumnName);
+                                columns.add(cc);
+                            }
+                            continue;
+                        }
+                    }
+
+                    String suffix = getDefaultColumnName(referencedProperty, sessionFactoryBeanName);
+                    String finalColumnName = addUnderscore(prefix, suffix);
+                    cc.setName(finalColumnName);
+                    columns.add(cc);
+                }
             }
         }
         bindSimpleValue(property, value, path, config, sessionFactoryBeanName);
+    }
+
+    // each property may consist of one or many columns (due to composite ids) so in order to get the
+    // number of columns required for a column key we have to perform the calculation here
+    private int calculateForeignKeyColumnCount(PersistentEntity refDomainClass, String[] propertyNames) {
+        int expectedForeignKeyColumnLength = 0;
+        for (String propertyName : propertyNames) {
+            PersistentProperty referencedProperty = refDomainClass.getPropertyByName(propertyName);
+            if(referencedProperty instanceof ToOne) {
+                ToOne toOne = (ToOne) referencedProperty;
+                PersistentProperty[] compositeIdentity = toOne.getAssociatedEntity().getCompositeIdentity();
+                if(compositeIdentity != null) {
+                    expectedForeignKeyColumnLength += compositeIdentity.length;
+                }
+                else {
+                    expectedForeignKeyColumnLength++;
+                }
+            }
+            else {
+                expectedForeignKeyColumnLength++;
+            }
+        }
+        return expectedForeignKeyColumnLength;
     }
 
     protected boolean hasCompositeIdentifier(Mapping mapping) {
@@ -2701,12 +2735,28 @@ public class GrailsDomainBinder implements MetadataContributor {
             simpleValue.addFormula(formula);
         } else {
             Table table = simpleValue.getTable();
+            boolean hasConfig = propertyConfig != null;
+
+            String generator = hasConfig ? propertyConfig.getGenerator() : null;
+            if(generator != null) {
+                simpleValue.setIdentifierGeneratorStrategy(generator);
+                Properties params = propertyConfig.getTypeParams();
+                if(params != null) {
+                    Properties generatorProps = new Properties();
+                    generatorProps.putAll(params);
+
+                    if(generatorProps.containsKey(SEQUENCE_KEY)) {
+                        generatorProps.put(SequenceStyleGenerator.SEQUENCE_PARAM,  generatorProps.getProperty(SEQUENCE_KEY));
+                    }
+                    simpleValue.setIdentifierGeneratorProperties( generatorProps );
+                }
+            }
 
             // Add the column definitions for this value/property. Note that
             // not all custom mapped properties will have column definitions,
             // in which case we still need to create a Hibernate column for
             // this value.
-            List<?> columnDefinitions = propertyConfig != null ? propertyConfig.getColumns()
+            List<?> columnDefinitions = hasConfig ? propertyConfig.getColumns()
                     : Arrays.asList(new Object[] { null });
             if (columnDefinitions.isEmpty()) {
                 columnDefinitions = Arrays.asList(new Object[] { null });

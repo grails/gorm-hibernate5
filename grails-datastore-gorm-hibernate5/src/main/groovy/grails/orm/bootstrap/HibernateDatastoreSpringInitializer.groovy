@@ -20,17 +20,13 @@ import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
 import org.grails.datastore.mapping.core.connections.AbstractConnectionSources
 import org.grails.datastore.mapping.core.connections.ConnectionSource
-import org.grails.datastore.mapping.core.grailsversion.GrailsVersion
 import org.grails.datastore.mapping.reflect.ClassUtils
 import org.grails.datastore.mapping.validation.BeanFactoryValidatorRegistry
-import org.grails.orm.hibernate.GrailsHibernateTransactionManager
 import org.grails.orm.hibernate.HibernateDatastore
-import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
-import org.grails.orm.hibernate.support.DataSourceFactoryBean
+import org.grails.orm.hibernate.support.HibernateDatastoreConnectionSourcesRegistrar
 import org.springframework.beans.factory.BeanFactory
-import org.springframework.beans.factory.config.MethodInvokingFactoryBean
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationEventPublisher
@@ -158,7 +154,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             sessionFactory(hibernateDatastore:'getSessionFactory')
             transactionManager(hibernateDatastore:"getTransactionManager")
             getBeanDefinition("transactionManager").beanClass = PlatformTransactionManager
-
+            hibernateDatastoreConnectionSourcesRegistrar(HibernateDatastoreConnectionSourcesRegistrar, dataSources)
             // domain model mapping context, used for configuration
             grailsDomainClassMappingContext(hibernateDatastore:"getMappingContext") {
                 if(isGrailsPresent && (beanDefinitionRegistry instanceof BeanFactory)) {
@@ -199,57 +195,6 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                     }
                 }
             }
-
-            //Configure the dataSource bean if grails is not present or the grails version is less than 3.3.x
-            boolean shouldConfigureDataSourceBean = !isGrailsPresent
-            if (isGrailsPresent) {
-                def currentVersion = GrailsVersion.current
-                shouldConfigureDataSourceBean = currentVersion == null || new GrailsVersion("3.3.0.M1") <= currentVersion
-            }
-
-            for(dataSourceName in dataSources) {
-
-                boolean isDefault = dataSourceName == Settings.SETTING_DATASOURCE || dataSourceName == ConnectionSource.DEFAULT
-
-                String suffix = isDefault ? '' : "_$dataSourceName"
-                String beanName = isDefault ? Settings.SETTING_DATASOURCE : "dataSource_$dataSourceName"
-
-
-                if (shouldConfigureDataSourceBean) {
-                    "$beanName"(DataSourceFactoryBean, ref("hibernateDatastore"), isDefault ? ConnectionSource.DEFAULT : dataSourceName)
-                }
-
-                if(isDefault) continue
-
-                def sessionFactoryName = isDefault ? defaultSessionFactoryBeanName : "sessionFactory$suffix"
-                String datastoreBeanName = "hibernateDatastore$suffix"
-                "$datastoreBeanName"(MethodInvokingFactoryBean) {
-                    targetObject = ref("hibernateDatastore")
-                    targetMethod = "getDatastoreForConnection"
-                    arguments = [dataSourceName]
-                }
-
-                // the main SessionFactory bean
-                if(!beanDefinitionRegistry.containsBeanDefinition(sessionFactoryName)) {
-                    "$sessionFactoryName"((datastoreBeanName):"getSessionFactory")
-                }
-
-                String transactionManagerBeanName = "transactionManager$suffix"
-
-                if(grailsPlugin) {
-                    "$transactionManagerBeanName"(GrailsHibernateTransactionManager) {
-                        dataSource = ref("dataSource$suffix")
-                        sessionFactory = ref(sessionFactoryName)
-                    }
-                }
-                else {
-                    "$transactionManagerBeanName"((datastoreBeanName):"getTransactionManager")
-                    getBeanDefinition(transactionManagerBeanName).beanClass = PlatformTransactionManager
-                }
-
-            }
-
-
         }
         return beanDefinitions
     }

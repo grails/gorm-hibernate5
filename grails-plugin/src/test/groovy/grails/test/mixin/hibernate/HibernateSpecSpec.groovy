@@ -18,6 +18,8 @@ class HibernateSpecSpec extends HibernateSpec {
         Book.count() == 1
         !new Book().validate()
         !new Book(title: "").validate()
+        hibernateSession != null
+        sessionFactory != null
     }
 
     void "test hibernate spec with domain constraint inheritance"() {
