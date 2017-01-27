@@ -12,6 +12,8 @@ import org.springframework.util.Log4jConfigurer
 import spock.lang.IgnoreRest
 import spock.lang.Specification
 
+import javax.sql.DataSource
+
 /**
  * Created by graemerocher on 29/01/14.
  */
@@ -133,7 +135,6 @@ class HibernateDatastoreSpringInitializerSpec extends Specification{
         applicationContext.getBean("sessionFactory_books", SessionFactory).allClassMetadata.values().size() == 2
         applicationContext.getBean("sessionFactory_books", SessionFactory).allClassMetadata.containsKey(Book.name)
         applicationContext.getBean("sessionFactory_books", SessionFactory).allClassMetadata.containsKey(Author.name)
-
         applicationContext.getBean("sessionFactory_moreBooks", SessionFactory).allClassMetadata.values().size() == 2
         applicationContext.getBean("sessionFactory_moreBooks", SessionFactory).allClassMetadata.containsKey(Book.name)
         applicationContext.getBean("sessionFactory_moreBooks", SessionFactory).allClassMetadata.containsKey(Author.name)

@@ -44,10 +44,11 @@ class HibernateDatastoreConnectionSourcesRegistrar implements BeanDefinitionRegi
                 dataSourceBean.setTargetType(DataSource)
                 dataSourceBean.setBeanClass(InstanceFactoryBean)
                 def args = new ConstructorArgumentValues()
-                args.addGenericArgumentValue("#{hibernateDatastore.connectionSources.getConnectionSource('$dataSourceName')).dataSource}".toString())
+                args.addGenericArgumentValue("#{hibernateDatastore.connectionSources.getConnectionSource('$dataSourceName').dataSource}".toString())
                 dataSourceBean.setConstructorArgumentValues(
                         args
                 )
+                registry.registerBeanDefinition(dataSourceBeanName, dataSourceBean)
             }
 
             if(!isDefault) {
