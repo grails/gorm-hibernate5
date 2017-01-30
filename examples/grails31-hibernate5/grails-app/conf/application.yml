@@ -68,6 +68,8 @@ grails:
 ---
 hibernate:
   configClass: functional.tests.CustomHibernateMappingContextConfiguration
+  packagesToScan:
+    - another
   cache:
       queries: false
       use_second_level_cache: true

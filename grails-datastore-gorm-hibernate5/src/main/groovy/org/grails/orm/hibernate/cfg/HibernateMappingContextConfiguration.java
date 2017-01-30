@@ -1,5 +1,6 @@
 package org.grails.orm.hibernate.cfg;
 
+import org.grails.datastore.gorm.GormEntity;
 import org.grails.datastore.gorm.jdbc.connections.DataSourceSettings;
 import org.grails.datastore.gorm.validation.javax.JavaxValidatorRegistry;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
@@ -71,6 +72,7 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
     private ServiceRegistry serviceRegistry;
     private ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
     private MetadataContributor metadataContributor;
+    private Set<Class> additionalClasses = new HashSet<>();
 
     public void setHibernateMappingContext(HibernateMappingContext hibernateMappingContext) {
         this.hibernateMappingContext = hibernateMappingContext;
@@ -113,6 +115,12 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
         }
     }
 
+    @Override
+    public Configuration addAnnotatedClass(Class annotatedClass) {
+        additionalClasses.add(annotatedClass);
+        return super.addAnnotatedClass(annotatedClass);
+    }
+
     /**
      * Add the given annotated packages in a batch.
      * @see #addPackage
@@ -142,7 +150,8 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
                         MetadataReader reader = readerFactory.getMetadataReader(resource);
                         String className = reader.getClassMetadata().getClassName();
                         if (matchesFilter(reader, readerFactory)) {
-                            addAnnotatedClasses(resourcePatternResolver.getClassLoader().loadClass(className));
+                            Class<?> loadedClass = resourcePatternResolver.getClassLoader().loadClass(className);
+                            addAnnotatedClasses(loadedClass);
                         }
                     }
                 }
@@ -230,6 +239,14 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
                 Class javaClass = persistentEntity.getJavaClass();
                 if(javaClass.isAnnotationPresent(Entity.class)) {
                     annotatedClasses.add(javaClass);
+                }
+            }
+
+            if(!additionalClasses.isEmpty()) {
+                for (Class additionalClass : additionalClasses) {
+                    if(GormEntity.class.isAssignableFrom(additionalClass)) {
+                        hibernateMappingContext.addPersistentEntity(additionalClass);
+                    }
                 }
             }
 

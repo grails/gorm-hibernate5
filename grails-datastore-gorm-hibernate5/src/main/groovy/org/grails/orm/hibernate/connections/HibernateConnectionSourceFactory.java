@@ -175,7 +175,7 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
         if (mappingDirectoryLocations != null) {
             // Register all Hibernate mapping definitions in the given directories.
             for (Resource resource : mappingDirectoryLocations) {
-                File file = null;
+                File file;
                 try {
                     file = resource.getFile();
                 } catch (IOException e) {
