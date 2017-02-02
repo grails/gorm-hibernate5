@@ -1,6 +1,7 @@
 package grails.gorm.tests.compositeid
 
 import grails.gorm.annotation.Entity
+import grails.gorm.hibernate.mapping.MappingBuilder
 import grails.transaction.Rollback
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.transaction.PlatformTransactionManager
@@ -41,7 +42,7 @@ class Child implements Serializable {
 
     static belongsTo= [parent: Parent]
 
-    static mapping= {
+    static mapping = MappingBuilder.define {
         id(composite: ['parent', 'name'])
     }
 }
@@ -54,7 +55,7 @@ class Parent implements Serializable {
     static belongsTo= [grandParent: GrandParent]
     static hasMany= [children: Child]
 
-    static mapping= {
+    static mapping= MappingBuilder.define {
         id(composite: ['grandParent', 'name'])
     }
 }
@@ -67,7 +68,7 @@ class GrandParent implements Serializable {
 
     static hasMany= [parents: Parent]
 
-    static mapping= {
+    static mapping= MappingBuilder.define {
         id(composite: ['name', 'luckyNumber'])
     }
 }

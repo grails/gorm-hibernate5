@@ -7,7 +7,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
-
+import static grails.gorm.hibernate.mapping.MappingBuilder.*
 /**
  * Created by graemerocher on 26/01/2017.
  */
@@ -35,13 +35,20 @@ class CompositeIdParent implements Serializable {
     String name
     String last
     static hasMany = [children:CompositeIdChild]
-    static mapping = {
-        id composite: ['name','last']
-        children joinTable: [name:'child_parent',column:'child_id'], {
-            column name:"foo"
-            column name:"bar"
+    static mapping = define {
+        id composite('name','last')
+        property("children") {
+            joinTable {
+                name "child_parent"
+                column "child_id"
+            }
+            column {
+                name "foo"
+            }
+            column {
+                name "bar"
+            }
         }
-
     }
 }
 
