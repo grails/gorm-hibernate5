@@ -160,6 +160,19 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
                 if(TransactionSynchronizationManager.isSynchronizationActive()) {
                     TransactionSynchronizationManager.clearSynchronization();
                 }
+                // If there is a synchronization active then leave it to the synchronization to close the session
+                if(newSession != null) {
+                    SessionFactoryUtils.closeSession(newSession);
+                }
+                TransactionSynchronizationManager.unbindResource(sessionFactory);
+                ConnectionHolder connectionHolder = (ConnectionHolder) TransactionSynchronizationManager.unbindResourceIfPossible(dataSource);
+                // if there is a connection holder and it holds an open connection close it
+                if(connectionHolder != null && connectionHolder.isOpen()) {
+                    Connection conn = connectionHolder.getConnection();
+                    DataSourceUtils.releaseConnection(conn, dataSource);
+                }
+            }
+            finally {
                 // if there were previously active synchronizations then register those again
                 if(previousActiveSynchronization) {
                     TransactionSynchronizationManager.initSynchronization();
@@ -167,21 +180,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
                         TransactionSynchronizationManager.registerSynchronization(transactionSynchronization);
                     }
                 }
-                // If there is a synchronization active then leave it to the synchronization to close the session
-                if(newSession != null && previousActiveSynchronization && sessionHolder != null && !sessionHolder.isSynchronizedWithTransaction()) {
-                    SessionFactoryUtils.closeSession(newSession);
-                }
-                TransactionSynchronizationManager.unbindResource(sessionFactory);
-                ConnectionHolder connectionHolder = (ConnectionHolder) TransactionSynchronizationManager.unbindResourceIfPossible(dataSource);
-                // if there is a connection holder and it holds an open connection close it
-                if(connectionHolder != null) {
-                    Connection conn = connectionHolder.getConnection();
-                    if(connectionHolder.isOpen()) {
-                        DataSourceUtils.releaseConnection(conn, dataSource);
-                    }
-                }
-            }
-            finally {
+
                 // now restore any previous state
                 if(previousHolder != null) {
                     TransactionSynchronizationManager.bindResource(sessionFactory, previousHolder);
