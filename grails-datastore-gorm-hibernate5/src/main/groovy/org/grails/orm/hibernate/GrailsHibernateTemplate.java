@@ -62,16 +62,13 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
     protected boolean exposeNativeSession = true;
     protected boolean cacheQueries = false;
 
-    protected boolean allowCreate = true;
-    protected boolean checkWriteOperations = true;
-
     protected SessionFactory sessionFactory;
     protected DataSource dataSource = null;
     protected SQLExceptionTranslator jdbcExceptionTranslator;
     protected int flushMode = FLUSH_AUTO;
     private boolean applyFlushModeOnlyToNonExistingTransactions = false;
 
-    public static interface HibernateCallback<T> {
+    public interface HibernateCallback<T> {
         T doInHibernate(Session session) throws HibernateException, SQLException;
     }
 
@@ -131,6 +128,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             // if there are any previous synchronizations active we need to clear them and restore them later (see finally block)
             if(previousActiveSynchronization) {
                 TransactionSynchronizationManager.clearSynchronization();
+                // init a new synchronization to ensure that any opened database connections are closed by the synchronization
                 TransactionSynchronizationManager.initSynchronization();
             }
 
@@ -164,12 +162,21 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
                 if(newSession != null) {
                     SessionFactoryUtils.closeSession(newSession);
                 }
+
+                // Clear any bound sessions and connections
                 TransactionSynchronizationManager.unbindResource(sessionFactory);
                 ConnectionHolder connectionHolder = (ConnectionHolder) TransactionSynchronizationManager.unbindResourceIfPossible(dataSource);
                 // if there is a connection holder and it holds an open connection close it
-                if(connectionHolder != null && connectionHolder.isOpen()) {
-                    Connection conn = connectionHolder.getConnection();
-                    DataSourceUtils.releaseConnection(conn, dataSource);
+                try {
+                    if(connectionHolder != null && !connectionHolder.getConnection().isClosed()) {
+                        Connection conn = connectionHolder.getConnection();
+                        DataSourceUtils.releaseConnection(conn, dataSource);
+                    }
+                } catch (SQLException e) {
+                    // ignore, connection closed already?
+                    if(LOG.isDebugEnabled()) {
+                        LOG.debug("Could not close opened JDBC connection. Did the application close the connection manually?: " + e.getMessage());
+                    }
                 }
             }
             finally {
