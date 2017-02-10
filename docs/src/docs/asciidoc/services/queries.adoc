@@ -45,4 +45,6 @@ interface BookService {
 
 include::hqlQueries.adoc[]
 
+==== Query Projections
 
+include::queryProjections.adoc[]

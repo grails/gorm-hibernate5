@@ -1,0 +1,41 @@
+
+There are a few ways to implement projections. One way is to is to use the convention `T find[Domain Class][Property]`. For example:
+
+[source,groovy]
+----
+@Service(Book)
+interface BookService {
+   Date findBookReleaseDate(String title)
+}
+----
+
+This also works for multiple results:
+
+[source,groovy]
+----
+@Service(Book)
+interface BookService {
+   List<Date> findBookReleaseDate(String publisher)
+}
+----
+
+And you can use the `Map` argument to provide ordering and pagination if necessary:
+
+[source,groovy]
+----
+@Service(Book)
+interface BookService {
+   List<Date> findBookReleaseDate(String publisher, Map args)
+}
+----
+
+Alternatively, you can also use a JPA-QL query to perform the projection:
+
+[source,groovy]
+----
+@Service(Book)
+interface BookService {
+   @Query("select $b.releaseDate from ${Book b} where $b.publisher = $publisher order by $b.releaseDate")
+   List<Date> findBookReleaseDates(String publisher)
+}
+----
