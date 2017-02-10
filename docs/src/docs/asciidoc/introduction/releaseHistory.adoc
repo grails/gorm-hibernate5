@@ -2,6 +2,7 @@
 
 GORM 6.1 includes a variety of enhancements to GORM 6.0 including:
 
+* GORM Data Services
 * Multi-Tenancy Transformations
 * Support for Bean Validation API
 * Built-in Package Scanning

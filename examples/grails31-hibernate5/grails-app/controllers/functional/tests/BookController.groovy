@@ -8,13 +8,15 @@ class BookController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
+    BookService bookService
+
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
         respond Book.list(params), model:[bookCount: Book.count()]
     }
 
-    def show(Book book) {
-        respond book
+    def show(Long id) {
+        respond bookService.getBook(id)
     }
 
     def create() {

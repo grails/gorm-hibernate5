@@ -250,6 +250,10 @@ include::advancedGORMFeatures/defaultSortOrder.adoc[]
 
 include::programmaticTransactions.adoc[]
 
+[[dataSources]]
+== GORM Data Services
+include::services/index.adoc[]
+
 [[multipleDataSources]]
 == Multiple Data Sources
 

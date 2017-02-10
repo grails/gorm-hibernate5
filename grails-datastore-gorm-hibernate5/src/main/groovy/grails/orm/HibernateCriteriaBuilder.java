@@ -150,7 +150,7 @@ public class HibernateCriteriaBuilder extends AbstractHibernateCriteriaBuilder {
     }
 
     protected Class getClassForAssociationType(AssociationType type) {
-        String otherSideEntityName = ((AssociationType) type).getAssociatedEntityName((SessionFactoryImplementor) sessionFactory);
+        String otherSideEntityName = type.getAssociatedEntityName((SessionFactoryImplementor) sessionFactory);
         return sessionFactory.getClassMetadata(otherSideEntityName).getMappedClass();
     }
 

@@ -1,0 +1,21 @@
+If you need even more flexibility, then HQL queries can be used by the `@Query` method:
+
+[source,groovy]
+----
+@Query("from $Book as book where book.title like $pattern")
+Book searchByTitle(String pattern)
+----
+
+Note that in the example above, if you misspell the `pattern` parameter passed to the query a compilation error will occur.
+
+However, if you were to incorrectly input the `title` property no error would occur.
+
+You can resolve this by declaring the value of `book` within the passed GString:
+
+[source,groovy]
+----
+@Query("from ${Book book} where ${book.title} like $pattern")
+Book searchByTitle(String pattern)
+----
+
+In the above example if you mispell the `title` property then a compilation error will occur.

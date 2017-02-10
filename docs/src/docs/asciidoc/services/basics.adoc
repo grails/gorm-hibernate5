@@ -1,0 +1,43 @@
+==== Writing a Simple Data Service
+
+To write a Data Service you should create either an interface (although abstract classes can also be used, more about that later) and annotate it with the `grails.gorm.services.Service` annotation with the domain class the service applies to:
+
+[source,groovy]
+----
+@Service(Book)
+interface BookService {
+    Book getBook(Serializable id)
+}
+----
+
+The `@Service` annotation is an AST transformation that will automatically implement the service for you. You can then obtain the service via Spring autowiring:
+
+[source,groovy]
+----
+@Autowired BookService bookService
+----
+
+Or if you are using GORM standalone by looking it up from the `HibernateDatastore` instance:
+
+[source,groovy]
+----
+BookService bookService = datastore.getService(BookService)
+----
+
+==== How Does it Work?
+
+The `@Service` transformation will look at the the method signatures of the interface and make a best effort to find a way to implement each method.
+
+If a method cannot be implemented then a compilation error will occur. At this point you have the option to use an abstract class instead and provide an implementation yourself.
+
+The `@Service` transformation will also generate a `META-INF/services` file for the service so it can be discovered via the standard Java service loader. So no additional configuration is necessary.
+
+
+==== Advantages of Data Services
+
+There are several advantages to Data Services that make them worth considering to abstract your persistence logic.
+
+* *Type Safety* - Data service method signatures are compile time checked and compilation will fail if the types of any parameters don't match up with properties in your domain class
+* *Testing* - Since Data Services are interfaces this makes them easy to test via http://spockframework.org/spock/docs/1.0/interaction_based_testing.html[Spock Mocks]
+* *Performance* - The generates services are statically compiled and unlike competing technologies in the Java space no proxies are created so runtime performance doesn't suffer
+* *Transaction Management* - Each method in a Data Service is wrapped in an appropriate transaction (a read-only transaction in the case of read operations) that can be easily overridden.

@@ -1,0 +1,34 @@
+
+.Data Service Conventions
+|===
+|Method Stem |Description |Possible Return Types
+
+|`count*`
+| Count the number of results
+| Subclass of `Number`
+
+|`countBy*`
+| Dynamic Finder Count the number of results
+| Subclass of `Number`
+
+|`delete*`
+| Delete an instance for the given arguments
+| `T`, `void` or subclass of `Number`
+
+|`find*`, `get*`, `list*` or `retrieve*`
+| Query for the given parameters
+| `T`, `Iterable<T>`, `T[]`, `List<T>` etc.
+
+|`findBy*`, `listBy*`, `findAllBy*` or `getBy*`
+| Dynamic finder query for given parameters
+| `T`, `Iterable<T>`, `T[]`, `List<T>` etc.
+
+|`save*`, `store*`, or `persist*`
+| Save a new instance
+| `T`
+
+|`update*`
+| Updates an existing instance. First parameter should be `id`
+| `T`
+
+|===

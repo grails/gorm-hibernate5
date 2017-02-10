@@ -17,6 +17,7 @@ package grails.orm.bootstrap
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
+import org.grails.datastore.gorm.bootstrap.support.ServiceRegistryFactoryBean
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
 import org.grails.datastore.mapping.core.connections.AbstractConnectionSources
 import org.grails.datastore.mapping.core.connections.ConnectionSource
@@ -153,6 +154,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             hibernateDatastore(HibernateDatastore, config, hibernateConnectionSourceFactory, eventPublisher)
             sessionFactory(hibernateDatastore:'getSessionFactory')
             transactionManager(hibernateDatastore:"getTransactionManager")
+            "hibernateDatastoreServiceRegistry"(ServiceRegistryFactoryBean, ref("hibernateDatastore"))
             getBeanDefinition("transactionManager").beanClass = PlatformTransactionManager
             hibernateDatastoreConnectionSourcesRegistrar(HibernateDatastoreConnectionSourcesRegistrar, dataSources)
             // domain model mapping context, used for configuration
