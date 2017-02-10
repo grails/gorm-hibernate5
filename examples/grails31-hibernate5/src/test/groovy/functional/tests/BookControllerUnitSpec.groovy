@@ -10,6 +10,13 @@ import grails.test.mixin.TestFor
 class BookControllerUnitSpec extends HibernateSpec {
 
     def setup() {
+        def bookService = Mock(BookService)
+        bookService.getBook(_) >> { args ->
+            if(args[0] != null) {
+                return Book.get(args[0])
+            }
+        }
+        controller.bookService = bookService
         controller.transactionManager = transactionManager
     }
 
@@ -73,7 +80,8 @@ class BookControllerUnitSpec extends HibernateSpec {
         when:"A domain instance is passed to the show action"
         populateValidParams(params)
         def book = new Book(params)
-        controller.show(book)
+        book.save(flush:true)
+        controller.show(book.id)
 
         then:"A model is populated containing the domain instance"
         model.book == book
