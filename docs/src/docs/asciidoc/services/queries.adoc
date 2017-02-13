@@ -41,7 +41,7 @@ interface BookService {
 <1> Join on the `author` property
 <2> Join on the `author` property using a `LEFT OUTER` join
 
-==== HQL Queries
+==== JPA-QL Queries
 
 include::hqlQueries.adoc[]
 

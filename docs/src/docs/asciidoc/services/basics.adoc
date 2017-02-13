@@ -41,3 +41,27 @@ There are several advantages to Data Services that make them worth considering t
 * *Testing* - Since Data Services are interfaces this makes them easy to test via http://spockframework.org/spock/docs/1.0/interaction_based_testing.html[Spock Mocks]
 * *Performance* - The generated services are statically compiled and unlike competing technologies in the Java space no proxies are created so runtime performance doesn't suffer
 * *Transaction Management* - Each method in a Data Service is wrapped in an appropriate transaction (a read-only transaction in the case of read operations) that can be easily overridden.
+
+==== Abstract Class Support
+
+If you come across a method that GORM doesn't know how to implement, then you can provide an implementation by using an abstract class.
+
+For example:
+
+[source,groovy]
+----
+interface IBookService {
+    Book getBook(Serializable id)
+    Date someOtherMethod()
+}
+@Service(Book)
+abstract class BookService implements IBookService {
+
+   @Override
+   Date someOtherMethod() {
+      // impl
+   }
+}
+----
+
+In this case GORM will implement the interface methods that have not been defined by the abstract class.

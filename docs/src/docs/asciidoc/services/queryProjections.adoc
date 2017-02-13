@@ -1,5 +1,5 @@
 
-There are a few ways to implement projections. One way is to is to use the convention `T find[Domain Class][Property]`. For example:
+There are a few ways to implement projections. One way is to is to use the convention `T find[Domain Class][Property]`. For example say the `Book` class has a `releaseDate` property of type `Date`:
 
 [source,groovy]
 ----
@@ -29,7 +29,9 @@ interface BookService {
 }
 ----
 
-Alternatively, you can also use a JPA-QL query to perform the projection:
+===== JPA-QL Projections
+
+You can also use a JPA-QL query to perform a projection:
 
 [source,groovy]
 ----
@@ -39,3 +41,32 @@ interface BookService {
    List<Date> findBookReleaseDates(String publisher)
 }
 ----
+
+===== Interface Projections
+
+Sometimes you want to expose a more limited set of a data to the calling class. In this case it is possible to use interface projections.
+
+For example:
+
+
+[source,groovy]
+----
+class Author {
+    String name
+    Date dateOfBirth <1>
+}
+interface AuthorInfo {
+    String getName() <2>
+}
+@Service(Author)
+interface AuthorService {
+   AuthorInfo find(String name) <3>
+}
+----
+
+<1> The domain class `Author` has a property called `dateOfBirth` that we do not want to make available to the client
+<2> You can define an interface that only exposes the properties you want to expose
+<3> Return the interface from the service.
+
+NOTE: If a property exists on the interface but not on the domain class you will receive a compilation error.
+

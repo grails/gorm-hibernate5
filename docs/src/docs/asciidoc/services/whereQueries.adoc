@@ -3,8 +3,8 @@ If you have a more complex query then you may want to consider using the `@Where
 
 [source,groovy]
 ----
-    @Where({ title ==~ pattern })
-    Book searchBooks(String pattern)
+    @Where({ title ==~ pattern && releaseDate > fromDate })
+    Book searchBooks(String pattern, Date fromDate)
 ----
 
 With the `@Where` annotation the method name can be anything you want and query is expressed within a closure passed with the `@Where` annotation.
