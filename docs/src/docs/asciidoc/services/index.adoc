@@ -13,3 +13,7 @@ include::queries.adoc[]
 === Data Service Write Operations
 
 include::writeOperations.adoc[]
+
+=== Validating Data Services
+
+include::serviceValidation.adoc[]
