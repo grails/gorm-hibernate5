@@ -17,3 +17,9 @@ include::writeOperations.adoc[]
 === Validating Data Services
 
 include::serviceValidation.adoc[]
+
+=== RxJava Support
+
+include::rxServices.adoc[]
+
+

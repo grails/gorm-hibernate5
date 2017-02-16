@@ -5,30 +5,30 @@
 
 |`count*`
 | Count the number of results
-| Subclass of `Number`
+| Subclass of `Number` or `Observable<Number>`
 
 |`countBy*`
 | Dynamic Finder Count the number of results
-| Subclass of `Number`
+| Subclass of `Number` or `Observable<Number>`
 
 |`delete*`
 | Delete an instance for the given arguments
-| `T`, `void` or subclass of `Number`
+| `T`, `void`, subclass of `Number` or `Observable<Number>`
 
 |`find*`, `get*`, `list*` or `retrieve*`
 | Query for the given parameters
-| `T`, `Iterable<T>`, `T[]`, `List<T>` etc.
+| `T`, `Iterable<T>`, `T[]`, `List<T>`, `Observable<T>`
 
 |`findBy*`, `listBy*`, `findAllBy*` or `getBy*`
 | Dynamic finder query for given parameters
-| `T`, `Iterable<T>`, `T[]`, `List<T>` etc.
+| `T`, `Iterable<T>`, `T[]`, `List<T>`, `Observable<T>`
 
 |`save*`, `store*`, or `persist*`
 | Save a new instance
-| `T`
+| `T` or `Observable<T>`
 
 |`update*`
 | Updates an existing instance. First parameter should be `id`
-| `T`
+| `T` or `Observable<T>`
 
 |===
