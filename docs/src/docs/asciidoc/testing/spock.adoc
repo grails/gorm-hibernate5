@@ -37,12 +37,12 @@ class Person {
 
 ==== Spock and Transactions
 
-Note that in general you have to wrap your test execution logic in a session or transaction. The easiet way to do this is with `grails.transaction.Transactional`:
+Note that in general you have to wrap your test execution logic in a session or transaction. The easiest way to do this is with `grails.gorm.transactions.Transactional`:
 
 [source,groovy]
 ----
 ...
-import grails.transaction.Rollback
+import grails.gorm.transactions.*
 import org.springframework.transaction.PlatformTransactionManager
 
 class ExampleSpec extends Specification {
@@ -72,7 +72,7 @@ class ExampleSpec extends Specification {
 <3> The `Transactional` annotation is used to setup test data
 <4> The `Rollback` annotation is used to rollback any changes made within each test
 
-In the example above, each test method is wrapped in a transaction that rolls back any changes using the `grails.transaction.Rollback` method.
+In the example above, each test method is wrapped in a transaction that rolls back any changes using the `grails.gorm.transactions.Rollback` annotation.
 
 
 TIP: If you want to setup some test data within the `setupSpec` method that is shared across all tests then you can use `withTransaction`:

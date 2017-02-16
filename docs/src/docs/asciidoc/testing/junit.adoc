@@ -5,7 +5,7 @@ So instead of `setupSpec` use `@BeforeClass`:
 [source,groovy]
 ----
 import org.junit.*
-import grails.transaction.Rollback
+import grails.gorm.transactions.*
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.transaction.PlatformTransactionManager
 

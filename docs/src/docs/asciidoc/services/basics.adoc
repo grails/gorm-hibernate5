@@ -21,8 +21,10 @@ Or if you are using GORM standalone by looking it up from the `HibernateDatastor
 
 [source,groovy]
 ----
-BookService bookService = datastore.getService(BookService)
+BookService bookService = hibernateDatastore.getService(BookService)
 ----
+
+TIP: The above example also works in Spock unit tests that extend `HibernateSpec`
 
 ==== How Does it Work?
 
