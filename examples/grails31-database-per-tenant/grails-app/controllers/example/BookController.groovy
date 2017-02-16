@@ -1,16 +1,16 @@
 package example
 
-import grails.gorm.multitenancy.CurrentTenant
 import grails.gorm.multitenancy.WithoutTenant
-import grails.gorm.transactions.Transactional
+import grails.validation.ValidationException
 import org.grails.datastore.mapping.multitenancy.web.SessionTenantResolver
 
 import static org.springframework.http.HttpStatus.*
 
-@CurrentTenant
 class BookController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
+
+    BookService bookService
 
     @WithoutTenant
     def selectTenant(String tenantId) {
@@ -21,11 +21,11 @@ class BookController {
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond Book.list(params), model:[bookCount: Book.count()]
+        respond bookService.findBooks(params), model:[bookCount: bookService.count()]
     }
 
     def show(Long id) {
-        Book book = Book.get(id)
+        Book book = bookService.find(id)
         respond book
     }
 
@@ -33,79 +33,60 @@ class BookController {
         respond new Book(params)
     }
 
-    @Transactional
-    def save() {
-        Book book = new Book(params)
-        if (book == null) {
-            transactionStatus.setRollbackOnly()
-            notFound()
-            return
-        }
-
-        if (book.hasErrors()) {
-            transactionStatus.setRollbackOnly()
-            respond book.errors, view:'create'
-            return
-        }
-
-        book.save flush:true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.created.message', args: [message(code: 'book.label', default: 'Book'), book.id])
-                redirect book
+    def save(String title) {
+        try {
+            Book book = bookService.saveBook(title)
+            request.withFormat {
+                form multipartForm {
+                    flash.message = message(code: 'default.created.message', args: [message(code: 'book.label', default: 'Book'), book.id])
+                    redirect book
+                }
+                '*' { respond book, [status: CREATED] }
             }
-            '*' { respond book, [status: CREATED] }
+        } catch (ValidationException e) {
+            respond e.errors, view:'create'
         }
     }
 
-    def edit() {
-        Book book = Book.get(id)
+    def edit(Long id) {
+        Book book = bookService.find(id)
         respond book
     }
 
-    @Transactional
-    def update(Long id) {
-        Book book = Book.get(id)
-        if (book == null) {
-            transactionStatus.setRollbackOnly()
-            notFound()
-            return
-        }
-
-        if (book.hasErrors()) {
-            transactionStatus.setRollbackOnly()
-            respond book.errors, view:'edit'
-            return
-        }
-
-        book.save flush:true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.updated.message', args: [message(code: 'book.label', default: 'Book'), book.id])
-                redirect book
+    def update(Long id, String title) {
+        try {
+            Book book = bookService.updateBook(id, title)
+            if (book == null) {
+                notFound()
             }
-            '*'{ respond book, [status: OK] }
+            else {
+                request.withFormat {
+                    form multipartForm {
+                        flash.message = message(code: 'default.updated.message', args: [message(code: 'book.label', default: 'Book'), book.id])
+                        redirect book
+                    }
+                    '*'{ respond book, [status: OK] }
+                }
+            }
+        } catch (ValidationException e) {
+            respond e.errors, view:'edit'
         }
     }
 
-    @Transactional
-    def delete(Book book) {
+    def delete(Long id) {
+        Book book = bookService.deleteBook(id)
         if (book == null) {
-            transactionStatus.setRollbackOnly()
             notFound()
             return
         }
-
-        book.delete flush:true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.deleted.message', args: [message(code: 'book.label', default: 'Book'), book.id])
-                redirect action:"index", method:"GET"
+        else {
+            request.withFormat {
+                form multipartForm {
+                    flash.message = message(code: 'default.deleted.message', args: [message(code: 'book.label', default: 'Book'), book.id])
+                    redirect action:"index", method:"GET"
+                }
+                '*'{ render status: NO_CONTENT }
             }
-            '*'{ render status: NO_CONTENT }
         }
     }
 

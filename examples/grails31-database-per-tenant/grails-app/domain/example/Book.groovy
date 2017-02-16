@@ -8,5 +8,6 @@ class Book implements GormEntity<Book>, MultiTenant<Book> {
     String title
     
     static constraints = {
+        title blank:false
     }
 }
