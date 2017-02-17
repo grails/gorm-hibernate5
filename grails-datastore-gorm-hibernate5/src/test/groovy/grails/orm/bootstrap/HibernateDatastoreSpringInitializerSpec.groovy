@@ -8,6 +8,7 @@ import org.hibernate.dialect.H2Dialect
 import org.springframework.context.ApplicationContext
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.jdbc.datasource.DriverManagerDataSource
+import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.util.Log4jConfigurer
 import spock.lang.IgnoreRest
 import spock.lang.Specification
@@ -111,7 +112,6 @@ class HibernateDatastoreSpringInitializerSpec extends Specification{
         given:"An initializer instance"
         Map config = [
                 'dataSource.url':"jdbc:h2:mem:people;MVCC=TRUE;LOCK_TIMEOUT=10000",
-                'dataSource.dbCreate': 'update',
                 'dataSource.dialect': H2Dialect.name,
                 'dataSource.formatSql': 'true',
                 'hibernate.flush.mode': 'COMMIT',
@@ -127,6 +127,7 @@ class HibernateDatastoreSpringInitializerSpec extends Specification{
         println applicationContext.getBeanDefinitionNames()
 
         then:"Each session factory has the correct number of persistent entities"
+        applicationContext.getBeansOfType(PlatformTransactionManager).size() == 3
         applicationContext.getBean("sessionFactory", SessionFactory).allClassMetadata.values().size() == 2
         applicationContext.getBean("sessionFactory", SessionFactory).allClassMetadata.containsKey(Person.name)
         applicationContext.getBean("sessionFactory", SessionFactory).allClassMetadata.containsKey(Author.name)

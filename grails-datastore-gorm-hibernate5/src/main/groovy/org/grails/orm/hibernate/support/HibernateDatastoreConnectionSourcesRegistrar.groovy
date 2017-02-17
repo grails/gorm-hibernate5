@@ -2,6 +2,7 @@ package org.grails.orm.hibernate.support
 
 import groovy.transform.CompileStatic
 import org.grails.datastore.mapping.core.connections.ConnectionSource
+import org.grails.orm.hibernate.cfg.Settings
 import org.grails.spring.beans.factory.InstanceFactoryBean
 import org.hibernate.SessionFactory
 import org.springframework.beans.BeansException
@@ -30,7 +31,8 @@ class HibernateDatastoreConnectionSourcesRegistrar implements BeanDefinitionRegi
     @Override
     void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         for(String dataSourceName in dataSourceNames) {
-            if(dataSourceName != ConnectionSource.DEFAULT) {
+            // only process the non-default data sources
+            if(dataSourceName != ConnectionSource.DEFAULT && dataSourceName != Settings.SETTING_DATASOURCE) {
                 String suffix = '_' + dataSourceName
                 String sessionFactoryName = "sessionFactory$suffix"
                 String transactionManagerBeanName = "transactionManager$suffix"

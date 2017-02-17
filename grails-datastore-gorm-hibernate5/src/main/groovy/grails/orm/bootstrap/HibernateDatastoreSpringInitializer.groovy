@@ -53,8 +53,8 @@ import javax.sql.DataSource
 @Slf4j
 class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
     public static final String SESSION_FACTORY_BEAN_NAME = "sessionFactory"
-    public static final String DEFAULT_DATA_SOURCE_NAME = 'dataSource'
-    public static final String DATA_SOURCES = "dataSources";
+    public static final String DEFAULT_DATA_SOURCE_NAME = Settings.SETTING_DATASOURCE
+    public static final String DATA_SOURCES = Settings.SETTING_DATASOURCES;
     public static final String TEST_DB_URL = "jdbc:h2:mem:grailsDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_DELAY=-1"
 
     String defaultDataSourceBeanName = ConnectionSource.DEFAULT
