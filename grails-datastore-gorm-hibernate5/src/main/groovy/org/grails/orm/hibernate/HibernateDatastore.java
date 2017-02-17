@@ -70,7 +70,7 @@ import java.util.concurrent.Callable;
  * @author Graeme Rocher
  * @since 2.0
  */
-public class HibernateDatastore extends AbstractHibernateDatastore {
+public class HibernateDatastore extends AbstractHibernateDatastore implements MessageSourceAware {
     protected final GrailsHibernateTransactionManager transactionManager;
     protected ConfigurableApplicationEventPublisher eventPublisher;
     protected final HibernateGormEnhancer gormEnhancer;
@@ -333,7 +333,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
         return (HibernateMappingContext) super.getMappingContext();
     }
 
-    @Autowired(required = false)
+    @Override
     public void setMessageSource(MessageSource messageSource) {
         HibernateMappingContext mappingContext = getMappingContext();
         ValidatorRegistry validatorRegistry = createValidatorRegistry(messageSource);
