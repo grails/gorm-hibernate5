@@ -28,11 +28,14 @@ import org.grails.datastore.mapping.query.event.PreQueryEvent
 import org.grails.orm.hibernate.query.GrailsHibernateQueryUtils
 import org.grails.orm.hibernate.query.HibernateHqlQuery
 import org.grails.orm.hibernate.query.HibernateQuery
+import org.grails.orm.hibernate.support.HibernateVersionSupport
 import org.hibernate.*
 import org.springframework.core.convert.ConversionService
 import org.springframework.orm.hibernate5.SessionHolder
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionSynchronizationManager
+
+import javax.persistence.FlushModeType
 
 /**
  * The implementation of the GORM static method contract for Hibernate
@@ -188,7 +191,21 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
 
     @Override
     protected HibernateHqlQuery createHqlQuery(Session session, Query q) {
-        return new HibernateHqlQuery(new HibernateSession((HibernateDatastore)datastore, sessionFactory), persistentEntity, q)
+        HibernateSession hibernateSession = new HibernateSession((HibernateDatastore) datastore, sessionFactory)
+        FlushMode hibernateMode = HibernateVersionSupport.getFlushMode(session)
+        switch (hibernateMode) {
+            case FlushMode.AUTO:
+                hibernateSession.setFlushMode(FlushModeType.AUTO)
+                break
+            case FlushMode.ALWAYS:
+                hibernateSession.setFlushMode(FlushModeType.AUTO)
+                break
+            default:
+                hibernateSession.setFlushMode(FlushModeType.COMMIT)
+
+        }
+        HibernateHqlQuery query = new HibernateHqlQuery(hibernateSession, persistentEntity, q)
+        return query
     }
 
     @CompileDynamic

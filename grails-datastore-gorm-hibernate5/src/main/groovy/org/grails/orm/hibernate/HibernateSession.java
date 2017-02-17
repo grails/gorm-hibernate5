@@ -37,10 +37,7 @@ import org.grails.datastore.mapping.query.api.QueryableCriteria;
 import org.grails.datastore.mapping.query.jpa.JpaQueryBuilder;
 import org.grails.datastore.mapping.query.jpa.JpaQueryInfo;
 import org.grails.datastore.mapping.reflect.ClassPropertyFetcher;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.hibernate.*;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.context.ApplicationEventPublisher;
@@ -191,6 +188,7 @@ public class HibernateSession extends AbstractHibernateSession {
             hibernateTemplate.setFlushMode(GrailsHibernateTemplate.FLUSH_COMMIT);
         }
     }
+
 
     public FlushModeType getFlushMode() {
         switch (hibernateTemplate.getFlushMode()) {
