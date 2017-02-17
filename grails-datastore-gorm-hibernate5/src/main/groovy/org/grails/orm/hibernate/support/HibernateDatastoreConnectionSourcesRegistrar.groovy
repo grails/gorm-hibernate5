@@ -20,7 +20,7 @@ import org.springframework.transaction.PlatformTransactionManager
  */
 @CompileStatic
 class HibernateDatastoreConnectionSourcesRegistrar implements BeanDefinitionRegistryPostProcessor {
-
+    static final String DEFAULT_DATASOURCE_NAME = 'dataSource'
     final Iterable<String> dataSourceNames
 
     HibernateDatastoreConnectionSourcesRegistrar(Iterable<String> dataSourceNames) {
@@ -30,7 +30,7 @@ class HibernateDatastoreConnectionSourcesRegistrar implements BeanDefinitionRegi
     @Override
     void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         for(String dataSourceName in dataSourceNames) {
-            if(dataSourceName != ConnectionSource.DEFAULT) {
+            if(dataSourceName != ConnectionSource.DEFAULT && DEFAULT_DATASOURCE_NAME != dataSourceName) {
                 String suffix = '_' + dataSourceName
                 String sessionFactoryName = "sessionFactory$suffix"
                 String transactionManagerBeanName = "transactionManager$suffix"
