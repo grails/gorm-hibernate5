@@ -35,7 +35,7 @@ class HibernateDatastoreConnectionSourcesRegistrar implements BeanDefinitionRegi
     void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         for(String dataSourceName in dataSourceNames) {
             GrailsVersion currentVersion = GrailsVersion.current
-            boolean isDefault = dataSourceName == ConnectionSource.DEFAULT
+            boolean isDefault = dataSourceName == ConnectionSource.DEFAULT || dataSourceName == Settings.SETTING_DATASOURCE
             boolean shouldConfigureDataSourceBean = currentVersion == null || new GrailsVersion("3.3.0.M1") <= currentVersion
             String dataSourceBeanName = isDefault ? Settings.SETTING_DATASOURCE : "${Settings.SETTING_DATASOURCE}_$dataSourceName"
 

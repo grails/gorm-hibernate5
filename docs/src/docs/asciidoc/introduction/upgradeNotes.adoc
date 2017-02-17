@@ -50,6 +50,21 @@ If you are upgrading you will need to exclude this dependency from `grails-depen
     }
 ----
 
+==== Flush Mode Now COMMIT by Default
+
+In previous versions of GORM the flush mode defaulted to AUTO. With this setting the session would be flushed with or without the presence of a transaction and before every query.
+
+The frequent flushing of the session before queries can lead to unintended performance consequences if the behaviour of the `AUTO` is not fully understood by the developer.
+
+With this in mind `COMMIT` is the new default flush mode in GORM 6, which will flush the session on transaction commit. You can restore the previous behaviour by configuring the flush mode in your application configuration (for example `application.yml`):
+
+[source,yaml]
+----
+hibernate:
+    flush:
+        mode: AUTO
+----
+
 ==== Changes to Configuration Model
 
 In preparation for Hibernate 5.2 support the previous "SessionFactoryBean" notion has been removed. Now if you wish to customize `SessionFactory` creation you should instead register a custom `org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory` in Spring.
