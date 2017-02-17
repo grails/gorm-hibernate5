@@ -67,3 +67,36 @@ abstract class BookService implements IBookService {
 ----
 
 In this case GORM will implement the interface methods that have not been defined by the abstract class.
+
+In addition, all _public_ methods of the domain class will be automatically wrapped in the appropriate transaction handling.
+
+What this means is that you can define protected abstract methods that are non-transactional in order to compose logic. For example:
+
+[source,groovy]
+----
+@Service(Book)
+abstract class BookService  {
+
+   protected abstract Book getBook(Serializable id) <1>
+
+   protected abstract Author getAuthor(Serializable id) <1>
+
+   Book updateBook(Serializable id, Serializable authorId) { <2>
+      Book book = getBook(id)
+      if(book != null) {
+          Author author = getAuthor(authorId)
+          if(author == null) {
+              throw new IllegalArgumentException("Author does not exist")
+          }
+          book.author = author
+          book.save()
+      }
+      return book
+   }
+}
+----
+
+<1> Two `protected abstract` methods are defined that are not wrapped in transaction handling
+<2> The `updateBook` method uses the two methods that are implemented automatically by GORM and being `public` is automatically made transactional.
+
+TIP: If you have `public` methods that you do not wish to be transactional, then you can annotate them with `@NotTransactional`
