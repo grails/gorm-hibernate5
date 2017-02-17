@@ -5,6 +5,7 @@ import groovy.transform.CompileStatic
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
+import javassist.LoaderClassPath
 import org.grails.datastore.mapping.core.exceptions.ConfigurationException
 import org.hibernate.proxy.HibernateProxy
 import org.hibernate.proxy.ProxyFactory
@@ -24,12 +25,21 @@ class ProxyFactorySupport {
     private static final Class<ProxyFactory> FACTORY
     static {
         try {
-            def pool = ClassPool.default
-            final CtClass superClass = pool.get( AbstractGroovyAwareJavassistProxyFactory.name );
-            def clz = pool.makeClass("${AbstractGroovyAwareJavassistProxyFactory.package.name}.GroovyAwareJavassistProxyFactory", superClass)
+            ClassPool pool = ClassPool.default
+            pool.appendClassPath(
+                new LoaderClassPath(ProxyFactorySupport.classLoader)
+            )
+            CtClass superClass = pool.getOrNull( AbstractGroovyAwareJavassistProxyFactory.name );
+            if(superClass == null) {
+                pool.appendClassPath(
+                        new LoaderClassPath(ProxyFactorySupport.classLoader)
+                )
+            }
+            superClass = pool.get( AbstractGroovyAwareJavassistProxyFactory.name )
+            CtClass clz = pool.makeClass("${AbstractGroovyAwareJavassistProxyFactory.package.name}.GroovyAwareJavassistProxyFactory", superClass)
 
             CtMethod getProxyMethod = superClass.getMethods().find { CtMethod m -> m.name == 'getProxy' }
-            def parameterTypes = getProxyMethod.getParameterTypes()
+            CtClass[] parameterTypes = getProxyMethod.getParameterTypes()
             CtMethod newGetProxyMethod = new CtMethod(getProxyMethod.getReturnType(), getProxyMethod.name, parameterTypes, clz)
             newGetProxyMethod.setBody(
                 '''return org.grails.orm.hibernate.proxy.ProxyFactorySupport.createProxy(
