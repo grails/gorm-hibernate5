@@ -24,6 +24,7 @@ import org.grails.datastore.mapping.core.connections.ConnectionSource
 import org.grails.datastore.mapping.reflect.ClassUtils
 import org.grails.datastore.mapping.validation.BeanFactoryValidatorRegistry
 import org.grails.orm.hibernate.HibernateDatastore
+import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
 import org.grails.orm.hibernate.support.HibernateDatastoreConnectionSourcesRegistrar
