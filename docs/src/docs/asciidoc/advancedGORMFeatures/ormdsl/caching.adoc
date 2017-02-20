@@ -89,7 +89,7 @@ to further configure the cache usage.
 
 ===== Caching Queries
 
-In order for the results of queries to be cached, you mus enable caching in your mapping: 
+In order for the results of queries to be cached, you must enable caching in your mapping: 
 
 [source,groovy]
 ----
