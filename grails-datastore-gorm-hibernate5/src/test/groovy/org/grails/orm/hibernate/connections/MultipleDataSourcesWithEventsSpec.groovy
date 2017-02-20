@@ -29,7 +29,7 @@ class MultipleDataSourcesWithEventsSpec extends Specification {
         ]
 
         when:"A entity is saved with the default connection"
-        HibernateDatastore datastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config),EventsBook )
+        HibernateDatastore datastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config),EventsBook, SecondaryBook )
         EventsBook book = new EventsBook(name:"test")
         EventsBook.withTransaction {
             book.save(flush:true)
@@ -59,6 +59,38 @@ class MultipleDataSourcesWithEventsSpec extends Specification {
         book2 != null
         book2.name == 'TEST2'
         book2.time.startsWith("Time: ")
+
+        when:"An entity is saved that uses only a secondary datasource"
+        SecondaryBook book3 = new SecondaryBook(name:"test3")
+        SecondaryBook.withTransaction {
+            book3.save(flush:true)
+            book3.discard()
+            book3 = SecondaryBook.get(book3.id)
+        }
+
+
+
+        then:"The events were triggered"
+        book3 != null
+        book3.name == 'TEST3'
+        book3.time.startsWith("Time: ")
+    }
+}
+
+@Entity
+class SecondaryBook {
+    String time
+    String name
+    def beforeValidate() {
+        time = "Time: ${System.currentTimeMillis()}"
+    }
+
+    def beforeInsert() {
+        name = name.toUpperCase()
+    }
+
+    static mapping = {
+        datasource "books"
     }
 }
 
