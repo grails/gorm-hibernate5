@@ -89,6 +89,23 @@ to further configure the cache usage.
 
 ===== Caching Queries
 
+In order for the results of queries to be cached, you mus enable caching in your mapping: 
+
+[source,groovy]
+----
+hibernate:
+  cache:     
+    use_query_cache: true   
+----
+
+To enable query caching for all queries created by dynamic finders, GORM etc. you can specify:
+ 
+[source,groovy]
+----
+hibernate:
+  cache:     
+    queries: true    # This implicitly sets  `use_query_cache=true`
+----
 
 You can cache queries such as dynamic finders and criteria. To do so using a dynamic finder you can pass the `cache` argument:
 
@@ -96,8 +113,6 @@ You can cache queries such as dynamic finders and criteria. To do so using a dyn
 ----
 def person = Person.findByFirstName("Fred", [cache: true])
 ----
-
-NOTE: In order for the results of the query to be cached, you must enable caching in your mapping as discussed in the previous section.
 
 You can also cache criteria queries:
 
