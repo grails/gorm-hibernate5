@@ -3,7 +3,9 @@ package grails.gorm.tests.compositeid
 import grails.gorm.annotation.Entity
 import grails.transaction.Rollback
 import org.grails.datastore.mapping.core.DatastoreUtils
+import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.orm.hibernate.HibernateDatastore
+import org.grails.orm.hibernate.cfg.PropertyConfig
 import org.hibernate.dialect.H2Dialect
 import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
@@ -27,7 +29,7 @@ class GlobalConstraintWithCompositeIdSpec extends Specification {
             }
     ]
 
-    @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config),ParentB, ChildB)
+    @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config),ParentB, ChildB, DomainB)
     @Shared PlatformTransactionManager transactionManager = hibernateDatastore.transactionManager
 
     @Rollback
@@ -41,6 +43,22 @@ class GlobalConstraintWithCompositeIdSpec extends Specification {
         then:
         ParentB.count == 1
         ChildB.count == 1
+    }
+
+    @Rollback
+    @Issue('https://github.com/grails/grails-data-mapping/issues/877')
+    void "test global constraints with unique constraint"() {
+        given:
+        PersistentEntity entity = hibernateDatastore.mappingContext.getPersistentEntity(DomainB.name)
+        PropertyConfig nameProp = entity.getPropertyByName('name').mapping.mappedForm
+        PropertyConfig someOtherConfig = entity.getPropertyByName('someOther').mapping.mappedForm
+        expect:
+        nameProp.unique
+        someOtherConfig.unique
+        !nameProp.uniquenessGroup.isEmpty()
+        nameProp.uniquenessGroup.contains('domainB')
+        someOtherConfig.uniquenessGroup.isEmpty()
+
     }
 }
 
@@ -82,5 +100,20 @@ class ChildB implements Serializable {
                 column name: 'DSC'
             }
         }
+    }
+}
+
+@Entity
+class DomainB {
+
+    String name
+
+    String someOther
+
+    static belongsTo = [domainB: DomainB]
+
+    static constraints = {
+        name nullable: false, blank: false, unique: "domainB"
+        someOther nullable: false, blank: false, unique: true
     }
 }
