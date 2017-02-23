@@ -250,14 +250,10 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
             this.applicationContext = applicationContext;
             this.messageSource = applicationContext;
 
-            GrailsVersion currentVersion = GrailsVersion.getCurrent();
-            if (currentVersion != null) {
-                //If 3.3.0.M1 is greater than the current version
-                if (currentVersion.compareTo(new GrailsVersion("3.3.0.M1")) == -1) {
-                    SpringDataSourceConnectionSourceFactory springDataSourceConnectionSourceFactory = new SpringDataSourceConnectionSourceFactory();
-                    springDataSourceConnectionSourceFactory.setApplicationContext(applicationContext);
-                    this.dataSourceConnectionSourceFactory = springDataSourceConnectionSourceFactory;
-                }
+            if (!GrailsVersion.isAtLeast("3.3.0")) {
+                SpringDataSourceConnectionSourceFactory springDataSourceConnectionSourceFactory = new SpringDataSourceConnectionSourceFactory();
+                springDataSourceConnectionSourceFactory.setApplicationContext(applicationContext);
+                this.dataSourceConnectionSourceFactory = springDataSourceConnectionSourceFactory;
             }
 
         }
