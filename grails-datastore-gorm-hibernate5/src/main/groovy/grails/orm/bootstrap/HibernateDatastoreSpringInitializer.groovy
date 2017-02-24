@@ -149,7 +149,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
             def config = this.configuration
             final boolean isGrailsPresent = isGrailsPresent()
-            final boolean isNewVersion = GrailsVersion.isAtLeast("3.3.0")
+            final boolean isNewVersion = GrailsVersion.isAtLeastMajorMinor(3,3)
 
             hibernateConnectionSourceFactory(HibernateConnectionSourceFactory, persistentClasses as Class[]) { bean ->
                 bean.autowire = true

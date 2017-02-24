@@ -8,7 +8,7 @@ import org.junit.runners.Suite
  */
 @RunWith(Suite)
 @Suite.SuiteClasses([
-      DisableAutotimeStampSpec
+      SaveAllSpec
 ])
 class HibernateSuite {
 }
