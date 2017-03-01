@@ -1,17 +1,16 @@
 package example
 
+import groovy.transform.CompileStatic
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.Bean
 
-/**
- * Created by graemerocher on 22/07/2016.
- */
 @SpringBootApplication
+@CompileStatic
 class Application {
 
-    public static void main(String[] args) throws Exception {
+    static void main(String[] args) throws Exception {
         SpringApplication.run(Application.class, args);
     }
 
