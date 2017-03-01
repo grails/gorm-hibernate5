@@ -15,6 +15,8 @@ class HibernateSpecSpec extends HibernateSpec {
     }
     void "test hibernate spec"() {
         expect:
+        hibernateDatastore.connectionSources.defaultConnectionSource.settings.dataSource.dbCreate == 'create-drop'
+        hibernateDatastore.connectionSources.defaultConnectionSource.settings.dataSource.logSql == true
         Book.count() == 1
         !new Book().validate()
         !new Book(title: "").validate()
