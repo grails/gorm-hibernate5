@@ -9,8 +9,12 @@ configurations.all {
         if(details.requested.group == 'org.grails' && details.requested.name.startsWith('grails-datastore')) {
             details.useVersion(gormVersion)
         }
+        if(details.requested.group == 'org.codehaus.groovy' && details.requested.name.startsWith('groovy')) {
+            details.useVersion(groovyVersion)   
+        }        
     }
 }
+
 dependencies {
 
     compileOnly("org.grails:grails-core:$grailsVersion")

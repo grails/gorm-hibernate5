@@ -19,7 +19,13 @@ targetCompatibility = 1.8
 
 group 'examples'
 
-
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if(details.requested.group == 'org.codehaus.groovy' && details.requested.name.startsWith('groovy')) {
+            details.useVersion(groovyVersion)   
+        }
+    }
+}  
 dependencies {
     compile("org.springframework.boot:spring-boot-starter")
     compile("org.springframework.boot:spring-boot-starter-web")
