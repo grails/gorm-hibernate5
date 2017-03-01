@@ -6,6 +6,7 @@ import groovy.transform.NotYetImplemented
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
+import spock.lang.Ignore
 import spock.lang.Issue
 import spock.lang.Shared
 import spock.lang.Specification
@@ -13,6 +14,7 @@ import spock.lang.Specification
 /**
  * Created by graemerocher on 01/03/2017.
  */
+@Ignore // not yet implemented
 class SubclassMultipleListCollectionSpec extends Specification {
 
     @AutoCleanup @Shared HibernateDatastore hibernateDatastore = new HibernateDatastore(
