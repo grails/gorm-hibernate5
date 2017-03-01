@@ -15,6 +15,7 @@ import org.springframework.boot.env.PropertySourcesLoader
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
 import org.springframework.core.env.MapPropertySource
 import org.springframework.core.env.MutablePropertySources
+import org.springframework.core.env.PropertyResolver
 import org.springframework.core.io.DefaultResourceLoader
 import org.springframework.core.io.ResourceLoader
 import org.springframework.core.type.filter.AnnotationTypeFilter
@@ -40,16 +41,16 @@ abstract class HibernateSpec extends Specification {
         PropertySourcesLoader loader = new PropertySourcesLoader()
         ResourceLoader resourceLoader = new DefaultResourceLoader()
         MutablePropertySources propertySources = loader.propertySources
-        propertySources.addFirst(new MapPropertySource("defaults", getConfiguration()))
         loader.load resourceLoader.getResource("application.yml")
         loader.load resourceLoader.getResource("application.groovy")
+        propertySources.addFirst(new MapPropertySource("defaults", getConfiguration()))
         Config config = new PropertySourcesConfig(propertySources)
         List<Class> domainClasses = getDomainClasses()
         String packageName = getPackageToScan(config)
 
         if (!domainClasses) {
             hibernateDatastore = new HibernateDatastore(
-                    DatastoreUtils.createPropertyResolver(getConfiguration()),
+                    (PropertyResolver)config,
                     Package.getPackage(packageName))
         }
         else {
