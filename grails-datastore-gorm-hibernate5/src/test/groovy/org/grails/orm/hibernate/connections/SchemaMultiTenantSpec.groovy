@@ -101,6 +101,21 @@ class SchemaMultiTenantSpec extends Specification {
             SingleTenantAuthor.count() == 0
         }
 
+        SingleTenantAuthor.withTransaction{
+            new SingleTenantAuthor(name: "JRR Tolkien").save(flush:true)
+        }
+
+        when:"A new tenant is added at runtime"
+        MyResolver.tenantIds.add("evenMoreBooks")
+        datastore.addTenantForSchema("evenMoreBooks")
+
+        then:
+        SingleTenantAuthor.withTenant("evenMoreBooks") { String tenantId, Session s ->
+            assert s != null
+            def count = SingleTenantAuthor.count()
+            count == 0
+        }
+
         when:"each tenant is iterated over"
         Map tenantIds = [:]
         SingleTenantAuthor.eachTenant { String tenantId ->
@@ -108,16 +123,16 @@ class SchemaMultiTenantSpec extends Specification {
         }
 
         then:"The result is correct"
-        tenantIds == [moreBooks:2, books:0]
+        tenantIds == [moreBooks:2, books:1, evenMoreBooks:0]
+
+
     }
 
     static class MyResolver extends SystemPropertyTenantResolver implements AllTenantsResolver {
-
+        static List<Serializable> tenantIds = ["moreBooks", "books"]
         @Override
         Iterable<Serializable> resolveTenantIds() {
-            List<Serializable> tenantIds = []
-            tenantIds.add("moreBooks")
-            tenantIds.add("books")
+
             return tenantIds
         }
     }

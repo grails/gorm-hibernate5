@@ -44,6 +44,12 @@ subprojects { project ->
         maven { url "https://repo.grails.org/grails/core" }
     }
 
+    configurations.all {
+        resolutionStrategy.dependencySubstitution {
+            substitute module("org.codehaus.groovy:groovy-all") with module("org.codehaus.groovy:groovy:$groovyVersion")
+        }
+    }
+
     if(project.name.startsWith("examples/")) {
         if(project.name.startsWith("examples/grails")) {
             apply plugin:"org.grails.grails-web"
@@ -52,10 +58,11 @@ subprojects { project ->
         configurations.all {
             resolutionStrategy.eachDependency { DependencyResolveDetails details ->
                 if(details.requested.group == 'org.codehaus.groovy' && details.requested.name.startsWith('groovy')) {
-                    details.useVersion(groovyVersion)   
+                    details.useVersion(groovyVersion)
                 }
             }
-        }        
+
+        }
         return
     }
 
