@@ -46,7 +46,7 @@ HibernateDatastore datastore = ...
 datastore.addTenantForSchema("myNewSchema")
 ----
 
-NOTE: If `dbCreate` is disabled then you will have to create the schema manually prior to invoking this method 
+NOTE: If `dbCreate` is disabled then you will have to create the schema manually prior to invoking this method
 
 ==== Schema-Per-Tenant Caveats
 
