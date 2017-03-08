@@ -4,7 +4,6 @@ There are currently several implementations of GORM. This documentation covers t
 
 * http://gorm.grails.org/latest/mongodb/manual[GORM for MongoDB]
 * http://gorm.grails.org/latest/neo4j/manual[GORM for Neo4j]
-* http://gorm.grails.org/latest/redis/manual[GORM for Redis]
 * http://gorm.grails.org/latest/cassandra/manual[GORM for Cassandra]
 * http://gorm.grails.org/latest/rx/mongodb/manual[RxGORM for MongoDB]
 * http://gorm.grails.org/latest/rx/rest-client/manual[RxGORM for REST]
