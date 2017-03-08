@@ -32,3 +32,15 @@ dependencies {
     ...
 }
 ----
+
+=== Common Problems
+
+If you receive an error that indicates a failure to resolve the `grails-datastore-simple` dependency you may need to add the following to `build.gradle` directly above the `dependencies` block:
+
+[source,groovy]
+.build.gradle
+----
+configurations.all {
+    exclude module:'grails-datastore-simple'
+}
+----
