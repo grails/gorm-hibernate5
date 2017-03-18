@@ -21,7 +21,7 @@ println "GORM VERSION = ${project.gormVersion}"
 ext {
     isTravisBuild = System.getenv().get("TRAVIS") == 'true'
     grailsVersion = "3.2.6"
-    groovyVersion = "2.4.7"
+    groovyVersion = "2.4.10"
     springBootVersion = "1.4.4.RELEASE"
     hibernateVersion = "4.3.11"
     hibernate5Version = "5.1.3"
