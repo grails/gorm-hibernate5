@@ -17,7 +17,7 @@ import java.sql.ResultSet
  */
 class IdentityEnumTypeSpec extends Specification {
 
-    @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(EnumEntityDomain)
+    @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(EnumEntityDomain, FooWithEnum)
     @Shared PlatformTransactionManager transactionManager = hibernateDatastore.getTransactionManager()
 
     @Rollback
@@ -30,6 +30,20 @@ class IdentityEnumTypeSpec extends Specification {
         then:
         resultSet.next()
         resultSet.getString(1) == 'F'
+        EnumEntityDomain.first().status == EnumEntityDomain.Status.FOO
+    }
+
+    @Rollback
+    void "test identity enum type 2"() {
+        when:
+        new FooWithEnum(name: "blah", mySuperValue: XEnum.X__TWO).save(flush:true)
+        DataSource ds = hibernateDatastore.connectionSources.defaultConnectionSource.dataSource
+        ResultSet resultSet = ds.getConnection().prepareStatement('select my_super_value from foo_with_enum').executeQuery()
+
+        then:
+        resultSet.next()
+        resultSet.getInt(1) == 100
+        FooWithEnum.first().mySuperValue == XEnum.X__TWO
     }
 }
 
@@ -45,5 +59,35 @@ class EnumEntityDomain {
         FOO("F"), BAR("B")
         String id
         Status(String id) { this.id = id }
+    }
+}
+
+@Entity
+class FooWithEnum {
+    long id
+    String name
+    XEnum mySuperValue
+
+    static mapping = {
+        version false
+        mySuperValue enumType:"identity"
+    }
+}
+
+enum XEnum {
+    X__ONE (000, "x.one"),
+    X__TWO (100, "x.two"),
+    X__THREE (200, "x.three")
+
+    final int id
+    final String name
+
+    private XEnum(int id, String name) {
+        this.id = id
+        this.name = name
+    }
+
+    String toString() {
+        name
     }
 }
