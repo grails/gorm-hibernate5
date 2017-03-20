@@ -11,10 +11,9 @@ dependencies {
     compileOnly "org.grails:grails-web-url-mappings:$grailsVersion"
     compileOnly("org.grails:grails-datastore-web:$gormVersion")
 
-    String hibVersion = "${hibernate5Version}.Final"
 
     compile "org.springframework:spring-orm:$springVersion"
-    compile("org.hibernate:hibernate-core:$hibVersion") {
+    compile("org.hibernate:hibernate-core:$hibernate5Version") {
         exclude group:'commons-logging', module:'commons-logging'
         exclude group:'com.h2database', module:'h2'
         exclude group:'commons-collections', module:'commons-collections'
@@ -23,7 +22,7 @@ dependencies {
         exclude group:'org.slf4j', module:'slf4j-log4j12'
         exclude group:'xml-apis', module:'xml-apis'
     }
-    compile('org.hibernate:hibernate-validator:5.2.4.Final') {
+    compile("org.hibernate:hibernate-validator:$hibernateValidatorVersion") {
         exclude group:'commons-logging', module:'commons-logging'
         exclude group:'commons-collections', module:'commons-collections'
         exclude group:'org.slf4j', module:'slf4j-api'
@@ -34,7 +33,7 @@ dependencies {
         exclude group: 'commons-logging', module:'commons-logging'
     }
 
-    compileOnly ("org.hibernate:hibernate-ehcache:$hibVersion") {
+    compileOnly ("org.hibernate:hibernate-ehcache:$hibernate5Version") {
         exclude group:'commons-collections', module:'commons-collections'
         exclude group:'commons-logging', module:'commons-logging'
         exclude group:'com.h2database', module:'h2'
@@ -53,7 +52,7 @@ dependencies {
     testCompile "com.h2database:h2:1.3.164"
 
     testCompile "net.sf.ehcache:ehcache-core:2.4.6"
-    testCompile "org.hibernate:hibernate-ehcache:$hibVersion"
+    testCompile "org.hibernate:hibernate-ehcache:$hibernate5Version"
     
     def tomcatVersion = '7.0.50'
     testCompile "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"

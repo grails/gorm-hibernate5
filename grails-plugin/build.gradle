@@ -22,7 +22,7 @@ dependencies {
 
     compileOnly("org.grails:grails-plugin-testing:$grailsVersion")
     
-    compile "org.hibernate:hibernate-core:${hibernate5Version}.Final"
+    compile "org.hibernate:hibernate-core:${hibernate5Version}"
     compile "org.grails:grails-datastore-web:$gormVersion"
     compile "org.grails:grails-datastore-gorm-support:$gormVersion"
     compile "org.grails:grails-datastore-gorm-async:$gormVersion"
