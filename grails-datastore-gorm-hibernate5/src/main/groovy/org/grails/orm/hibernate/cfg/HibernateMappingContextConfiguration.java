@@ -198,102 +198,73 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
         SessionFactory sessionFactory;
 
         Object classLoaderObject = getProperties().get(AvailableSettings.CLASSLOADERS);
-        Collection<ClassLoader> appClassLoaders;
+        ClassLoader appClassLoader;
 
-        if(classLoaderObject instanceof Collection) {
-            appClassLoaders = (Collection<ClassLoader>) classLoaderObject;
-        }
-        else if(classLoaderObject instanceof ClassLoader) {
-            appClassLoaders = Collections.singletonList((ClassLoader) classLoaderObject);
+        if(classLoaderObject instanceof ClassLoader) {
+            appClassLoader = (ClassLoader) classLoaderObject;
         }
         else {
-            appClassLoaders = Collections.emptyList();
+            appClassLoader = getClass().getClassLoader();
         }
-        Thread currentThread = Thread.currentThread();
-        ClassLoader threadContextClassLoader = currentThread.getContextClassLoader();
-        boolean overrideClassLoader = false;
-        ClassLoader appClassLoader = null;
-        if(!appClassLoaders.isEmpty()) {
-            for (ClassLoader cl : appClassLoaders) {
-                if(!cl.equals(threadContextClassLoader)) {
-                    overrideClassLoader = true;
-                    appClassLoader = cl;
-                    break;
+
+        ConfigurationHelper.resolvePlaceHolders(getProperties());
+
+        final GrailsDomainBinder domainBinder = new GrailsDomainBinder(dataSourceName, sessionFactoryBeanName, hibernateMappingContext);
+
+        List<Class> annotatedClasses = new ArrayList<>();
+        for (PersistentEntity persistentEntity : hibernateMappingContext.getPersistentEntities()) {
+            Class javaClass = persistentEntity.getJavaClass();
+            if(javaClass.isAnnotationPresent(Entity.class)) {
+                annotatedClasses.add(javaClass);
+            }
+        }
+
+        if(!additionalClasses.isEmpty()) {
+            for (Class additionalClass : additionalClasses) {
+                if(GormEntity.class.isAssignableFrom(additionalClass)) {
+                    hibernateMappingContext.addPersistentEntity(additionalClass);
                 }
             }
         }
-        else {
-            appClassLoaders = Arrays.asList(threadContextClassLoader, getClass().getClassLoader());
-        }
-        if (overrideClassLoader) {
-            currentThread.setContextClassLoader(appClassLoader);
-        }
 
-        try {
-            ConfigurationHelper.resolvePlaceHolders(getProperties());
+        addAnnotatedClasses( annotatedClasses.toArray(new Class[annotatedClasses.size()]));
 
-            final GrailsDomainBinder domainBinder = new GrailsDomainBinder(dataSourceName, sessionFactoryBeanName, hibernateMappingContext);
-
-            List<Class> annotatedClasses = new ArrayList<>();
-            for (PersistentEntity persistentEntity : hibernateMappingContext.getPersistentEntities()) {
-                Class javaClass = persistentEntity.getJavaClass();
-                if(javaClass.isAnnotationPresent(Entity.class)) {
-                    annotatedClasses.add(javaClass);
-                }
-            }
-
-            if(!additionalClasses.isEmpty()) {
-                for (Class additionalClass : additionalClasses) {
-                    if(GormEntity.class.isAssignableFrom(additionalClass)) {
-                        hibernateMappingContext.addPersistentEntity(additionalClass);
-                    }
-                }
-            }
-
-            addAnnotatedClasses( annotatedClasses.toArray(new Class[annotatedClasses.size()]));
-
-            ClassLoaderService classLoaderService = new ClassLoaderServiceImpl(appClassLoaders) {
-                @Override
-                public <S> Collection<S> loadJavaServices(Class<S> serviceContract) {
-                    if(MetadataContributor.class.isAssignableFrom(serviceContract)) {
-                        if(metadataContributor != null) {
-                            return (Collection<S>) Arrays.asList(domainBinder, metadataContributor);
-                        }
-                        else {
-                            return Collections.singletonList((S) domainBinder);
-                        }
+        ClassLoaderService classLoaderService = new ClassLoaderServiceImpl(appClassLoader) {
+            @Override
+            public <S> Collection<S> loadJavaServices(Class<S> serviceContract) {
+                if(MetadataContributor.class.isAssignableFrom(serviceContract)) {
+                    if(metadataContributor != null) {
+                        return (Collection<S>) Arrays.asList(domainBinder, metadataContributor);
                     }
                     else {
-                        return super.loadJavaServices(serviceContract);
+                        return Collections.singletonList((S) domainBinder);
                     }
                 }
-            };
-            EventListenerIntegrator eventListenerIntegrator = new EventListenerIntegrator(hibernateEventListeners, eventListeners);
-            BootstrapServiceRegistry bootstrapServiceRegistry = createBootstrapServiceRegistryBuilder()
-                                                                        .applyIntegrator(eventListenerIntegrator)
-                                                                        .applyClassLoaderService(classLoaderService)
-                                                                        .build();
-
-            setSessionFactoryObserver(new SessionFactoryObserver() {
-                private static final long serialVersionUID = 1;
-                public void sessionFactoryCreated(SessionFactory factory) {}
-                public void sessionFactoryClosed(SessionFactory factory) {
-                    ((ServiceRegistryImplementor)serviceRegistry).destroy();
+                else {
+                    return super.loadJavaServices(serviceContract);
                 }
-            });
-
-            StandardServiceRegistryBuilder standardServiceRegistryBuilder = createStandardServiceRegistryBuilder(bootstrapServiceRegistry)
-                                                                                        .applySettings(getProperties());
-
-            StandardServiceRegistry serviceRegistry = standardServiceRegistryBuilder.build();
-            sessionFactory = super.buildSessionFactory(serviceRegistry);
-            this.serviceRegistry = serviceRegistry;
-        }
-        finally {
-            if (overrideClassLoader) {
-                currentThread.setContextClassLoader(threadContextClassLoader);
             }
-        }
+        };
+        EventListenerIntegrator eventListenerIntegrator = new EventListenerIntegrator(hibernateEventListeners, eventListeners);
+        BootstrapServiceRegistry bootstrapServiceRegistry = createBootstrapServiceRegistryBuilder()
+                                                                    .applyIntegrator(eventListenerIntegrator)
+                                                                    .applyClassLoaderService(classLoaderService)
+                                                                    .build();
+
+        setSessionFactoryObserver(new SessionFactoryObserver() {
+            private static final long serialVersionUID = 1;
+            public void sessionFactoryCreated(SessionFactory factory) {}
+            public void sessionFactoryClosed(SessionFactory factory) {
+                ((ServiceRegistryImplementor)serviceRegistry).destroy();
+            }
+        });
+
+        StandardServiceRegistryBuilder standardServiceRegistryBuilder = createStandardServiceRegistryBuilder(bootstrapServiceRegistry)
+                                                                                    .applySettings(getProperties());
+
+        StandardServiceRegistry serviceRegistry = standardServiceRegistryBuilder.build();
+        sessionFactory = super.buildSessionFactory(serviceRegistry);
+        this.serviceRegistry = serviceRegistry;
 
         return sessionFactory;
     }
