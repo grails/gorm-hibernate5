@@ -3,7 +3,7 @@ group 'examples'
 apply plugin:"groovy"
 
 dependencies {
-    compile("org.hibernate:hibernate-core:5.2.0.Final")
+    compile("org.hibernate:hibernate-core:5.2.9.Final")
     compile project(":grails-datastore-gorm-hibernate5")
     runtime "com.h2database:h2:1.4.192"
     runtime "org.apache.tomcat:tomcat-jdbc:8.5.0"
