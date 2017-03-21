@@ -38,6 +38,9 @@ class SimpleJpaEntitySpec extends Specification {
             lastName == 'Rubble'
         }
         then:"The object was saved"
+        Customer.get(null) == null
+        Customer.get("null") == null
+        Customer.get(c.id) != null
         !c.errors.hasErrors()
         Customer.count() == 1
         query.count() == 0
