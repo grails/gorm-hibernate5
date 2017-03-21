@@ -76,7 +76,7 @@ public class RlikeExpression implements Criterion {
     }
 
     public TypedValue[] getTypedValues(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
-        return new TypedValue[] { criteriaQuery.getTypedValue(criteria, propertyName, value.toString().toLowerCase()) };
+        return new TypedValue[] { criteriaQuery.getTypedValue(criteria, propertyName, value.toString()) };
     }
 
     @Override

@@ -13,10 +13,10 @@ class RLikeSpec extends GormSpec {
 
         when:
         session.clear()
-        List<RlikeFoo> allFoos = RlikeFoo.findAllByNameRlike(".*")
+        List<RlikeFoo> allFoos = RlikeFoo.findAllByNameRlike("ABCD.*")
 
         then:
-        allFoos.size() == 3
+        allFoos.size() == 2
     }
 
     @Override
