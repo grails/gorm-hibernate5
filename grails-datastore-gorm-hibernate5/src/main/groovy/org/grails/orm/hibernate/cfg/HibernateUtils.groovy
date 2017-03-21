@@ -20,22 +20,17 @@ import groovy.transform.TypeCheckingMode
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtMethod
+import javassist.LoaderClassPath
 import org.grails.datastore.mapping.core.exceptions.ConfigurationException
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.PersistentProperty
 import org.grails.datastore.mapping.reflect.ClassPropertyFetcher
 import org.grails.datastore.mapping.reflect.NameUtils
-import org.grails.orm.hibernate.proxy.AbstractGroovyAwareJavassistProxyFactory
 import org.hibernate.proxy.HibernateProxy
-import org.hibernate.type.EnumType
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.beans.PropertyAccessorFactory
 
 @CompileStatic
 class HibernateUtils {
-
-    static final Logger LOG = LoggerFactory.getLogger(HibernateUtils)
 
     private static Class identityEnumTypeFactory
 
@@ -45,13 +40,21 @@ class HibernateUtils {
     static Class buildIdentityEnumTypeFactory() {
         if(identityEnumTypeFactory == null) {
             try {
-                def pool = ClassPool.default
-                final CtClass superClass = pool.get(AbstractIdentityEnumType.name);
-                def clz = pool.makeClass("${AbstractIdentityEnumType.package.name}.IdentityEnumType", superClass)
+                String superClassName = AbstractIdentityEnumType.name
+                ClassPool pool = ClassPool.default
+                CtClass superClass = pool.getOrNull(superClassName)
+                if(superClass == null) {
+                    pool.appendClassPath(
+                            new LoaderClassPath(HibernateUtils.classLoader)
+                    )
+                }
 
-                def superClassMethods = superClass.getMethods()
+                superClass = pool.get(superClassName)
+                CtClass clz = pool.makeClass("${AbstractIdentityEnumType.package.name}.IdentityEnumType", superClass)
+
+                CtMethod[] superClassMethods = superClass.getMethods()
                 CtMethod nullSafeGetMethod = superClassMethods.find { CtMethod m -> m.name == 'nullSafeGet' }
-                def parameterTypes = nullSafeGetMethod.getParameterTypes()
+                CtClass[] parameterTypes = nullSafeGetMethod.getParameterTypes()
                 CtMethod newNullSafeGetMethod = new CtMethod(nullSafeGetMethod.getReturnType(), nullSafeGetMethod.name, parameterTypes, clz)
                 newNullSafeGetMethod.setBody(
                         '''{

@@ -25,17 +25,15 @@ class ProxyFactorySupport {
     private static final Class<ProxyFactory> FACTORY
     static {
         try {
+            String superClassName = AbstractGroovyAwareJavassistProxyFactory.name
             ClassPool pool = ClassPool.default
-            pool.appendClassPath(
-                new LoaderClassPath(ProxyFactorySupport.classLoader)
-            )
-            CtClass superClass = pool.getOrNull( AbstractGroovyAwareJavassistProxyFactory.name );
+            CtClass superClass = pool.getOrNull(superClassName)
             if(superClass == null) {
                 pool.appendClassPath(
                         new LoaderClassPath(ProxyFactorySupport.classLoader)
                 )
             }
-            superClass = pool.get( AbstractGroovyAwareJavassistProxyFactory.name )
+            superClass = pool.get(superClassName)
             CtClass clz = pool.makeClass("${AbstractGroovyAwareJavassistProxyFactory.package.name}.GroovyAwareJavassistProxyFactory", superClass)
 
             CtMethod getProxyMethod = superClass.getMethods().find { CtMethod m -> m.name == 'getProxy' }
