@@ -250,6 +250,15 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         this(new ClasspathEntityScanner().scan(packagesToScan));
     }
 
+    /**
+     * Construct a Hibernate datastore scanning the given packages
+     *
+     * @param packageToScan The package to scan
+     */
+    public HibernateDatastore(Package packageToScan) {
+        this(new ClasspathEntityScanner().scan(packageToScan));
+    }
+
     @Override
     public ApplicationEventPublisher getApplicationEventPublisher() {
         return this.eventPublisher;
