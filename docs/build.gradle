@@ -94,14 +94,11 @@ task groovydoc(type:GroovydocTask, dependsOn:fetchSource) {
             files += project.files("${checkOutDir}/gorm-src/grails-datastore-${p}/src/main/groovy")
         }
     }
-
-    project.rootProject.subprojects.each { subproject ->
-        if(subproject.name.startsWith('grails2') || subproject.name.startsWith('examples')) {
-            return
-        }
-        File projectDir = new File(subproject.projectDir, "src/main/groovy")
-        if(projectDir.exists()) {
-            files += subproject.files(projectDir)
+    project.rootProject.subprojects
+            .findAll { !it.name.contains('-rx-') && !it.name.startsWith('grails2') && !it.name.startsWith('examples') }
+            .each { subproject ->
+        if(subproject.file('src/main/groovy').exists()) {
+            files += subproject.files("src/main/groovy")
         }
     }
     source = files
