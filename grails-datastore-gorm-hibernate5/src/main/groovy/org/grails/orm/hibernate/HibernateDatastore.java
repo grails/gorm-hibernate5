@@ -19,6 +19,7 @@ import org.grails.datastore.gorm.events.AutoTimestampEventListener;
 import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPublisher;
 import org.grails.datastore.gorm.events.ConfigurableApplicationEventPublisher;
 import org.grails.datastore.gorm.events.DefaultApplicationEventPublisher;
+import org.grails.datastore.gorm.jdbc.MultiTenantDataSource;
 import org.grails.datastore.gorm.jdbc.connections.DataSourceSettings;
 import org.grails.datastore.gorm.jdbc.schema.SchemaHandler;
 import org.grails.datastore.gorm.utils.ClasspathEntityScanner;
@@ -503,7 +504,9 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
             }
         }
 
-        DefaultConnectionSource<DataSource, DataSourceSettings> dataSourceConnectionSource = new DefaultConnectionSource<>(schemaName, defaultConnectionSource.getDataSource(), tenantSettings.getDataSource());
+        DataSource dataSource = defaultConnectionSource.getDataSource();
+        dataSource = new MultiTenantDataSource(dataSource, schemaName);
+        DefaultConnectionSource<DataSource, DataSourceSettings> dataSourceConnectionSource = new DefaultConnectionSource<>(schemaName, dataSource, tenantSettings.getDataSource());
         ConnectionSource<SessionFactory, HibernateConnectionSourceSettings> connectionSource = factory.create(schemaName, dataSourceConnectionSource, tenantSettings);
         SingletonConnectionSources<SessionFactory, HibernateConnectionSourceSettings> singletonConnectionSources = new SingletonConnectionSources<>(connectionSource, connectionSources.getBaseConfiguration());
         HibernateDatastore childDatastore = new HibernateDatastore(singletonConnectionSources, (HibernateMappingContext) mappingContext, eventPublisher) {

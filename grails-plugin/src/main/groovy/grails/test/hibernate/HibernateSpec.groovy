@@ -49,9 +49,10 @@ abstract class HibernateSpec extends Specification {
         String packageName = getPackageToScan(config)
 
         if (!domainClasses) {
+            Package packageToScan = Package.getPackage(packageName) ?: getClass().getPackage()
             hibernateDatastore = new HibernateDatastore(
                     (PropertyResolver)config,
-                    Package.getPackage(packageName))
+                    packageToScan)
         }
         else {
             hibernateDatastore = new HibernateDatastore(

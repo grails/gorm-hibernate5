@@ -200,6 +200,17 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
         }
     }
 
+    @Override
+    public <T1> T1 executeWithExistingOrCreateNewSession(SessionFactory sessionFactory, Closure<T1> callable) {
+        SessionHolder sessionHolder = (SessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
+        if(sessionHolder == null) {
+            return executeWithNewSession(callable);
+        }
+        else {
+            return callable.call(sessionHolder.getSession());
+        }
+    }
+
     public SessionFactory getSessionFactory() {
         return sessionFactory;
     }
