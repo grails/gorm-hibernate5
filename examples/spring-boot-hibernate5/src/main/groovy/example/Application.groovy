@@ -8,10 +8,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 
 @SpringBootApplication
 @CompileStatic
-class Application implements CommandLineRunner{
+class Application implements CommandLineRunner {
 
     static void main(String[] args) throws Exception {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(Application.class, args)
     }
 
     @Override
