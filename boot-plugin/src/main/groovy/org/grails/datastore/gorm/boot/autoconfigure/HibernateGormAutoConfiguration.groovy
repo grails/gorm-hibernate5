@@ -17,6 +17,7 @@ package org.grails.datastore.gorm.boot.autoconfigure
 import grails.orm.bootstrap.HibernateDatastoreSpringInitializer
 import groovy.transform.CompileStatic
 import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPublisher
+import org.grails.datastore.mapping.services.Service
 import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.cfg.HibernateMappingContextConfiguration
 import org.hibernate.SessionFactory
@@ -50,6 +51,8 @@ import org.springframework.core.type.AnnotationMetadata
 import org.springframework.transaction.PlatformTransactionManager
 
 import javax.sql.DataSource
+import java.beans.Introspector
+
 /**
  * Auto configuration for GORM for Hibernate
  *
@@ -100,6 +103,21 @@ class HibernateGormAutoConfiguration implements ApplicationContextAware,BeanFact
                     new ConfigurableApplicationContextEventPublisher(applicationContext),
                     packages as Package[]
             )
+        }
+
+        for(Service service in datastore.getServices()) {
+            Class serviceClass = service.getClass()
+            grails.gorm.services.Service ann = serviceClass.getAnnotation(grails.gorm.services.Service)
+            String serviceName = ann?.name()
+            if(serviceName == null) {
+                serviceName = Introspector.decapitalize(serviceClass.simpleName)
+            }
+            if(!applicationContext.containsBean(serviceName)) {
+                applicationContext.beanFactory.registerSingleton(
+                    serviceName,
+                    service
+                )
+            }
         }
         return datastore
     }
