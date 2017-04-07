@@ -20,6 +20,8 @@ import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPubli
 import org.grails.datastore.gorm.events.ConfigurableApplicationEventPublisher;
 import org.grails.datastore.gorm.events.DefaultApplicationEventPublisher;
 import org.grails.datastore.gorm.jdbc.MultiTenantDataSource;
+import org.grails.datastore.gorm.jdbc.connections.DataSourceConnectionSource;
+import org.grails.datastore.gorm.jdbc.connections.DataSourceConnectionSourceFactory;
 import org.grails.datastore.gorm.jdbc.connections.DataSourceSettings;
 import org.grails.datastore.gorm.jdbc.schema.SchemaHandler;
 import org.grails.datastore.gorm.utils.ClasspathEntityScanner;
@@ -185,6 +187,18 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     public HibernateDatastore(PropertyResolver configuration, ConfigurableApplicationEventPublisher eventPublisher, Class...classes) {
         this(configuration, new HibernateConnectionSourceFactory(classes), eventPublisher);
     }
+
+    /**
+     * Create a new HibernateDatastore for the given connection sources and mapping context
+     *
+     * @param configuration The configuration
+     * @param eventPublisher The {@link ConfigurableApplicationEventPublisher} instance
+     * @param classes The persistent classes
+     */
+    public HibernateDatastore(DataSource dataSource, PropertyResolver configuration, ConfigurableApplicationEventPublisher eventPublisher, Class...classes) {
+        this(configuration, createConnectionFactoryForDataSource(dataSource, classes), eventPublisher);
+    }
+
     /**
      * Construct a Hibernate datastore scanning the given packages
      *
@@ -195,6 +209,18 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     public HibernateDatastore(PropertyResolver configuration, ConfigurableApplicationEventPublisher eventPublisher,  Package...packagesToScan) {
         this(configuration, eventPublisher, new ClasspathEntityScanner().scan(packagesToScan));
     }
+
+    /**
+     * Construct a Hibernate datastore scanning the given packages for the given datasource
+     *
+     * @param configuration The configuration
+     * @param eventPublisher The event publisher
+     * @param packagesToScan The packages to scan
+     */
+    public HibernateDatastore(DataSource dataSource, PropertyResolver configuration, ConfigurableApplicationEventPublisher eventPublisher,  Package...packagesToScan) {
+        this(dataSource, configuration, eventPublisher, new ClasspathEntityScanner().scan(packagesToScan));
+    }
+
     /**
      * Create a new HibernateDatastore for the given connection sources and mapping context
      *
@@ -204,7 +230,6 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     public HibernateDatastore(PropertyResolver configuration, Class...classes) {
         this(configuration, new HibernateConnectionSourceFactory(classes));
     }
-
     /**
      * Construct a Hibernate datastore scanning the given packages
      *
@@ -214,6 +239,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     public HibernateDatastore(PropertyResolver configuration, Package...packagesToScan) {
         this(configuration, new ClasspathEntityScanner().scan(packagesToScan));
     }
+
     /**
      * Constructor used purely for testing purposes. Creates a datastore with an in-memory database and dbCreate set to 'create-drop'
      *
@@ -222,7 +248,6 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     public HibernateDatastore(Map<String,Object> configuration, Class...classes) {
         this(DatastoreUtils.createPropertyResolver(configuration), new HibernateConnectionSourceFactory(classes));
     }
-
     /**
      * Construct a Hibernate datastore scanning the given packages
      *
@@ -265,15 +290,15 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         return this.eventPublisher;
     }
 
-
-
-
     /**
      * @return The {@link org.springframework.transaction.PlatformTransactionManager} instance
      */
     public GrailsHibernateTransactionManager getTransactionManager() {
         return transactionManager;
     }
+
+
+
 
     /**
      * Obtain a child {@link HibernateDatastore} by connection name
@@ -332,8 +357,6 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         );
     }
 
-
-
     protected HibernateGormEnhancer initialize() {
         final HibernateConnectionSource defaultConnectionSource = (HibernateConnectionSource) getConnectionSources().getDefaultConnectionSource();
         if(multiTenantMode == MultiTenancySettings.MultiTenancyMode.SCHEMA) {
@@ -370,6 +393,8 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
             return new HibernateGormEnhancer(this, transactionManager, defaultConnectionSource.getSettings());
         }
     }
+
+
 
     @Override
     protected Session createSession(PropertyResolver connectionDetails) {
@@ -516,5 +541,23 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
             }
         };
         datastoresByConnectionSource.put(connectionSource.getName(), childDatastore);
+    }
+
+    private static HibernateConnectionSourceFactory createConnectionFactoryForDataSource(final DataSource dataSource, Class... classes) {
+        HibernateConnectionSourceFactory hibernateConnectionSourceFactory = new HibernateConnectionSourceFactory(classes);
+        hibernateConnectionSourceFactory.setDataSourceConnectionSourceFactory(
+                new DataSourceConnectionSourceFactory() {
+                    @Override
+                    public ConnectionSource<DataSource, DataSourceSettings> create(String name, DataSourceSettings settings) {
+                        if(ConnectionSource.DEFAULT.equals(name)) {
+                            return new DataSourceConnectionSource(ConnectionSource.DEFAULT, dataSource, settings);
+                        }
+                        else {
+                            return super.create(name, settings);
+                        }
+                    }
+                }
+        );
+        return hibernateConnectionSourceFactory;
     }
 }

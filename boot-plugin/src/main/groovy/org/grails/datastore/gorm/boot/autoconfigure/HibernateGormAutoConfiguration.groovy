@@ -16,10 +16,16 @@ package org.grails.datastore.gorm.boot.autoconfigure
 
 import grails.orm.bootstrap.HibernateDatastoreSpringInitializer
 import groovy.transform.CompileStatic
+import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPublisher
+import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.cfg.HibernateMappingContextConfiguration
+import org.hibernate.SessionFactory
+import org.springframework.beans.BeansException
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.BeanFactoryAware
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
@@ -29,13 +35,19 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration
+import org.springframework.context.ApplicationContext
+import org.springframework.context.ApplicationContextAware
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.EnvironmentAware
 import org.springframework.context.ResourceLoaderAware
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar
 import org.springframework.core.env.Environment
 import org.springframework.core.io.ResourceLoader
 import org.springframework.core.type.AnnotationMetadata
+import org.springframework.transaction.PlatformTransactionManager
 
 import javax.sql.DataSource
 /**
@@ -50,31 +62,63 @@ import javax.sql.DataSource
 @ConditionalOnBean(DataSource)
 @ConditionalOnMissingBean(HibernateDatastoreSpringInitializer)
 @AutoConfigureAfter(DataSourceAutoConfiguration)
-@AutoConfigureBefore(HibernateJpaAutoConfiguration)
-class HibernateGormAutoConfiguration implements BeanFactoryAware, ResourceLoaderAware, ImportBeanDefinitionRegistrar, EnvironmentAware{
+@AutoConfigureBefore([HibernateJpaAutoConfiguration, WebMvcAutoConfiguration])
+class HibernateGormAutoConfiguration implements ApplicationContextAware,BeanFactoryAware {
 
     BeanFactory beanFactory
 
-    ResourceLoader resourceLoader
+    @Autowired(required = false)
+    DataSource dataSource
 
-    Environment environment
+    ConfigurableApplicationContext applicationContext
 
-    @Override
-    void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        HibernateDatastoreSpringInitializer initializer
-        def packages = AutoConfigurationPackages.get(beanFactory)
-        def classLoader = ((ConfigurableBeanFactory)beanFactory).getBeanClassLoader()
+    @Bean
+    HibernateDatastore hibernateDatastore() {
+        List<String> packageNames = AutoConfigurationPackages.get(this.beanFactory)
+        List<Package> packages = []
+        for(name in packageNames) {
+            Package pkg = Package.getPackage(name)
+            if(pkg != null) {
+                packages.add(pkg)
+            }
+        }
 
-        initializer = new HibernateDatastoreSpringInitializer(environment, packages as String[])
-        initializer.resourceLoader = resourceLoader
-        initializer.setConfiguration(environment)
-        initializer.configureForBeanDefinitionRegistry(registry)
+        ConfigurableListableBeanFactory beanFactory = applicationContext.beanFactory
+        HibernateDatastore datastore
+        if(dataSource == null) {
+            datastore = new HibernateDatastore(
+                    applicationContext.getEnvironment(),
+                    new ConfigurableApplicationContextEventPublisher(applicationContext),
+                    packages as Package[]
+            )
+            beanFactory.registerSingleton("dataSource", datastore.getDataSource())
+        }
+        else {
+            datastore = new HibernateDatastore(
+                    dataSource,
+                    applicationContext.getEnvironment(),
+                    new ConfigurableApplicationContextEventPublisher(applicationContext),
+                    packages as Package[]
+            )
+        }
+        return datastore
     }
 
-
-    @Override
-    void setEnvironment(Environment environment) {
-        this.environment = environment;
+    @Bean
+    SessionFactory sessionFactory() {
+        hibernateDatastore().getSessionFactory()
     }
 
+    @Bean
+    PlatformTransactionManager hibernateTransactionManager() {
+        hibernateDatastore().getTransactionManager()
+    }
+
+    @Override
+    void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        if(!(applicationContext instanceof ConfigurableApplicationContext)) {
+            throw new IllegalArgumentException("Neo4jAutoConfiguration requires an instance of ConfigurableApplicationContext")
+        }
+        this.applicationContext = (ConfigurableApplicationContext)applicationContext
+    }
 }
