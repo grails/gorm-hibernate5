@@ -24,10 +24,10 @@ import javassist.LoaderClassPath
 import org.grails.datastore.mapping.core.exceptions.ConfigurationException
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.PersistentProperty
-import org.grails.datastore.mapping.reflect.ClassPropertyFetcher
+import org.grails.datastore.mapping.proxy.EntityProxy
+import org.grails.datastore.mapping.reflect.EntityReflector
 import org.grails.datastore.mapping.reflect.NameUtils
 import org.hibernate.proxy.HibernateProxy
-import org.springframework.beans.PropertyAccessorFactory
 
 @CompileStatic
 class HibernateUtils {
@@ -106,29 +106,29 @@ class HibernateUtils {
         String setterName = NameUtils.getSetterName(propertyName)
 
         GroovyObject mc = (GroovyObject)entity.javaClass.metaClass
-        def propertyFetcher = ClassPropertyFetcher.forClass(entity.getJavaClass())
+        EntityReflector reflector = entity.getReflector()
 
         mc.setProperty(getterName, {->
-            def propertyValue = propertyFetcher.getPropertyValue(getDelegate(), propertyName)
+            def thisObject = getDelegate()
+            if(thisObject instanceof EntityProxy) {
+                EntityProxy entityProxy = (EntityProxy) thisObject
+                entityProxy.initialize()
+                thisObject = entityProxy.getTarget()
+            }
+            def propertyValue = reflector.getProperty(thisObject, propertyName)
             if (propertyValue instanceof HibernateProxy) {
                 propertyValue = GrailsHibernateUtil.unwrapProxy(propertyValue)
             }
             return propertyValue
         })
         mc.setProperty(setterName, {
-            PropertyAccessorFactory.forBeanPropertyAccess(getDelegate()).setPropertyValue(propertyName, it)
+            reflector.setProperty(getDelegate(), propertyName, it)
         })
 
         def children = entity.getMappingContext().getDirectChildEntities(entity)
         for (PersistentEntity sub in children) {
             handleLazyProxy(sub, sub.getPropertyByName(property.name))
         }
-    }
-
-    // workaround CS bug
-    @CompileStatic(TypeCheckingMode.SKIP)
-    private static PersistentEntity getPersistentEntity(mappingContext, String name) {
-        mappingContext.getPersistentEntity(name)
     }
 
     // http://jira.codehaus.org/browse/GROOVY-6138 prevents using CompileStatic for this method
