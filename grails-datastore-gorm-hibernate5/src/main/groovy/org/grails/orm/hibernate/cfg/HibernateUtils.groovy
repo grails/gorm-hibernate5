@@ -28,6 +28,7 @@ import org.grails.datastore.mapping.proxy.EntityProxy
 import org.grails.datastore.mapping.reflect.EntityReflector
 import org.grails.datastore.mapping.reflect.NameUtils
 import org.hibernate.proxy.HibernateProxy
+import org.springframework.beans.PropertyAccessorFactory
 
 @CompileStatic
 class HibernateUtils {
@@ -122,7 +123,7 @@ class HibernateUtils {
             return propertyValue
         })
         mc.setProperty(setterName, {
-            reflector.setProperty(getDelegate(), propertyName, it)
+            PropertyAccessorFactory.forBeanPropertyAccess(getDelegate()).setPropertyValue(propertyName, it)
         })
 
         def children = entity.getMappingContext().getDirectChildEntities(entity)
