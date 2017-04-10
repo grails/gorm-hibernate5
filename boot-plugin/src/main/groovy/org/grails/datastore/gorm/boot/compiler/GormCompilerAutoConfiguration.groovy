@@ -34,17 +34,17 @@ import org.springframework.boot.cli.compiler.DependencyCustomizer;
 class GormCompilerAutoConfiguration extends CompilerAutoConfiguration{
     @Override
     boolean matches(ClassNode classNode) {
-        return AstUtils.hasAtLeastOneAnnotation(classNode, "grails.persistence.Entity", "Entity")
+        return AstUtils.hasAtLeastOneAnnotation(classNode, "grails.persistence.Entity", "grails.gorm.annotation.Entity" ,"Entity")
     }
 
     @Override
     void applyDependencies(DependencyCustomizer dependencies) throws CompilationFailedException {
         dependencies.ifAnyMissingClasses("grails.persistence.Entity")
-                        .add("grails-datastore-gorm-hibernate4")
+                        .add("grails-datastore-gorm-hibernate5")
     }
 
     @Override
     void applyImports(ImportCustomizer imports) throws CompilationFailedException {
-        imports.addStarImports("grails.persistence", "grails.gorm")
+        imports.addStarImports("grails.gorm", "grails.gorm.annotation")
     }
 }
