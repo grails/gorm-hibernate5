@@ -24,9 +24,11 @@ class ExampleSpec extends Specification {
     @Rollback
     void "test execute Hibernate standalone in a unit test"() {
         when:
-        new Example(name: "Fred").save(flush:true)
-
+        def e = new Example(name: "Fred").save(flush:true)
+        hibernateDatastore.sessionFactory.currentSession.clear()
+        e = Example.load(e.id)
         then:
+        e.name == "Fred"
         Example.count() == 1
     }
 }

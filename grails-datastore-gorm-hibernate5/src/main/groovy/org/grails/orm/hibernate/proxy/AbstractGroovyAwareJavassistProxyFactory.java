@@ -23,6 +23,8 @@ public abstract class AbstractGroovyAwareJavassistProxyFactory implements ProxyF
     protected Method getIdentifierMethod;
     protected Method setIdentifierMethod;
     protected CompositeType componentIdType;
+    protected Class proxyClass;
+
 
     @Override
     public void postInstantiate(String entityName, Class persistentClass, Set<Class> interfaces, Method getIdentifierMethod, Method setIdentifierMethod, CompositeType componentIdType) throws HibernateException {
@@ -32,5 +34,7 @@ public abstract class AbstractGroovyAwareJavassistProxyFactory implements ProxyF
         this.getIdentifierMethod = getIdentifierMethod;
         this.setIdentifierMethod = setIdentifierMethod;
         this.componentIdType = componentIdType;
+        this.proxyClass = JavassistEntityProxyUtils.createProxyClass(persistentClass, this.interfaces);
     }
+
 }
