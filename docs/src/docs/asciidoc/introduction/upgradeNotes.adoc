@@ -86,7 +86,7 @@ static mapping = {
 
 Hibernate 5.2 includes many breaking API changes, in order to support Hibernate 5.2 several classes have been removed or rewritten. Including:
 
-* `org.grails.orm.hibernate.proxy.TmpGroovyAwareJavassistLazyInitializer`
+* `org.grails.orm.hibernate.proxy.GroovyAwareJavassistLazyInitializer`
 * `org.grails.orm.hibernate.proxy.GroovyAwareJavassistProxyFactory`
 * `org.grails.orm.hibernate.persister.entity.GroovyAwareJoinedSubclassEntityPersister`
 * `org.grails.orm.hibernate.persister.entity.GroovyAwareSingleTableEntityPersister`
