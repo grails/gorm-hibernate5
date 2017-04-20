@@ -96,7 +96,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
     }
 
     public GrailsHibernateTemplate(SessionFactory sessionFactory, HibernateDatastore datastore) {
-        this(sessionFactory, datastore, FLUSH_AUTO);
+        this(sessionFactory, datastore, datastore.getDefaultFlushMode());
     }
 
     public GrailsHibernateTemplate(SessionFactory sessionFactory, HibernateDatastore datastore, int defaultFlushMode) {
@@ -142,6 +142,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
 
             // create and bind a new session holder for the new session
             newSession = sessionFactory.openSession();
+            applyFlushMode(newSession, false);
             sessionHolder = new SessionHolder(newSession);
             TransactionSynchronizationManager.bindResource(sessionFactory, sessionHolder);
 

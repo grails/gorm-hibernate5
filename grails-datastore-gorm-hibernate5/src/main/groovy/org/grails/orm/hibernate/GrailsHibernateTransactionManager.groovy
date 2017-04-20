@@ -15,11 +15,16 @@
  */
 package org.grails.orm.hibernate
 
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.grails.orm.hibernate.support.HibernateVersionSupport
 import org.hibernate.FlushMode
+import org.hibernate.SessionFactory
 import org.springframework.orm.hibernate5.HibernateTransactionManager
+import org.springframework.orm.hibernate5.SessionHolder
 import org.springframework.transaction.TransactionDefinition
+import org.springframework.transaction.support.TransactionSynchronizationManager
+
+import javax.sql.DataSource
 
 /**
  * Extends the standard class to always set the flush mode to manual when in a read-only transaction.
@@ -29,6 +34,23 @@ import org.springframework.transaction.TransactionDefinition
 @CompileStatic
 class GrailsHibernateTransactionManager extends HibernateTransactionManager {
 
+    final FlushMode defaultFlushMode
+
+    GrailsHibernateTransactionManager(FlushMode defaultFlushMode = FlushMode.AUTO) {
+        this.defaultFlushMode = defaultFlushMode
+    }
+
+    GrailsHibernateTransactionManager(SessionFactory sessionFactory, FlushMode defaultFlushMode = FlushMode.AUTO) {
+        super(sessionFactory)
+        this.defaultFlushMode = defaultFlushMode
+    }
+
+    GrailsHibernateTransactionManager(SessionFactory sessionFactory, DataSource dataSource, FlushMode defaultFlushMode = FlushMode.AUTO) {
+        super(sessionFactory)
+        setDataSource(dataSource)
+        this.defaultFlushMode = defaultFlushMode
+    }
+
     @Override
     protected void doBegin(Object transaction, TransactionDefinition definition) {
         super.doBegin transaction, definition
@@ -36,12 +58,14 @@ class GrailsHibernateTransactionManager extends HibernateTransactionManager {
         if (definition.isReadOnly()) {
             // transaction is HibernateTransactionManager.HibernateTransactionObject private class instance
             // always set to manual; the base class doesn't because the OSIVI has already registered a session
-            setFlushModeManual(transaction)
+
+            SessionHolder holder = (SessionHolder)TransactionSynchronizationManager.getResource(sessionFactory)
+            HibernateVersionSupport.setFlushMode(holder.getSession(), FlushMode.MANUAL)
+        }
+        else if(defaultFlushMode != FlushMode.AUTO) {
+            SessionHolder holder = (SessionHolder)TransactionSynchronizationManager.getResource(sessionFactory)
+            HibernateVersionSupport.setFlushMode(holder.getSession(), defaultFlushMode)
         }
     }
 
-    @CompileDynamic
-    protected void setFlushModeManual(transaction) {
-        transaction.sessionHolder?.session?.flushMode = FlushMode.MANUAL
-    }
 }

@@ -157,7 +157,7 @@ public class HibernateCriteriaBuilder extends AbstractHibernateCriteriaBuilder {
     @Override
     protected List createPagedResultList(Map args) {
         GrailsHibernateUtil.populateArgumentsForCriteria(datastore, targetClass, criteria, args, conversionService);
-        GrailsHibernateTemplate ght = new GrailsHibernateTemplate(sessionFactory, (HibernateDatastore) datastore);
+        GrailsHibernateTemplate ght = new GrailsHibernateTemplate(sessionFactory, (HibernateDatastore) datastore, getDefaultFlushMode());
         return new PagedResultList(ght, criteria);
     }
 

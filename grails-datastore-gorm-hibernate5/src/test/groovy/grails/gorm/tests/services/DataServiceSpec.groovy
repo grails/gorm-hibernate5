@@ -100,6 +100,7 @@ class DataServiceSpec extends Specification {
 
         when:
         Product deleted = productService.delete("Apple")
+        datastore.sessionFactory.currentSession.flush()
 
         then:
         deleted != null
@@ -213,6 +214,7 @@ class DataServiceSpec extends Specification {
         when:
         Product product = productService.find("Tomato", "Vegetable")
         productService.updateProduct(product.id, "Fruit")
+        datastore.currentSession.flush()
 
         then:
         productService.find("Tomato", "Vegetable") == null

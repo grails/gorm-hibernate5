@@ -43,6 +43,7 @@ import org.hibernate.proxy.ProxyFactory;
 import org.hibernate.type.CompositeType;
 import org.hibernate.type.Type;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -298,13 +299,16 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
      * @param sessionFactory The SessionFactory instance
      */
     public static void setObjectToReadyOnly(Object target, SessionFactory sessionFactory) {
-        Session session = sessionFactory.getCurrentSession();
-        if (canModifyReadWriteState(session, target)) {
-            if (target instanceof HibernateProxy) {
-                target = ((HibernateProxy)target).getHibernateLazyInitializer().getImplementation();
+        Object resource = TransactionSynchronizationManager.getResource(sessionFactory);
+        if(resource != null) {
+            Session session = sessionFactory.getCurrentSession();
+            if (canModifyReadWriteState(session, target)) {
+                if (target instanceof HibernateProxy) {
+                    target = ((HibernateProxy)target).getHibernateLazyInitializer().getImplementation();
+                }
+                session.setReadOnly(target, true);
+                session.setFlushMode(FlushMode.MANUAL);
             }
-            session.setReadOnly(target, true);
-            session.setFlushMode(FlushMode.MANUAL);
         }
     }
 

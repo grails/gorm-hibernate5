@@ -47,9 +47,11 @@ import org.grails.orm.hibernate.cfg.Settings;
 import org.grails.orm.hibernate.connections.HibernateConnectionSource;
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory;
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceSettings;
+import org.grails.orm.hibernate.event.listener.HibernateEventListener;
 import org.grails.orm.hibernate.multitenancy.MultiTenantEventListener;
 import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor;
 import org.grails.orm.hibernate.support.HibernateVersionSupport;
+import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.SchemaAutoTooling;
 import org.springframework.beans.BeanUtils;
@@ -58,6 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.*;
 import org.springframework.context.support.StaticMessageSource;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
@@ -88,13 +91,13 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     public HibernateDatastore(final ConnectionSources<SessionFactory, HibernateConnectionSourceSettings> connectionSources, final HibernateMappingContext mappingContext, final ConfigurableApplicationEventPublisher eventPublisher) {
         super(connectionSources, mappingContext);
 
-        GrailsHibernateTransactionManager hibernateTransactionManager = new GrailsHibernateTransactionManager();
         HibernateConnectionSource defaultConnectionSource = (HibernateConnectionSource) connectionSources.getDefaultConnectionSource();
-        hibernateTransactionManager.setDataSource(defaultConnectionSource.getDataSource());
-        hibernateTransactionManager.setSessionFactory(defaultConnectionSource.getSource());
-        this.transactionManager = hibernateTransactionManager;
+        this.transactionManager = new GrailsHibernateTransactionManager(
+                                                                        defaultConnectionSource.getSource(),
+                                                                        defaultConnectionSource.getDataSource(),
+                                                                        org.hibernate.FlushMode.valueOf(defaultFlushModeName));
         this.eventPublisher = eventPublisher;
-        this.eventTriggeringInterceptor = new EventTriggeringInterceptor(this);
+        this.eventTriggeringInterceptor = new HibernateEventListener(this);
 
         HibernateConnectionSourceSettings settings = defaultConnectionSource.getSettings();
         HibernateConnectionSourceSettings.HibernateSettings hibernateSettings = settings.getHibernate();
@@ -394,7 +397,10 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         }
     }
 
-
+    @Override
+    public boolean hasCurrentSession() {
+        return TransactionSynchronizationManager.getResource(sessionFactory) != null;
+    }
 
     @Override
     protected Session createSession(PropertyResolver connectionDetails) {
@@ -459,7 +465,9 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
 
     @Override
     public org.hibernate.Session openSession() {
-        return this.sessionFactory.openSession();
+        org.hibernate.Session session = this.sessionFactory.openSession();
+        HibernateVersionSupport.setFlushMode(session, org.hibernate.FlushMode.valueOf(defaultFlushModeName));
+        return session;
     }
 
     @Override

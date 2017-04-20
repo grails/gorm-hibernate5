@@ -134,16 +134,22 @@ class ValidationSpec extends GormDatastoreSpec {
 
         when:
         session.disconnect()
-        if (TransactionSynchronizationManager.hasResource(session.datastore)) {
-            TransactionSynchronizationManager.unbindResource(session.datastore)
+        def resource
+        if (TransactionSynchronizationManager.hasResource(session.datastore.sessionFactory)) {
+            resource = TransactionSynchronizationManager.unbindResource(session.datastore.sessionFactory)
         }
 
         t = new TestEntity(name:"")
 
         then:
-        !session.datastore.hasCurrentSession()
+        TransactionSynchronizationManager.getResource(session.datastore.sessionFactory) == null
         t.save() == null
         t.hasErrors() == true
+
+        when:
+        TransactionSynchronizationManager.bindResource(session.datastore.sessionFactory, resource)
+
+        then:
         1 == t.errors.allErrors.size()
         0 == TestEntity.count()
 
@@ -155,7 +161,6 @@ class ValidationSpec extends GormDatastoreSpec {
         t = t.save(flush: true)
 
         then:
-        !session.datastore.hasCurrentSession()
         t != null
         1 == TestEntity.count()
     }
