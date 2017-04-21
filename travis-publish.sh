@@ -48,10 +48,6 @@ if [[ $TRAVIS_REPO_SLUG == "grails/gorm-hibernate5" && $TRAVIS_PULL_REQUEST == '
         version="$TRAVIS_TAG"
         version=${version:1}
 
-        mkdir -p latest/hibernate/
-        cp -r ../docs/build/docs/. ./latest/hibernate/
-        git add latest/hibernate/*
-
         majorVersion=${version:0:4}
         majorVersion="${majorVersion}x"
 
