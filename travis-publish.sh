@@ -61,7 +61,8 @@ if [[ $TRAVIS_REPO_SLUG == "grails/gorm-hibernate5" && $TRAVIS_PULL_REQUEST == '
 
     else
         # If this is the master branch then update the snapshot
-        mkdir -p snapshothibernate/
+        mkdir -p snapshot/hibernate/
+        
         cp -r ../docs/build/docs/. ./snapshot/hibernate/
 
         git add snapshot/hibernate/*
