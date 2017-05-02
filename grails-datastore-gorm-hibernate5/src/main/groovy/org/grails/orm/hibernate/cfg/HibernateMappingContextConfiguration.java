@@ -9,6 +9,7 @@ import org.grails.datastore.mapping.validation.ValidatorRegistry;
 import org.grails.orm.hibernate.EventListenerIntegrator;
 import org.grails.orm.hibernate.GrailsSessionContext;
 import org.grails.orm.hibernate.HibernateEventListeners;
+import org.grails.orm.hibernate.access.TraitPropertyAccessStrategy;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.SessionFactory;
@@ -19,12 +20,14 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.registry.classloading.internal.ClassLoaderServiceImpl;
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
+import org.hibernate.boot.registry.selector.spi.StrategySelector;
 import org.hibernate.boot.spi.MetadataContributor;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.context.spi.CurrentSessionContext;
 import org.hibernate.internal.util.config.ConfigurationHelper;
+import org.hibernate.property.access.spi.PropertyAccessStrategy;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.springframework.beans.BeansException;
@@ -250,6 +253,11 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
                                                                     .applyIntegrator(eventListenerIntegrator)
                                                                     .applyClassLoaderService(classLoaderService)
                                                                     .build();
+        StrategySelector strategySelector = bootstrapServiceRegistry.getService(StrategySelector.class);
+
+        strategySelector.registerStrategyImplementor(
+                PropertyAccessStrategy.class, "traitProperty", TraitPropertyAccessStrategy.class
+        );
 
         setSessionFactoryObserver(new SessionFactoryObserver() {
             private static final long serialVersionUID = 1;

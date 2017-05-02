@@ -15,16 +15,20 @@
 package org.grails.orm.hibernate.cfg;
 
 import groovy.lang.Closure;
+import groovy.transform.Trait;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
+import org.codehaus.groovy.transform.trait.Traits;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.core.connections.ConnectionSourcesSupport;
 import org.grails.datastore.mapping.model.*;
 import org.grails.datastore.mapping.model.config.GormProperties;
 import org.grails.datastore.mapping.model.types.*;
 import org.grails.datastore.mapping.model.types.ToOne;
+import org.grails.datastore.mapping.reflect.EntityReflector;
 import org.grails.datastore.mapping.reflect.NameUtils;
+import org.grails.orm.hibernate.access.TraitPropertyAccessStrategy;
 import org.grails.orm.hibernate.proxy.GroovyAwarePojoEntityTuplizer;
 import org.hibernate.EntityMode;
 import org.hibernate.FetchMode;
@@ -54,6 +58,7 @@ import org.springframework.util.StringUtils;
 
 import javax.persistence.Entity;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -2584,7 +2589,22 @@ public class GrailsDomainBinder implements MetadataContributor {
         AccessType accessType = AccessType.getAccessStrategy(
                 grailsProperty.getMapping().getMappedForm().getAccessType()
         );
-        prop.setPropertyAccessorName( accessType.getType() );
+
+        if(accessType == AccessType.FIELD) {
+            EntityReflector.PropertyReader reader = grailsProperty.getReader();
+            Method getter  = reader != null ? reader.getter() : null;
+            if(getter != null && getter.getAnnotation(Traits.Implemented.class) != null) {
+                prop.setPropertyAccessorName(TraitPropertyAccessStrategy.class.getName());
+            }
+            else {
+                prop.setPropertyAccessorName( accessType.getType() );
+            }
+        }
+        else {
+            prop.setPropertyAccessorName( accessType.getType() );
+        }
+
+
         prop.setOptional(grailsProperty.isNullable());
 
         setCascadeBehaviour(grailsProperty, prop);
