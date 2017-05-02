@@ -30,6 +30,7 @@ class ExampleSpec extends Specification {
         then:
         e.name == "Fred"
         Example.count() == 1
+        Example.executeQuery("from Example").size() == 1
     }
 }
 
