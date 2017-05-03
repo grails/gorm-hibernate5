@@ -121,7 +121,10 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
             return null
         }
 
-        int fieldIndex = entry.persister.propertyNames.findIndexOf { fieldName == it }
+        EntityPersister persister = entry.persister
+        int fieldIndex = persister.getEntityMetamodel().getProperties().findIndexOf {
+            NonIdentifierAttribute attribute -> fieldName == attribute.name
+        }
         return fieldIndex == -1 ? null : entry.loadedState[fieldIndex]
     }
 

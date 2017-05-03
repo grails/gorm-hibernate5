@@ -27,6 +27,7 @@ class HibernateDirtyCheckingSpec extends Specification {
         person.name = 'Dave'
 
         then: 'the name field is dirty'
+        person.getPersistentValue('name') == "John"
         person.dirtyPropertyNames.contains 'name'
         person.dirtyPropertyNames == ['name']
         person.isDirty('name')
@@ -36,6 +37,7 @@ class HibernateDirtyCheckingSpec extends Specification {
         person.save(flush:true)
 
         then:
+        person.getPersistentValue('name') == "Dave"
         person.dirtyPropertyNames == []
         !person.isDirty('name')
         !person.isDirty()
@@ -44,6 +46,7 @@ class HibernateDirtyCheckingSpec extends Specification {
         person.occupation = "Civil Engineer"
 
         then:
+        person.getPersistentValue('occupation') == "Grails developer"
         person.dirtyPropertyNames.contains 'occupation'
         person.dirtyPropertyNames == ['occupation']
         person.isDirty('occupation')
