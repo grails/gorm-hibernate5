@@ -65,6 +65,14 @@ hibernate:
         mode: AUTO
 ----
 
+==== Write Operations without a Transaction
+
+With the aforementioned changes to the default flush mode, write operations that are not surrounded by a transaction may not propagate changes to the database unless `flush:true` is explicitly passed or the session explicitly flushed.
+
+Not using a transaction around a write operation is considered bad practise as the connection is essentially in auto commit mode. If your code is structured this way we recommend that you add the necessary `@Transactional` transformation to surround the write operation.
+
+Also note that Hibernate 5.2 and above throw an exception if you attempt a write operation outside of a transaction, and although this is not the case in the current version of GORM it is a possibility that GORM will follow this path and also throw exception for this case in the future.
+
 ==== Changes to Configuration Model
 
 In preparation for Hibernate 5.2 support the previous "SessionFactoryBean" notion has been removed. Now if you wish to customize `SessionFactory` creation you should instead register a custom `org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory` in Spring.
