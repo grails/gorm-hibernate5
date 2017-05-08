@@ -90,7 +90,7 @@ class HibernateGrailsPlugin extends Plugin {
 
     @Override
     void onShutdown(Map<String, Object> event) {
-        ConstrainedProperty.removeConstraint(UniqueConstraint.UNIQUE_CONSTRAINT, UniqueConstraint)
+        ConstrainedProperty.removeConstraint(UniqueConstraint.UNIQUE_CONSTRAINT, PersistentConstraintFactory)
     }
 
     @Override
