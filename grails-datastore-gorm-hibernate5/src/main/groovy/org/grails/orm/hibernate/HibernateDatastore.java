@@ -98,6 +98,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
                                                                         org.hibernate.FlushMode.valueOf(defaultFlushModeName));
         this.eventPublisher = eventPublisher;
         this.eventTriggeringInterceptor = new HibernateEventListener(this);
+        this.autoTimestampEventListener = new AutoTimestampEventListener(this);
 
         HibernateConnectionSourceSettings settings = defaultConnectionSource.getSettings();
         HibernateConnectionSourceSettings.HibernateSettings hibernateSettings = settings.getHibernate();
@@ -336,7 +337,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     }
 
     protected void registerEventListeners(ConfigurableApplicationEventPublisher eventPublisher) {
-        eventPublisher.addApplicationListener(new AutoTimestampEventListener(this));
+        eventPublisher.addApplicationListener(autoTimestampEventListener);
         if(multiTenantMode == MultiTenancySettings.MultiTenancyMode.DISCRIMINATOR) {
             eventPublisher.addApplicationListener(new MultiTenantEventListener());
         }
