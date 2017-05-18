@@ -157,7 +157,6 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
 
 
         this.gormEnhancer = initialize();
-        this.eventPublisher.publishEvent( new DatastoreInitializedEvent(this) );
     }
 
     /**
