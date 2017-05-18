@@ -193,7 +193,6 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
 
 
         this.gormEnhancer = initialize();
-        this.eventPublisher.publishEvent( new DatastoreInitializedEvent(this) );
     }
 
     /**
@@ -351,7 +350,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore {
             interceptor.setEventPublisher(eventPublisher);
             MappingContext mappingContext = getMappingContext();
             // make messages from the application context available to validation
-            ((AbstractMappingContext) mappingContext).setValidatorRegistry(
+            mappingContext.setValidatorRegistry(
                     new DefaultValidatorRegistry(mappingContext, connectionSources.getBaseConfiguration(), applicationContext)
             );
 
