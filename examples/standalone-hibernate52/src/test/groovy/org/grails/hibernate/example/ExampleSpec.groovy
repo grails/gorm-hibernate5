@@ -1,6 +1,7 @@
 package org.grails.hibernate.example
 
 import grails.gorm.annotation.Entity
+import grails.gorm.hibernate.HibernateEntity
 import grails.transaction.Rollback
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.transaction.PlatformTransactionManager
@@ -31,10 +32,12 @@ class ExampleSpec extends Specification {
         e.name == "Fred"
         Example.count() == 1
         Example.executeQuery("from Example").size() == 1
+        Example.executeUpdate("update Example as e set e.name = 'fred' where e.name = 'Fred'")
+        Example.findWithSql("select * from example") != null
     }
 }
 
 @Entity
-class Example {
+class Example implements HibernateEntity<Example> {
     String name
 }

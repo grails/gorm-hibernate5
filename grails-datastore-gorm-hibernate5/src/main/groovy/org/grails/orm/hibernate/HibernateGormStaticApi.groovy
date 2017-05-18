@@ -111,6 +111,7 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
     }
 
     @Override
+    @CompileDynamic // required for Hibernate 5.2 compatibility
     Integer executeUpdate(CharSequence query, Map params, Map args) {
 
         if(query instanceof GString) {
@@ -139,6 +140,7 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
     }
 
     @Override
+    @CompileDynamic // required for Hibernate 5.2 compatibility
     Integer executeUpdate(CharSequence query, Collection params, Map args) {
         if(query instanceof GString) {
             throw new GrailsQueryException("Unsafe query [$query]. GORM cannot automatically escape a GString value when combined with ordinal parameters, so this query is potentially vulnerable to HQL injection attacks. Please embed the parameters within the GString so they can be safely escaped.");
