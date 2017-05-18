@@ -15,6 +15,7 @@
  */
 package org.grails.orm.hibernate
 
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.grails.orm.hibernate.cfg.GrailsHibernateUtil
 import org.hibernate.engine.spi.EntityEntry
@@ -47,6 +48,7 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
      *
      * @return true if the field is dirty
      */
+
     boolean isDirty(D instance, String fieldName) {
         SessionImplementor session = (SessionImplementor)sessionFactory.currentSession
         def entry = findEntityEntry(instance, session)
@@ -56,7 +58,7 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
 
         EntityPersister persister = entry.persister
         Object[] values = persister.getPropertyValues(instance)
-        int[] dirtyProperties = persister.findDirty(values, entry.loadedState, instance, session)
+        int[] dirtyProperties = findDirty(persister, values, entry, instance, session)
         if(dirtyProperties == null) {
             return false
         }
@@ -64,6 +66,11 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
             int fieldIndex = persister.getEntityMetamodel().getProperties().findIndexOf { NonIdentifierAttribute attribute -> fieldName == attribute.name }
             return fieldIndex in dirtyProperties
         }
+    }
+
+    @CompileDynamic // required for Hibernate 5.2 compatibility
+    private int[] findDirty(EntityPersister persister, Object[] values, EntityEntry entry, D instance, SessionImplementor session) {
+        persister.findDirty(values, entry.loadedState, instance, session)
     }
 
     /**

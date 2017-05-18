@@ -4,6 +4,7 @@ import grails.gorm.annotation.Entity
 import grails.gorm.hibernate.HibernateEntity
 import grails.transaction.Rollback
 import org.grails.orm.hibernate.HibernateDatastore
+import org.grails.orm.hibernate.cfg.Settings
 import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
 import spock.lang.Shared
@@ -18,7 +19,7 @@ class ExampleSpec extends Specification {
     @Shared PlatformTransactionManager transactionManager
 
     void setupSpec() {
-       hibernateDatastore = new HibernateDatastore(Example)
+       hibernateDatastore = new HibernateDatastore(['hibernate.hibernateDirtyChecking':true, (Settings.SETTING_DB_CREATE):'create-drop'],Example)
        transactionManager = hibernateDatastore.getTransactionManager()
     }
 
@@ -30,6 +31,7 @@ class ExampleSpec extends Specification {
         e = Example.load(e.id)
         then:
         e.name == "Fred"
+        !e.isDirty('name')
         Example.count() == 1
         Example.executeQuery("from Example").size() == 1
         Example.executeUpdate("update Example as e set e.name = 'fred' where e.name = 'Fred'")
