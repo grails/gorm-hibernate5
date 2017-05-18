@@ -356,7 +356,7 @@ WARNING: If you have `nullable: false` constraints on either `dateCreated` or `l
 
 It is also possible to disable the automatic timestamping temporarily. This is most typically done in the case of a test where you need to define values for the `dateCreated` or `lastUpdated` in the past. It may also be useful for importing old data from other systems where you would like to keep the current values of the timestamps.
 
-Timestamps can be temporarily disabled for all domains, a specified list of domains, or a single domain. To get started, you need to get a reference to the `AutoTimestampEventListener`. If you already have access to the datastore, you can execute the `getAutoTimestampEventListener` method. If you don't have access to the datastore, inject the appropriate bean eg. `hibernateDatastore` and execute the method.
+Timestamps can be temporarily disabled for all domains, a specified list of domains, or a single domain. To get started, you need to get a reference to the `AutoTimestampEventListener`. If you already have access to the datastore, you can execute the `getAutoTimestampEventListener` method. If you don't have access to the datastore, inject the `autoTimestampEventListener` bean.
 
 Once you have a reference to the event listener, you can execute `withoutDateCreated`, `withoutLastUpdated`, or `withoutTimestamps`. The `withoutTimestamps` method will temporarily disable both `dateCreated` and `lastUpdated`.
 
