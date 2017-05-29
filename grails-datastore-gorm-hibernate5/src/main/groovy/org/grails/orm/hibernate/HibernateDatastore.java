@@ -116,6 +116,8 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         });
         initializeConverters(this.mappingContext);
 
+
+
         if(!(connectionSources instanceof SingletonConnectionSources)) {
 
             Iterable<ConnectionSource<SessionFactory, HibernateConnectionSourceSettings>> allConnectionSources = connectionSources.getAllConnectionSources();
@@ -136,6 +138,22 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
                 }
                 datastoresByConnectionSource.put(connectionSource.getName(), childDatastore);
             }
+
+            // register a listener to update the datastore each time a connection source is added at runtime
+            connectionSources.addListener(new ConnectionSourcesListener<SessionFactory, HibernateConnectionSourceSettings>() {
+                @Override
+                public void newConnectionSource(ConnectionSource<SessionFactory, HibernateConnectionSourceSettings> connectionSource) {
+                    SingletonConnectionSources<SessionFactory, HibernateConnectionSourceSettings> singletonConnectionSources = new SingletonConnectionSources<>(connectionSource, connectionSources.getBaseConfiguration());
+                    HibernateDatastore childDatastore = new HibernateDatastore(singletonConnectionSources, mappingContext, eventPublisher) {
+                            @Override
+                            protected HibernateGormEnhancer initialize() {
+                                return null;
+                            }
+                        };
+                    datastoresByConnectionSource.put(connectionSource.getName(), childDatastore);
+                    registerAllEntitiesWithEnhancer();
+                }
+            });
 
             if(multiTenantMode == MultiTenancySettings.MultiTenancyMode.SCHEMA) {
                 if(this.tenantResolver instanceof AllTenantsResolver) {
@@ -489,10 +507,14 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     @Override
     public void addTenantForSchema(String schemaName) {
         addTenantForSchemaInternal(schemaName);
+        registerAllEntitiesWithEnhancer();
+
+    }
+
+    protected void registerAllEntitiesWithEnhancer() {
         for (PersistentEntity persistentEntity : mappingContext.getPersistentEntities()) {
             gormEnhancer.registerEntity(persistentEntity);
         }
-
     }
 
     private void addTenantForSchemaInternal(String schemaName) {

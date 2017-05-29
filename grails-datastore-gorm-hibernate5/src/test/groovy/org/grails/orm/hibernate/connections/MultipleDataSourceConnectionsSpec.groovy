@@ -1,36 +1,46 @@
 package org.grails.orm.hibernate.connections
 
+import grails.gorm.transactions.Rollback
 import grails.persistence.Entity
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.orm.hibernate.HibernateDatastore
 import org.hibernate.Session
 import org.hibernate.dialect.H2Dialect
+import spock.lang.AutoCleanup
+import spock.lang.Shared
 import spock.lang.Specification
 
 /**
  * Created by graemerocher on 06/07/2016.
  */
 class MultipleDataSourceConnectionsSpec extends Specification {
+    @Shared  Map config = [
+            'dataSource.url':"jdbc:h2:mem:grailsDB;MVCC=TRUE;LOCK_TIMEOUT=10000",
+            'dataSource.dbCreate': 'create-drop',
+            'dataSource.dialect': H2Dialect.name,
+            'dataSource.formatSql': 'true',
+            'hibernate.flush.mode': 'COMMIT',
+            'hibernate.cache.queries': 'true',
+            'hibernate.hbm2ddl.auto': 'create-drop',
+            'dataSources.books':[url:"jdbc:h2:mem:books;MVCC=TRUE;LOCK_TIMEOUT=10000"],
+            'dataSources.moreBooks.url':"jdbc:h2:mem:moreBooks;MVCC=TRUE;LOCK_TIMEOUT=10000",
+            'dataSources.moreBooks.hibernate.default_schema':"schema2"
+    ]
+
+    @Shared @AutoCleanup HibernateDatastore datastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config),Book, Author )
 
     void "Test map to multiple data sources"() {
-        given:"A configuration for multiple data sources"
-        Map config = [
-                'dataSource.url':"jdbc:h2:mem:grailsDB;MVCC=TRUE;LOCK_TIMEOUT=10000",
-                'dataSource.dbCreate': 'update',
-                'dataSource.dialect': H2Dialect.name,
-                'dataSource.formatSql': 'true',
-                'hibernate.flush.mode': 'COMMIT',
-                'hibernate.cache.queries': 'true',
-                'hibernate.hbm2ddl.auto': 'create',
-                'dataSources.books':[url:"jdbc:h2:mem:books;MVCC=TRUE;LOCK_TIMEOUT=10000"],
-                'dataSources.moreBooks.url':"jdbc:h2:mem:moreBooks;MVCC=TRUE;LOCK_TIMEOUT=10000",
-                'dataSources.moreBooks.hibernate.default_schema':"schema2"
-        ]
 
-        when:
-        HibernateDatastore datastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config),Book, Author )
+        when: "The default data source is used"
+        int result = Author.withTransaction {
+            new Author(name: 'Fred').save(flush:true)
+            Author.count()
+        }
 
-        then:
+
+
+        then:"The default data source is bound"
+        result ==1
         Book.withNewSession { Session s ->
             assert s.connection().metaData.getURL() == "jdbc:h2:mem:books"
             return true
@@ -39,7 +49,7 @@ class MultipleDataSourceConnectionsSpec extends Specification {
             assert s.connection().metaData.getURL() == "jdbc:h2:mem:moreBooks"
             return true
         }
-        Author.withNewSession { Author.count() == 0 }
+        Author.withNewSession { Author.count() == 1 }
         Author.withNewSession { Session s ->
             assert s.connection().metaData.getURL() == "jdbc:h2:mem:grailsDB"
             return true
@@ -65,6 +75,22 @@ class MultipleDataSourceConnectionsSpec extends Specification {
         b.name == 'The Stand'
         b.dateCreated
         b.lastUpdated
+
+
+        when:"A new data source is added at runtime"
+        datastore.connectionSources.addConnectionSource("yetAnother", [pooled         : true,
+                                                                       dbCreate       : "create-drop",
+                                                                       logSql         : false,
+                                                                       formatSql      : true,
+                                                                       url            : "jdbc:h2:mem:yetAnotherDB;MVCC=TRUE;LOCK_TIMEOUT=10000"])
+
+        then:"The other data sources have not been touched"
+        Author.withTransaction { Author.count() } == 1
+        Book.withTransaction { Book.count() } == 1
+        Author.yetAnother.withNewSession { Session s ->
+            assert s.connection().metaData.getURL() == "jdbc:h2:mem:yetAnotherDB"
+            return true
+        }
     }
 }
 
