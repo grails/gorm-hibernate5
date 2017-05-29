@@ -65,6 +65,49 @@ hibernate:
         mode: AUTO
 ----
 
+==== Multiple Data Source Configuration Changes
+
+Configuration of multiple data sources has changed such that the default data source should be configured at the top level and additional data sources should be configured below the `dataSources` block. In other words instead of:
+
+[source,yaml]
+----
+dataSources:
+    dataSource:
+        ...
+    anotherDataSource:
+        ...
+----
+
+The configuration should instead be structured as follows:
+
+[source,yaml]
+----
+dataSource:
+        ...
+dataSources:
+    anotherDataSource:
+        ...
+----
+
+In addition Hibernate specific configuration should be nested below each data source definition. For example:
+
+
+[source,yaml]
+----
+dataSource:
+    url: ".."
+hibernate:
+    flush:
+        mode: COMMIT
+dataSources:
+    anotherDataSource:
+        url: ".."
+        hibernate:
+            flush:
+                mode: AUTO
+
+----
+
 ==== Write Operations without a Transaction
 
 With the aforementioned changes to the default flush mode, write operations that are not surrounded by a transaction may not propagate changes to the database unless `flush:true` is explicitly passed or the session explicitly flushed.
