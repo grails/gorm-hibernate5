@@ -31,6 +31,7 @@ class ExampleSpec extends Specification {
         e = Example.load(e.id)
         then:
         e.name == "Fred"
+        !e.isDirty()
         !e.isDirty('name')
         Example.count() == 1
         Example.executeQuery("from Example").size() == 1
