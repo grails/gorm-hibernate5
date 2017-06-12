@@ -25,7 +25,11 @@ def transferFunds() {
 }
 ----
 
-In this example we rollback the transaction if the destination account is not active. Also, if an unchecked `Exception` or `Error` (but not a checked `Exception`, even though Groovy doesn't require that you catch checked exceptions) is thrown during the process the transaction will automatically be rolled back.
+In this example we rollback the transaction if the destination account is not active. 
+
+Also, if an `Exception` (both checked or runtime exception) or `Error` is thrown during the process the transaction will automatically be rolled back..
+
+WARNING: GORM versions prior to 6.0.0 did not rolled back transactions for a checked `Exception`.
 
 You can also use "save points" to rollback a transaction to a particular point in time if you don't want to rollback the entire transaction. This can be achieved through the use of Spring's http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/transaction/SavepointManager.html[SavePointManager] interface.
 
