@@ -424,7 +424,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         if(referenced != null && referenced.isMultiTenant()) {
             String filterCondition = getMultiTenantFilterCondition(sessionFactoryBeanName, referenced);
             if(filterCondition != null) {
-                collection.addFilter(GormProperties.TENANT_IDENTITY, filterCondition, true, Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
+                collection.addFilter(GormProperties.TENANT_IDENTITY, filterCondition, !isUnidirectionalOneToMany(property), Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
             }
         }
 
