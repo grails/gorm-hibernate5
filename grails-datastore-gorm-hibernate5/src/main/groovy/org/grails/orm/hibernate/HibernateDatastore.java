@@ -54,6 +54,7 @@ import org.grails.orm.hibernate.support.HibernateVersionSupport;
 import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.SchemaAutoTooling;
+import org.hibernate.cfg.Environment;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -517,7 +518,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         }
     }
 
-    private void addTenantForSchemaInternal(String schemaName) {
+    private void addTenantForSchemaInternal(final String schemaName) {
         if( multiTenantMode != MultiTenancySettings.MultiTenancyMode.SCHEMA ) {
             throw new ConfigurationException("The method [addTenantForSchema] can only be called with multi-tenancy mode SCHEMA. Current mode is: " + multiTenantMode);
         }
@@ -529,7 +530,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         } catch (CloneNotSupportedException e) {
             throw new ConfigurationException("Couldn't clone default Hibernate settings! " + e.getMessage(), e);
         }
-        tenantSettings.getHibernate().put("default_schema", schemaName);
+        tenantSettings.getHibernate().put(Environment.DEFAULT_SCHEMA, schemaName);
 
         String dbCreate = tenantSettings.getDataSource().getDbCreate();
 
@@ -560,7 +561,21 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         }
 
         DataSource dataSource = defaultConnectionSource.getDataSource();
-        dataSource = new MultiTenantDataSource(dataSource, schemaName);
+        dataSource = new MultiTenantDataSource(dataSource, schemaName) {
+            @Override
+            public Connection getConnection() throws SQLException {
+                Connection connection = super.getConnection();
+                schemaHandler.useSchema(connection, schemaName);
+                return connection;
+            }
+
+            @Override
+            public Connection getConnection(String param0, String param1) throws SQLException {
+                Connection connection = super.getConnection(param0, param1);
+                schemaHandler.useSchema(connection, schemaName);
+                return connection;
+            }
+        };
         DefaultConnectionSource<DataSource, DataSourceSettings> dataSourceConnectionSource = new DefaultConnectionSource<>(schemaName, dataSource, tenantSettings.getDataSource());
         ConnectionSource<SessionFactory, HibernateConnectionSourceSettings> connectionSource = factory.create(schemaName, dataSourceConnectionSource, tenantSettings);
         SingletonConnectionSources<SessionFactory, HibernateConnectionSourceSettings> singletonConnectionSources = new SingletonConnectionSources<>(connectionSource, connectionSources.getBaseConfiguration());
