@@ -87,7 +87,7 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
         }
         EntityPersister persister = entry.persister
         Object[] currentState = persister.getPropertyValues(instance)
-        int[] dirtyPropertyIndexes = persister.findDirty(currentState, entry.loadedState, instance, session)
+        int[] dirtyPropertyIndexes = findDirty(persister, currentState, entry, instance, session)
         return dirtyPropertyIndexes != null
     }
 
