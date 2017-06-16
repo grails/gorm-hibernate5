@@ -1415,7 +1415,7 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         for (PersistentEntity sub : subClasses) {
             final Class javaClass = sub.getJavaClass();
-            if (javaClass.getSuperclass().equals(domainClass.getJavaClass())) {
+            if (javaClass.getSuperclass().equals(domainClass.getJavaClass()) && ConnectionSourcesSupport.usesConnectionSource(sub, dataSourceName)) {
                 bindSubClass((HibernatePersistentEntity)sub, parent, mappings, sessionFactoryBeanName);
             }
         }
