@@ -340,6 +340,24 @@ class DataServiceSpec extends Specification {
 
 
     }
+
+    void "test join query on attributes with @Query"() {
+        given:
+        ProductService productService = datastore.getService(ProductService)
+        new Product(name: "Apple", type: "Fruit")
+                .addToAttributes(name: "round")
+                .save(flush:true)
+        new Product(name: "Banana", type: "Fruit")
+                .addToAttributes(name: "curved")
+                .save(flush:true)
+
+        when:
+        List<Product> products = productService.findProductsWithAttributes("round")
+
+        then:
+        products.size() == 1
+        products[0].name == "Apple"
+    }
 }
 
 interface ProductInfo {
@@ -392,6 +410,11 @@ interface ProductService {
     List<ProductInfo> findAllByTypeLike(String type)
 
     ProductInfo findProductInfo(String name, String type)
+
+    @Query("""
+    SELECT $p FROM ${Product p} JOIN ${Attribute attr = p.attributes} WHERE ${attr.name} = $name
+    """)
+    List<Product> findProductsWithAttributes(String name)
 
     @Query("from ${Product p} where $p.name like $pattern")
     ProductInfo searchProductInfo(String pattern)
