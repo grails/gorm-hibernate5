@@ -106,7 +106,7 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
 
         EntityPersister persister = entry.persister
         Object[] currentState = persister.getPropertyValues(instance)
-        int[] dirtyPropertyIndexes = persister.findDirty(currentState, entry.loadedState, instance, session)
+        int[] dirtyPropertyIndexes = findDirty(persister, currentState, entry, instance, session)
         List names = []
         def entityProperties = persister.getEntityMetamodel().getProperties()
         for (index in dirtyPropertyIndexes) {

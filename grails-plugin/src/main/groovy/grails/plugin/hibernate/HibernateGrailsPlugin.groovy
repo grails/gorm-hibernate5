@@ -3,7 +3,6 @@ package grails.plugin.hibernate
 import grails.config.Config
 import grails.core.GrailsApplication
 import grails.core.GrailsClass
-import grails.core.GrailsDomainClass
 import grails.orm.bootstrap.HibernateDatastoreSpringInitializer
 import grails.plugins.Plugin
 import grails.util.Environment
@@ -14,11 +13,11 @@ import org.grails.core.artefact.DomainClassArtefactHandler
 import org.grails.orm.hibernate.validation.PersistentConstraintFactory
 import org.grails.orm.hibernate.validation.UniqueConstraint
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
-import org.springframework.context.ApplicationContext
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.core.convert.converter.Converter
 import org.springframework.core.convert.support.ConfigurableConversionService
 import org.springframework.core.env.PropertyResolver
+
 /**
  * Plugin that integrates Hibernate into a Grails application
  *
@@ -71,11 +70,7 @@ class HibernateGrailsPlugin extends Plugin {
 
 
         def domainClasses = grailsApplication.getArtefacts(DomainClassArtefactHandler.TYPE)
-                .findAll() { GrailsClass cls ->
-            GrailsDomainClass dc = (GrailsDomainClass)cls
-            dc.mappingStrategy != "none" && dc.mappingStrategy == GrailsDomainClass.GORM
-        }
-        .collect() { GrailsClass cls -> cls.clazz }
+                                             .collect() { GrailsClass cls -> cls.clazz }
 
         def springInitializer = new HibernateDatastoreSpringInitializer((PropertyResolver)config, domainClasses)
         springInitializer.enableReload = Environment.isDevelopmentMode()
