@@ -14,6 +14,7 @@ import org.grails.datastore.gorm.validation.constraints.registry.DefaultConstrai
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.context.support.StaticMessageSource
 import spock.lang.AutoCleanup
+import spock.lang.Issue
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -358,6 +359,27 @@ class DataServiceSpec extends Specification {
         products.size() == 1
         products[0].name == "Apple"
     }
+
+    @Issue('https://github.com/grails/grails-data-mapping/issues/960')
+    void "test findBy dynamic finder with @Join doesn't return proxies"() {
+        given:
+        ProductService productService = datastore.getService(ProductService)
+        new Product(name: "Apple", type: "Fruit")
+                .addToAttributes(name: "round")
+                .save(flush:true)
+
+        new Product(name: "Banana", type: "Fruit")
+                .addToAttributes(name: "curved")
+                .save(flush:true)
+
+        datastore.currentSession.clear()
+
+        when:
+        Product product = productService.findByName("Apple").first()
+
+        then:
+        product.attributes.isInitialized()
+    }
 }
 
 interface ProductInfo {
@@ -490,5 +512,6 @@ interface ProductService {
 
     Iterable<Product> findEvenMoreProducts()
 
+    @Join('attributes')
     Iterable<Product> findByName(String n)
 }
