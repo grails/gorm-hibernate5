@@ -37,6 +37,7 @@ import org.grails.datastore.mapping.query.api.QueryableCriteria;
 import org.grails.datastore.mapping.query.jpa.JpaQueryBuilder;
 import org.grails.datastore.mapping.query.jpa.JpaQueryInfo;
 import org.grails.datastore.mapping.reflect.ClassPropertyFetcher;
+import org.grails.orm.hibernate.support.HibernateVersionSupport;
 import org.hibernate.*;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.proxy.HibernateProxy;
@@ -90,7 +91,7 @@ public class HibernateSession extends AbstractHibernateSession {
                 builder.setHibernateCompatible(true);
                 JpaQueryInfo jpaQueryInfo = builder.buildDelete();
 
-                org.hibernate.Query query = session.createQuery(jpaQueryInfo.getQuery());
+                org.hibernate.Query query = HibernateVersionSupport.createQuery(session, jpaQueryInfo.getQuery());
                 getHibernateTemplate().applySettings(query);
 
                 List parameters = jpaQueryInfo.getParameters();
@@ -130,7 +131,7 @@ public class HibernateSession extends AbstractHibernateSession {
 
                 JpaQueryInfo jpaQueryInfo = builder.buildUpdate(properties);
 
-                org.hibernate.Query query = session.createQuery(jpaQueryInfo.getQuery());
+                org.hibernate.Query query = HibernateVersionSupport.createQuery(session, jpaQueryInfo.getQuery());
                 getHibernateTemplate().applySettings(query);
                 List parameters = jpaQueryInfo.getParameters();
                 if (parameters != null) {

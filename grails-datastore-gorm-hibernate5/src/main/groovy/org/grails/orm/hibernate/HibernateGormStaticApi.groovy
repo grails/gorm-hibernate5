@@ -111,7 +111,6 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
     }
 
     @Override
-    @CompileDynamic // required for Hibernate 5.2 compatibility
     Integer executeUpdate(CharSequence query, Map params, Map args) {
 
         if(query instanceof GString) {
@@ -122,7 +121,7 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
         def template = hibernateTemplate
         SessionFactory sessionFactory = this.sessionFactory
         return (Integer) template.execute { Session session ->
-            def q = session.createQuery(query.toString())
+            Query q = HibernateVersionSupport.createQuery(session,query.toString())
             template.applySettings(q)
             def sessionHolder = (SessionHolder) TransactionSynchronizationManager.getResource( sessionFactory )
             if (sessionHolder && sessionHolder.hasTimeout()) {
@@ -140,7 +139,6 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
     }
 
     @Override
-    @CompileDynamic // required for Hibernate 5.2 compatibility
     Integer executeUpdate(CharSequence query, Collection params, Map args) {
         if(query instanceof GString) {
             throw new GrailsQueryException("Unsafe query [$query]. GORM cannot automatically escape a GString value when combined with ordinal parameters, so this query is potentially vulnerable to HQL injection attacks. Please embed the parameters within the GString so they can be safely escaped.");
@@ -150,7 +148,7 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
         SessionFactory sessionFactory = this.sessionFactory
 
         return (Integer) template.execute { Session session ->
-            def q = session.createQuery(query.toString())
+            Query q = HibernateVersionSupport.createQuery(session,query.toString())
             template.applySettings(q)
             def sessionHolder = (SessionHolder) TransactionSynchronizationManager.getResource( sessionFactory )
             if (sessionHolder && sessionHolder.hasTimeout()) {

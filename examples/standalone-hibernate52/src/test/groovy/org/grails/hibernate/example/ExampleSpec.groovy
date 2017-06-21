@@ -1,5 +1,6 @@
 package org.grails.hibernate.example
 
+import grails.gorm.DetachedCriteria
 import grails.gorm.annotation.Entity
 import grails.gorm.hibernate.HibernateEntity
 import grails.transaction.Rollback
@@ -34,6 +35,12 @@ class ExampleSpec extends Specification {
         !e.isDirty()
         !e.isDirty('name')
         e.getDirtyPropertyNames() == []
+        new DetachedCriteria<>(Example).build {
+            eq "name", "dummy"
+        }.updateAll(name: "updated dummy") == 0
+        new DetachedCriteria<>(Example).build {
+            eq "name", "dummy"
+        }.deleteAll() == 0
         Example.count() == 1
         Example.executeQuery("from Example").size() == 1
         Example.executeUpdate("update Example as e set e.name = 'fred' where e.name = 'Fred'")

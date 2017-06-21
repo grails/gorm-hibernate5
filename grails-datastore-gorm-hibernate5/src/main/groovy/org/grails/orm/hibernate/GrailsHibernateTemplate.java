@@ -341,7 +341,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
      * @see #prepareCriteria
      */
     protected Session createSessionProxy(Session session) {
-        Class<?>[] sessionIfcs = null;
+        Class<?>[] sessionIfcs;
         Class<?> mainIfc = Session.class;
         if (session instanceof EventSource) {
             sessionIfcs = new Class[]{mainIfc, EventSource.class};
