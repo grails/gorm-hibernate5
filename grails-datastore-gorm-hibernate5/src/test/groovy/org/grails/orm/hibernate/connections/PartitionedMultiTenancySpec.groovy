@@ -92,7 +92,7 @@ class PartitionedMultiTenancySpec extends Specification {
 
         when:"An a transaction is used"
         MultiTenantAuthor.withTransaction{
-            new MultiTenantAuthor(name: "James Patterson").save(flush:true)
+            new MultiTenantAuthor(name: "JRR Tolkien").save(flush:true)
         }
 
         then:"The results are correct"
@@ -116,6 +116,22 @@ class PartitionedMultiTenancySpec extends Specification {
         }
         Tenants.withId("moreBooks") {
             MultiTenantAuthor.count() == 2
+        }
+        Tenants.withId("moreBooks") {
+            MultiTenantAuthor.withCriteria {
+                eq 'name', 'James Patterson'
+            }.size() == 0
+        }
+
+
+        Tenants.withCurrent {
+            def results = MultiTenantAuthor.withCriteria {
+                eq 'name', 'James Patterson'
+            }
+            results.size() == 1
+        }
+        Tenants.withCurrent {
+            MultiTenantAuthor.findByName('James Patterson') != null
         }
         Tenants.withCurrent {
             MultiTenantAuthor.count() == 1
