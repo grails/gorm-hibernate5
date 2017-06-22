@@ -130,6 +130,11 @@ class HibernateDatastoreSpringInitializerSpec extends Specification{
 
         then:"Each session factory has the correct number of persistent entities"
         applicationContext.getBeansOfType(PlatformTransactionManager).size() == 3
+        // the data source beans should not be configured because DataSourceGrailsPlugin will handle that
+        // when GORM is upgraded to Grails 3.3.x these assertions can be removed.
+        !applicationContext.containsBean('dataSource')
+        !applicationContext.containsBean("dataSource_books")
+        !applicationContext.containsBean("dataSource_moreBooks")
         applicationContext.getBean("sessionFactory", SessionFactory).allClassMetadata.values().size() == 2
         applicationContext.getBean("sessionFactory", SessionFactory).allClassMetadata.containsKey(Person.name)
         applicationContext.getBean("sessionFactory", SessionFactory).allClassMetadata.containsKey(Author.name)
