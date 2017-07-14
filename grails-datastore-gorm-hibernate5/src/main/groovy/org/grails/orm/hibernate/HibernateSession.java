@@ -88,6 +88,7 @@ public class HibernateSession extends AbstractHibernateSession {
         return getHibernateTemplate().execute(new GrailsHibernateTemplate.HibernateCallback<Integer>() {
             public Integer doInHibernate(Session session) throws HibernateException, SQLException {
                 JpaQueryBuilder builder = new JpaQueryBuilder(criteria);
+                builder.setConversionService(getMappingContext().getConversionService());
                 builder.setHibernateCompatible(true);
                 JpaQueryInfo jpaQueryInfo = builder.buildDelete();
 
@@ -122,6 +123,7 @@ public class HibernateSession extends AbstractHibernateSession {
         return getHibernateTemplate().execute(new GrailsHibernateTemplate.HibernateCallback<Integer>() {
             public Integer doInHibernate(Session session) throws HibernateException, SQLException {
                 JpaQueryBuilder builder = new JpaQueryBuilder(criteria);
+                builder.setConversionService(getMappingContext().getConversionService());
                 builder.setHibernateCompatible(true);
                 PersistentEntity targetEntity = criteria.getPersistentEntity();
                 PersistentProperty lastUpdated = targetEntity.getPropertyByName(GormProperties.LAST_UPDATED);
