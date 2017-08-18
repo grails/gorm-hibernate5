@@ -29,6 +29,7 @@ import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
 import org.grails.orm.hibernate.support.HibernateDatastoreConnectionSourcesRegistrar
+import org.grails.spring.beans.factory.InstanceFactoryBean
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
@@ -156,6 +157,10 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             }
             hibernateDatastore(HibernateDatastore, config, hibernateConnectionSourceFactory, eventPublisher)
             sessionFactory(hibernateDatastore:'getSessionFactory')
+            if(isGrailsPresent && isNewVersion) {
+                // register the data source for Grails 3.3.x and above
+                dataSource(hibernateDatastore:'getDataSource')
+            }
             transactionManager(hibernateDatastore:"getTransactionManager")
             autoTimestampEventListener(hibernateDatastore:"getAutoTimestampEventListener")
             "hibernateDatastoreServiceRegistry"(ServiceRegistryFactoryBean, ref("hibernateDatastore"))
