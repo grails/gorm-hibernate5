@@ -19,6 +19,7 @@ import org.grails.datastore.gorm.events.AutoTimestampEventListener;
 import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPublisher;
 import org.grails.datastore.gorm.events.ConfigurableApplicationEventPublisher;
 import org.grails.datastore.gorm.events.DefaultApplicationEventPublisher;
+import org.grails.datastore.gorm.jdbc.MultiTenantConnection;
 import org.grails.datastore.gorm.jdbc.MultiTenantDataSource;
 import org.grails.datastore.gorm.jdbc.connections.DataSourceConnectionSource;
 import org.grails.datastore.gorm.jdbc.connections.DataSourceConnectionSourceFactory;
@@ -55,12 +56,16 @@ import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.SchemaAutoTooling;
 import org.hibernate.cfg.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.*;
 import org.springframework.context.support.StaticMessageSource;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.jdbc.datasource.ConnectionHolder;
+import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
@@ -77,6 +82,8 @@ import java.util.concurrent.Callable;
  * @since 2.0
  */
 public class HibernateDatastore extends AbstractHibernateDatastore implements MessageSourceAware {
+    private static final Logger LOG = LoggerFactory.getLogger(HibernateDatastore.class);
+
     protected final GrailsHibernateTransactionManager transactionManager;
     protected ConfigurableApplicationEventPublisher eventPublisher;
     protected final HibernateGormEnhancer gormEnhancer;
@@ -509,6 +516,23 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     public void addTenantForSchema(String schemaName) {
         addTenantForSchemaInternal(schemaName);
         registerAllEntitiesWithEnhancer();
+        HibernateConnectionSource defaultConnectionSource = (HibernateConnectionSource) connectionSources.getDefaultConnectionSource();
+        DataSource dataSource = defaultConnectionSource.getDataSource();
+        if(dataSource instanceof TransactionAwareDataSourceProxy) {
+            dataSource = ((TransactionAwareDataSourceProxy) dataSource).getTargetDataSource();
+        }
+        Object existing = TransactionSynchronizationManager.getResource(dataSource);
+        if(existing instanceof ConnectionHolder) {
+            ConnectionHolder connectionHolder = (ConnectionHolder) existing;
+            Connection connection = connectionHolder.getConnection();
+            try {
+                if(!connection.isClosed() && !connection.isReadOnly()) {
+                    schemaHandler.useDefaultSchema(connection);
+                }
+            } catch (SQLException e) {
+                throw new DatastoreConfigurationException("Failed to reset to default schema: " + e.getMessage(), e);
+            }
+        }
 
     }
 
@@ -546,12 +570,14 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
                     // schema doesn't exist
                     schemaHandler.createSchema(connection, schemaName);
                 }
+
             } catch (SQLException e) {
                 throw new DatastoreConfigurationException(String.format("Failed to create schema for name [%s]", schemaName));
             }
             finally {
                 if(connection != null) {
                     try {
+                        schemaHandler.useDefaultSchema(connection);
                         connection.close();
                     } catch (SQLException e) {
                         //ignore
@@ -566,14 +592,14 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
             public Connection getConnection() throws SQLException {
                 Connection connection = super.getConnection();
                 schemaHandler.useSchema(connection, schemaName);
-                return connection;
+                return new MultiTenantConnection(connection, schemaHandler);
             }
 
             @Override
-            public Connection getConnection(String param0, String param1) throws SQLException {
-                Connection connection = super.getConnection(param0, param1);
+            public Connection getConnection(String username, String password) throws SQLException {
+                Connection connection = super.getConnection(username, password);
                 schemaHandler.useSchema(connection, schemaName);
-                return connection;
+                return new MultiTenantConnection(connection, schemaHandler);
             }
         };
         DefaultConnectionSource<DataSource, DataSourceSettings> dataSourceConnectionSource = new DefaultConnectionSource<>(schemaName, dataSource, tenantSettings.getDataSource());
