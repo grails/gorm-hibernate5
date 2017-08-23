@@ -18,6 +18,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
 import org.grails.datastore.gorm.bootstrap.support.ServiceRegistryFactoryBean
+import org.grails.datastore.gorm.jdbc.connections.CachedDataSourceConnectionSourceFactory
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
 import org.grails.datastore.mapping.core.connections.AbstractConnectionSources
 import org.grails.datastore.mapping.core.connections.ConnectionSource
@@ -31,6 +32,7 @@ import org.grails.orm.hibernate.proxy.HibernateProxyHandler
 import org.grails.orm.hibernate.support.HibernateDatastoreConnectionSourcesRegistrar
 import org.grails.spring.beans.factory.InstanceFactoryBean
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.config.MethodInvokingFactoryBean
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationEventPublisher
@@ -99,11 +101,10 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
             if (dataSources != null && !dataSources.isEmpty()) {
                 dataSourceNames.addAll( AbstractConnectionSources.toValidConnectionSourceNames(dataSources) )
-            } else {
-                Map dataSource = (Map)config.getProperty(DEFAULT_DATA_SOURCE_NAME, Map.class, Collections.emptyMap())
-                if (dataSource != null && !dataSource.isEmpty()) {
-                    dataSourceNames.add( ConnectionSource.DEFAULT )
-                }
+            }
+            Map dataSource = (Map)config.getProperty(DEFAULT_DATA_SOURCE_NAME, Map.class, Collections.emptyMap())
+            if (dataSource != null && !dataSource.isEmpty()) {
+                dataSourceNames.add( ConnectionSource.DEFAULT )
             }
         }
         this.dataSources = dataSourceNames
@@ -152,15 +153,13 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             final boolean isGrailsPresent = isGrailsPresent()
             final boolean isNewVersion = GrailsVersion.isAtLeastMajorMinor(3,3)
 
+            dataSourceConnectionSourceFactory(CachedDataSourceConnectionSourceFactory)
             hibernateConnectionSourceFactory(HibernateConnectionSourceFactory, persistentClasses as Class[]) { bean ->
                 bean.autowire = true
+                dataSourceConnectionSourceFactory = ref('dataSourceConnectionSourceFactory')
             }
             hibernateDatastore(HibernateDatastore, config, hibernateConnectionSourceFactory, eventPublisher)
             sessionFactory(hibernateDatastore:'getSessionFactory')
-            if(isGrailsPresent && isNewVersion) {
-                // register the data source for Grails 3.3.x and above
-                dataSource(hibernateDatastore:'getDataSource')
-            }
             transactionManager(hibernateDatastore:"getTransactionManager")
             autoTimestampEventListener(hibernateDatastore:"getAutoTimestampEventListener")
             "hibernateDatastoreServiceRegistry"(ServiceRegistryFactoryBean, ref("hibernateDatastore"))
