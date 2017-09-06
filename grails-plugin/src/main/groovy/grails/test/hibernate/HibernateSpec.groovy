@@ -56,7 +56,7 @@ abstract class HibernateSpec extends Specification {
         }
         else {
             hibernateDatastore = new HibernateDatastore(
-                    DatastoreUtils.createPropertyResolver(getConfiguration()),
+                    (PropertyResolver)config,
                     domainClasses as Class[])
         }
         transactionManager = hibernateDatastore.getTransactionManager()
