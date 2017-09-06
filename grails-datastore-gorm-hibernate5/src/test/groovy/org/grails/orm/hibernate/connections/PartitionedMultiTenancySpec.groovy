@@ -2,6 +2,7 @@ package org.grails.orm.hibernate.connections
 
 import grails.gorm.DetachedCriteria
 import grails.gorm.MultiTenant
+import grails.gorm.hibernate.mapping.MappingBuilder
 import grails.gorm.multitenancy.CurrentTenant
 import grails.gorm.multitenancy.Tenant
 import grails.gorm.multitenancy.Tenants
@@ -43,7 +44,7 @@ class PartitionedMultiTenancySpec extends Specification {
                 'hibernate.hbm2ddl.auto': 'create',
         ]
 
-        datastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config), MultiTenantAuthor, MultiTenantBook )
+        datastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config), MultiTenantAuthor, MultiTenantBook, MultiTenantPublisher )
     }
 
     Session getSession() { datastore.sessionFactory.currentSession }
@@ -163,16 +164,20 @@ class PartitionedMultiTenancySpec extends Specification {
             new MultiTenantAuthor(name: "Stephen King")
                 .addTo("books", [title:"The Stand"])
                 .addTo("books", [title:"The Shining"])
-                .save(flush:true)
+                .save()
+
+            new MultiTenantPublisher(name: "Fluff").save()
         }
+
         session.clear()
         MultiTenantAuthor author = MultiTenantAuthor.findByName("Stephen King")
+        MultiTenantPublisher publisher = MultiTenantPublisher.first()
 
         then:"The association ids are loaded with the tenant id"
         author.name == "Stephen King"
         author.books.size() == 2
         author.books.every() { MultiTenantBook book -> book.tenantCode == 'books'}
-
+        publisher.tenantCode == 'books'
 
     }
 
@@ -239,4 +244,13 @@ class MultiTenantBook implements GormEntity<MultiTenantBook>,MultiTenant<MultiTe
 }
 
 
+@Entity
+class MultiTenantPublisher implements GormEntity<MultiTenantPublisher>,MultiTenant<MultiTenantPublisher> {
+    String tenantCode
+    String name
+
+    static mapping = MappingBuilder.orm {
+        tenantId "tenantCode"
+    }
+}
 
