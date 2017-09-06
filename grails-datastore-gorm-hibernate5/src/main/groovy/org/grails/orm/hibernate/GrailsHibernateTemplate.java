@@ -41,6 +41,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
+import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -300,7 +301,14 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             return result;
         } catch (HibernateException ex) {
             throw convertHibernateAccessException(ex);
-        } catch (SQLException ex) {
+        }
+        catch (PersistenceException ex) {
+            if (ex.getCause() instanceof HibernateException) {
+                throw SessionFactoryUtils.convertHibernateAccessException((HibernateException) ex.getCause());
+            }
+            throw ex;
+        }
+        catch (SQLException ex) {
             throw jdbcExceptionTranslator.translate("Hibernate-related JDBC operation", null, ex);
         } catch (RuntimeException ex) {
             // Callback code threw application exception...
