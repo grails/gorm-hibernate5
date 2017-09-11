@@ -1,6 +1,7 @@
 package grails.gorm.tests
 
 import grails.gorm.DetachedCriteria
+import groovy.transform.NotYetImplemented
 import org.grails.datastore.gorm.finders.DynamicFinder
 import org.grails.orm.hibernate.GormSpec
 import org.grails.orm.hibernate.query.HibernateQuery
@@ -11,6 +12,22 @@ class DetachedCriteriaJoinSpec  extends GormSpec {
     @Override
     List getDomainClasses() {
         [Team,Club]
+    }
+
+    def "check if count works as expected"() {
+        given:
+        new Club(name: "Real Madrid").save()
+        new Club(name: "Barcelona").save()
+        new Club(name: "Chelsea").save()
+        new Club(name: "Manchester United").save()
+
+        expect:"max and offset should always be ignored when calling count()"
+        Club.where {}.max(10).offset(0).count() == 4
+        new DetachedCriteria<>(Club).max(10).offset(0).count() == 4
+        Club.where {}.max(2).offset(0).count() == 4
+        new DetachedCriteria<>(Club).max(2).offset(0).count() == 4
+        Club.where {}.max(10).offset(10).count() == 4
+        new DetachedCriteria<>(Club).max(10).offset(10).count() == 4
     }
 
     def 'check if inner join is applied correctly'(){
