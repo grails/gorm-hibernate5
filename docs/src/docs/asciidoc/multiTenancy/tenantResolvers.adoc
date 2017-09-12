@@ -29,6 +29,7 @@ name,description
 `o.g.d.m.multitenancy.web.SubDomainTenantResolver`, Resolves the tenant id from the subdomain via DNS
 `o.g.d.m.multitenancy.web.CookieTenantResolver`, Resolves the current tenant from an HTTP cookie named `gorm.tenantId` by default
 `o.g.d.m.multitenancy.web.SessionTenantResolver`, Resolves the current tenant from the HTTP session using the attribute `gorm.tenantId` by default
+`o.g.d.m.multitenancy.web.HttpHeaderTenantResolver`, Resolves the current tenant from the request HTTP Header using the header name `gorm.tenantId` by default
 |===
 
 The tenant resolvers in the `org.grails.datastore.mapping.multitenancy.web` package require the `grails-datastore-web` dependency:

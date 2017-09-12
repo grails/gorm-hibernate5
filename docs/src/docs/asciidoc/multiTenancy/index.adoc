@@ -6,6 +6,10 @@ This type of architecture is highly common in Software as a Service (SaaS) and C
 
 include::modes.adoc[]
 
+=== Multi-Tenancy Transformations
+
+include::tenantTransforms.adoc[]
+
 === Database Per Tenant
 
 include::databasePerTenant.adoc[]
