@@ -29,8 +29,8 @@ import org.grails.orm.hibernate.exceptions.GrailsQueryException
 import org.grails.orm.hibernate.query.GrailsHibernateQueryUtils
 import org.grails.orm.hibernate.query.HibernateHqlQuery
 import org.grails.orm.hibernate.query.HibernateQuery
-import org.grails.orm.hibernate.support.HibernateVersionSupport
 import org.hibernate.*
+import org.hibernate.query.Query
 import org.springframework.core.convert.ConversionService
 import org.springframework.orm.hibernate5.SessionHolder
 import org.springframework.transaction.PlatformTransactionManager
@@ -121,7 +121,7 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
         def template = hibernateTemplate
         SessionFactory sessionFactory = this.sessionFactory
         return (Integer) template.execute { Session session ->
-            Query q = HibernateVersionSupport.createQuery(session,query.toString())
+            Query q = session.createQuery(query.toString())
             template.applySettings(q)
             def sessionHolder = (SessionHolder) TransactionSynchronizationManager.getResource( sessionFactory )
             if (sessionHolder && sessionHolder.hasTimeout()) {
@@ -148,7 +148,7 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
         SessionFactory sessionFactory = this.sessionFactory
 
         return (Integer) template.execute { Session session ->
-            Query q = HibernateVersionSupport.createQuery(session,query.toString())
+            Query q = session.createQuery(query.toString())
             template.applySettings(q)
             def sessionHolder = (SessionHolder) TransactionSynchronizationManager.getResource( sessionFactory )
             if (sessionHolder && sessionHolder.hasTimeout()) {
@@ -203,7 +203,7 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
     @Override
     protected HibernateHqlQuery createHqlQuery(Session session, Query q) {
         HibernateSession hibernateSession = new HibernateSession((HibernateDatastore) datastore, sessionFactory)
-        FlushMode hibernateMode = HibernateVersionSupport.getFlushMode(session)
+        FlushMode hibernateMode = session.getHibernateFlushMode()
         switch (hibernateMode) {
             case FlushMode.AUTO:
                 hibernateSession.setFlushMode(FlushModeType.AUTO)

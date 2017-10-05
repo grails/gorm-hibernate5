@@ -2058,7 +2058,7 @@ public class GrailsDomainBinder implements MetadataContributor {
                 enumProperties.put(EnumType.NAMED, Boolean.TRUE.toString());
             }
             else if("identity".equals(enumType)) {
-                simpleValue.setTypeName(HibernateUtils.buildIdentityEnumTypeFactory().getName());
+                simpleValue.setTypeName(IdentityEnumType.class.getName());
             }
             else if (!"ordinal".equalsIgnoreCase(enumType)) {
                 simpleValue.setTypeName(enumType);

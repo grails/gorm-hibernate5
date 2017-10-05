@@ -17,7 +17,6 @@ package org.grails.orm.hibernate
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.grails.orm.hibernate.support.HibernateVersionSupport
 import org.hibernate.FlushMode
 import org.hibernate.Session
 import org.hibernate.SessionFactory
@@ -70,11 +69,11 @@ class GrailsHibernateTransactionManager extends HibernateTransactionManager {
             // always set to manual; the base class doesn't because the OSIV has already registered a session
 
             SessionHolder holder = (SessionHolder)TransactionSynchronizationManager.getResource(sessionFactory)
-            HibernateVersionSupport.setFlushMode(holder.getSession(), FlushMode.MANUAL)
+            holder.session.setHibernateFlushMode(FlushMode.MANUAL)
         }
         else if(defaultFlushMode != FlushMode.AUTO) {
             SessionHolder holder = (SessionHolder)TransactionSynchronizationManager.getResource(sessionFactory)
-            HibernateVersionSupport.setFlushMode(holder.getSession(), defaultFlushMode)
+            holder.session.setHibernateFlushMode(defaultFlushMode)
         }
     }
 

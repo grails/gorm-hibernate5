@@ -17,7 +17,6 @@ package org.grails.orm.hibernate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.grails.orm.hibernate.support.HibernateVersionSupport;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -25,7 +24,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.context.spi.CurrentSessionContext;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.transaction.jta.platform.spi.JtaPlatform;
-import org.hibernate.internal.util.ReflectHelper;
 import org.hibernate.service.spi.ServiceBinding;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.SessionHolder;
@@ -35,13 +33,10 @@ import org.springframework.orm.hibernate5.SpringSessionSynchronization;
 import org.springframework.transaction.jta.SpringJtaSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.util.ReflectionUtils;
 
 import javax.transaction.Status;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Based on org.springframework.orm.hibernate4.SpringSessionContext.
@@ -92,9 +87,9 @@ public class GrailsSessionContext implements CurrentSessionContext {
                 sessionHolder.setSynchronizedWithTransaction(true);
                 // Switch to FlushMode.AUTO, as we have to assume a thread-bound Session
                 // with FlushMode.MANUAL, which needs to allow flushing within the transaction.
-                FlushMode flushMode = HibernateVersionSupport.getFlushMode(session);
+                FlushMode flushMode = session.getHibernateFlushMode();
                 if (flushMode.equals(FlushMode.MANUAL) && !TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
-                    HibernateVersionSupport.setFlushMode(session, FlushMode.AUTO);
+                    session.setHibernateFlushMode(FlushMode.AUTO);
                     sessionHolder.setPreviousFlushMode(flushMode);
                 }
             }
@@ -138,7 +133,7 @@ public class GrailsSessionContext implements CurrentSessionContext {
                // holderToUse.addSession(session);
            }
            if (TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
-              session.setFlushMode(FlushMode.MANUAL);
+              session.setHibernateFlushMode(FlushMode.MANUAL);
            }
            TransactionSynchronizationManager.registerSynchronization(createSpringSessionSynchronization(holderToUse));
            holderToUse.setSynchronizedWithTransaction(true);

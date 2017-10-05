@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.AbstractStandardBasicType;
 import org.hibernate.type.TypeResolver;
 import org.hibernate.usertype.ParameterizedType;
@@ -28,6 +29,9 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -38,11 +42,11 @@ import java.util.*;
  *
  * @since 1.1
  */
-public abstract class AbstractIdentityEnumType implements UserType, ParameterizedType, Serializable {
+public class IdentityEnumType implements UserType, ParameterizedType, Serializable {
 
     private static final long serialVersionUID = -6625622185856547501L;
 
-    private static final Log LOG = LogFactory.getLog(AbstractIdentityEnumType.class);
+    private static final Log LOG = LogFactory.getLog(IdentityEnumType.class);
 
     private static TypeResolver typeResolver = new TypeResolver();
     public static final String ENUM_ID_ACCESSOR = "getId";
@@ -124,6 +128,25 @@ public abstract class AbstractIdentityEnumType implements UserType, Parameterize
 
     public int hashCode(Object o) throws HibernateException {
         return o.hashCode();
+    }
+
+    @Override
+    public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner) throws HibernateException, SQLException {
+        Object id = type.nullSafeGet(rs, names[0], session);
+        if ((!rs.wasNull()) && id != null) {
+            return bidiMap.getEnumValue(id);
+        }
+        return null;
+    }
+
+    @Override
+    public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session) throws HibernateException, SQLException {
+        if (value == null) {
+            st.setNull(index, sqlTypes[0]);
+        }
+        else {
+            type.nullSafeSet(st, bidiMap.getKey(value), index, session);
+        }
     }
 
     public Object deepCopy(Object o) throws HibernateException {

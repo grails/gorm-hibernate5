@@ -51,16 +51,12 @@ import org.grails.orm.hibernate.connections.HibernateConnectionSourceSettings;
 import org.grails.orm.hibernate.event.listener.HibernateEventListener;
 import org.grails.orm.hibernate.multitenancy.MultiTenantEventListener;
 import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor;
-import org.grails.orm.hibernate.support.HibernateVersionSupport;
-import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.SchemaAutoTooling;
 import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.*;
 import org.springframework.context.support.StaticMessageSource;
 import org.springframework.core.env.PropertyResolver;
@@ -473,8 +469,8 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         Boolean reset = true;
         try {
             if (session != null) {
-                previousMode = HibernateVersionSupport.getFlushMode(session);
-                HibernateVersionSupport.setFlushMode(session, org.hibernate.FlushMode.valueOf(flushMode.name()));
+                previousMode = session.getHibernateFlushMode();
+                session.setHibernateFlushMode(org.hibernate.FlushMode.valueOf(flushMode.name()));
             }
             try {
                 reset = callable.call();
@@ -484,7 +480,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         }
         finally {
             if (session != null && previousMode != null && reset) {
-                HibernateVersionSupport.setFlushMode(session, previousMode);
+                session.setHibernateFlushMode(previousMode);
             }
         }
     }
@@ -492,7 +488,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     @Override
     public org.hibernate.Session openSession() {
         org.hibernate.Session session = this.sessionFactory.openSession();
-        HibernateVersionSupport.setFlushMode(session, org.hibernate.FlushMode.valueOf(defaultFlushModeName));
+        session.setHibernateFlushMode(org.hibernate.FlushMode.valueOf(defaultFlushModeName));
         return session;
     }
 

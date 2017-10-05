@@ -16,8 +16,6 @@
 package org.grails.orm.hibernate
 
 import groovy.transform.CompileStatic
-import org.grails.orm.hibernate.support.HibernateRuntimeUtils
-import org.grails.orm.hibernate.support.HibernateVersionSupport
 import org.hibernate.FlushMode
 import org.hibernate.Session
 
@@ -32,17 +30,17 @@ class HibernateGormValidationApi<D> extends AbstractHibernateGormValidationApi<D
     @Override
     void restoreFlushMode(Session session, Object previousFlushMode) {
         if(previousFlushMode != null) {
-            HibernateVersionSupport.setFlushMode(session, (FlushMode)previousFlushMode)
+            session.setHibernateFlushMode((FlushMode)previousFlushMode)
         }
     }
 
     @Override
     Object readPreviousFlushMode(Session session) {
-        return HibernateVersionSupport.getFlushMode(session)
+        return session.getHibernateFlushMode()
     }
 
     @Override
     def applyManualFlush(Session session) {
-        HibernateVersionSupport.setFlushMode(session, FlushMode.MANUAL)
+        session.setHibernateFlushMode(FlushMode.MANUAL)
     }
 }
