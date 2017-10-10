@@ -28,7 +28,9 @@ You can use `Where` queries:
 
 [source,groovy]
 ----
-def results = ZipCode.where { code ==~ '995%' }.withConnection('auditing').list()
+def results = ZipCode.where {
+    code ==~ '995%'
+}.withConnection('auditing').list()
 ----
 
 or `Criteria` queries:
