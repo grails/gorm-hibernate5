@@ -66,7 +66,6 @@ import org.springframework.context.support.StaticMessageSource;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.jdbc.datasource.ConnectionHolder;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
-import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
@@ -518,41 +517,23 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
 
     @Override
     public void addTenantForSchema(String schemaName) {
-        boolean previousActiveSynchronization = TransactionSynchronizationManager.isSynchronizationActive();
-        List<TransactionSynchronization> transactionSynchronizations = previousActiveSynchronization ? TransactionSynchronizationManager.getSynchronizations() : null;
-
-        try {
-            if(previousActiveSynchronization) {
-                TransactionSynchronizationManager.clearSynchronization();
-                // init a new synchronization to ensure that any opened database connections are closed by the synchronization
-                TransactionSynchronizationManager.initSynchronization();
-            }
-            addTenantForSchemaInternal(schemaName);
-            registerAllEntitiesWithEnhancer();
-            HibernateConnectionSource defaultConnectionSource = (HibernateConnectionSource) connectionSources.getDefaultConnectionSource();
-            DataSource dataSource = defaultConnectionSource.getDataSource();
-            if(dataSource instanceof TransactionAwareDataSourceProxy) {
-                dataSource = ((TransactionAwareDataSourceProxy) dataSource).getTargetDataSource();
-            }
-            Object existing = TransactionSynchronizationManager.getResource(dataSource);
-            if(existing instanceof ConnectionHolder) {
-                ConnectionHolder connectionHolder = (ConnectionHolder) existing;
-                Connection connection = connectionHolder.getConnection();
-                try {
-                    if(!connection.isClosed() && !connection.isReadOnly()) {
-                        schemaHandler.useDefaultSchema(connection);
-                    }
-                } catch (SQLException e) {
-                    throw new DatastoreConfigurationException("Failed to reset to default schema: " + e.getMessage(), e);
+        addTenantForSchemaInternal(schemaName);
+        registerAllEntitiesWithEnhancer();
+        HibernateConnectionSource defaultConnectionSource = (HibernateConnectionSource) connectionSources.getDefaultConnectionSource();
+        DataSource dataSource = defaultConnectionSource.getDataSource();
+        if(dataSource instanceof TransactionAwareDataSourceProxy) {
+            dataSource = ((TransactionAwareDataSourceProxy) dataSource).getTargetDataSource();
+        }
+        Object existing = TransactionSynchronizationManager.getResource(dataSource);
+        if(existing instanceof ConnectionHolder) {
+            ConnectionHolder connectionHolder = (ConnectionHolder) existing;
+            Connection connection = connectionHolder.getConnection();
+            try {
+                if(!connection.isClosed() && !connection.isReadOnly()) {
+                    schemaHandler.useDefaultSchema(connection);
                 }
-            }
-        } finally {
-            if(previousActiveSynchronization) {
-                TransactionSynchronizationManager.clearSynchronization();
-                TransactionSynchronizationManager.initSynchronization();
-                for (TransactionSynchronization transactionSynchronization : transactionSynchronizations) {
-                    TransactionSynchronizationManager.registerSynchronization(transactionSynchronization);
-                }
+            } catch (SQLException e) {
+                throw new DatastoreConfigurationException("Failed to reset to default schema: " + e.getMessage(), e);
             }
         }
 
