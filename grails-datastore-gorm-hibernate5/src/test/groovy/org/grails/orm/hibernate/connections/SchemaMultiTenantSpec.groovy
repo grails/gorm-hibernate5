@@ -70,6 +70,14 @@ class SchemaMultiTenantSpec extends Specification {
         then:"The results are correct"
         SingleTenantAuthor.withNewSession { SingleTenantAuthor.count() == 1 }
 
+        when:
+        def author =  SingleTenantAuthor.withNewSession {
+            SingleTenantAuthor.find { name == "Stephen King"}
+        }
+
+        then:
+        author != null
+
         when:"An a transaction is used"
         SingleTenantAuthor.withTransaction{
             new SingleTenantAuthor(name: "James Patterson").save(flush:true)
@@ -80,6 +88,7 @@ class SchemaMultiTenantSpec extends Specification {
 
         when:"The tenant id is switched"
         System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, "books")
+
 
         then:"the correct tenant is used"
         SingleTenantAuthor.withNewSession { SingleTenantAuthor.count() == 0 }
