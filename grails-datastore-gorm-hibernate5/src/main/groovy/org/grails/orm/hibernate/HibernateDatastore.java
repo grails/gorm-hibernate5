@@ -328,8 +328,6 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     }
 
 
-
-
     /**
      * Obtain a child {@link HibernateDatastore} by connection name
      *
@@ -347,6 +345,11 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
             }
             return hibernateDatastore;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "HibernateDatastore: " + getDataSourceName();
     }
 
     @Override
