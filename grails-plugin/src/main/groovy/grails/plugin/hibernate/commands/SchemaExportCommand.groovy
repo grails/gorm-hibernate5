@@ -72,7 +72,7 @@ class SchemaExportCommand implements ApplicationCommand {
 
         def serviceRegistry = ((SessionFactoryImplementor)hibernateDatastore.sessionFactory).getServiceRegistry()
                                                                                             .getParentServiceRegistry()
-        def metadata = buildMetadata(executionContext, serviceRegistry)
+        def metadata = hibernateDatastore.metadata
 
         def schemaExport = new HibernateSchemaExport()
                 .setHaltOnError(true)
@@ -102,12 +102,4 @@ class SchemaExportCommand implements ApplicationCommand {
         return true
     }
 
-
-    protected MetadataImplementor buildMetadata(
-            ExecutionContext context,
-            ServiceRegistry serviceRegistry) throws Exception {
-        final MetadataSources metadataSources = new MetadataSources( serviceRegistry );
-        final MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder();
-        return (MetadataImplementor) metadataBuilder.build();
-    }
 }
