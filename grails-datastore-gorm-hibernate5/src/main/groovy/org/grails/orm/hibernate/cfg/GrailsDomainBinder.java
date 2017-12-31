@@ -79,7 +79,7 @@ import java.util.Set;
 public class GrailsDomainBinder implements MetadataContributor {
 
     protected static final String CASCADE_ALL_DELETE_ORPHAN = "all-delete-orphan";
-    protected static final String FOREIGN_KEY_SUFFIX = "_id";
+
     protected static final String STRING_TYPE = "string";
     protected static final String EMPTY_PATH = "";
     protected static final char UNDERSCORE = '_';
@@ -94,6 +94,8 @@ public class GrailsDomainBinder implements MetadataContributor {
     protected static final String DEFAULT_ENUM_TYPE = "default";
     protected static final Log LOG = LogFactory.getLog(GrailsDomainBinder.class);
     public static final String SEQUENCE_KEY = "sequence";
+
+    public static String FOREIGN_KEY_SUFFIX = "_id"; //can be changed along with naming_strategy
     /**
      * Overrideable naming strategy. Defaults to <code>ImprovedNamingStrategy</code> but can
      * be configured in DataSource.groovy via <code>hibernate.naming_strategy = ...</code>.
