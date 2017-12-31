@@ -94,7 +94,7 @@ public class GrailsDomainBinder implements MetadataContributor {
     protected static final Log LOG = LogFactory.getLog(GrailsDomainBinder.class);
     public static final String SEQUENCE_KEY = "sequence";
     /** Can be changed along with NamingStrategy to configure column naming */
-    public static final String FOREIGN_KEY_SUFFIX = "_id";
+    public static String FOREIGN_KEY_SUFFIX = "_id";
     /**
      * Overrideable naming strategy. Defaults to <code>ImprovedNamingStrategy</code> but can
      * be configured in DataSource.groovy via <code>hibernate.naming_strategy = ...</code>.
