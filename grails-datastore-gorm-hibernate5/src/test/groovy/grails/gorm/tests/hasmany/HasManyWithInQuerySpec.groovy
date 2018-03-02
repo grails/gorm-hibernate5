@@ -80,7 +80,7 @@ class Book {
 abstract class PublicationService {
     List<Publication> findAllByBook(Book book) {
         def criteria = new DetachedCriteria(Publication).build {
-            inList("books", [book.id])
+            inList("books", [book])
         }
         criteria.list()
     }
