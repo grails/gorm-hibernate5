@@ -4,11 +4,16 @@ import grails.gorm.DetachedCriteria
 import grails.gorm.annotation.Entity
 import grails.gorm.services.Service
 import grails.gorm.transactions.Rollback
+import groovy.transform.NotYetImplemented
 import org.grails.orm.hibernate.HibernateDatastore
 import spock.lang.AutoCleanup
+import spock.lang.Ignore
+import spock.lang.IgnoreIf
+import spock.lang.Issue
 import spock.lang.Shared
 import spock.lang.Specification
 
+@Issue('https://github.com/grails/gorm-hibernate5/issues/78')
 @Rollback
 class HasManyWithInQuerySpec extends Specification {
 
@@ -17,6 +22,8 @@ class HasManyWithInQuerySpec extends Specification {
     @Shared PublicationService publicationService = datastore.getService(PublicationService)
     @Shared BookService bookService = datastore.getService(BookService)
 
+
+    @NotYetImplemented
     void "test 'in' criteria"() {
         setupData()
 
