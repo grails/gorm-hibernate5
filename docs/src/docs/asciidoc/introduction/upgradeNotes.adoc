@@ -1,3 +1,20 @@
+==== GORM 6.1.9 and Grails 3.2.x
+
+Due to several factors, the version of Spring that GORM 6.1.9 requires was updated to 4.3.14. This may impact Grails 3.2.x users that have an older version on their classpath. For Grails 3.2 users that would like to upgrade to GORM 6.1.9, add the following configuration to your `build.gradle` above the `dependencies` block.
+
+[source,groovy]
+----
+configurations.all {
+  resolutionStrategy {
+    eachDependency { DependencyResolveDetails details ->
+        if (details.requested.group == 'org.springframework') {
+          details.useVersion '4.3.14.RELEASE'
+        }
+    }
+  }
+}
+----
+
 ==== Separation of GORM Async
 
 GORM Async has been separated from GORM core and is no longer added by default to entities.
