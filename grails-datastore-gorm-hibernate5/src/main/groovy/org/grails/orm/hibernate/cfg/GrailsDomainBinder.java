@@ -3273,7 +3273,7 @@ public class GrailsDomainBinder implements MetadataContributor {
     }
 
     protected void handleLazyProxy(PersistentEntity domainClass, PersistentProperty grailsProperty) {
-        //HibernateUtils.handleLazyProxy(domainClass, grailsProperty);
+        HibernateUtils.handleLazyProxy(domainClass, grailsProperty);
     }
 
     protected void handleUniqueConstraint(PersistentProperty property, Column column, String path, Table table, String columnName, String sessionFactoryBeanName) {
