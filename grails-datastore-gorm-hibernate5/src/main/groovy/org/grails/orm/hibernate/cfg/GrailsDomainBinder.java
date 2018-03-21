@@ -422,7 +422,8 @@ public class GrailsDomainBinder implements MetadataContributor {
             bindCollectionForPropertyConfig(collection, propConfig);
         }
 
-        if(referenced != null && referenced.isMultiTenant()) {
+        final boolean isManyToMany = property instanceof ManyToMany;
+        if(referenced != null && !isManyToMany && referenced.isMultiTenant()) {
             String filterCondition = getMultiTenantFilterCondition(sessionFactoryBeanName, referenced);
             if(filterCondition != null) {
                 collection.addFilter(GormProperties.TENANT_IDENTITY, filterCondition, !isUnidirectionalOneToMany(property), Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
@@ -462,7 +463,6 @@ public class GrailsDomainBinder implements MetadataContributor {
         }
 
         // if we have a many-to-many
-        final boolean isManyToMany = property instanceof ManyToMany;
         if (isManyToMany || isBidirectionalOneToManyMap(property)) {
             PersistentProperty otherSide = property.getInverseSide();
 
