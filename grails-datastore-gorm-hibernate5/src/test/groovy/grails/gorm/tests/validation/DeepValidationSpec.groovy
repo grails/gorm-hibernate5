@@ -1,21 +1,19 @@
 package grails.gorm.tests.validation
 
 import grails.gorm.annotation.Entity
+import grails.gorm.tests.GormDatastoreSpec
 import grails.gorm.transactions.Rollback
-import org.grails.orm.hibernate.HibernateDatastore
-import spock.lang.AutoCleanup
 import spock.lang.Issue
-import spock.lang.Shared
-import spock.lang.Specification
 
 /**
  * Created by francoiskha on 19/04/18.
  */
-class DeepValidationSpec extends Specification {
+class DeepValidationSpec extends GormDatastoreSpec {
 
-    @Shared
-    @AutoCleanup
-    HibernateDatastore hibernateDatastore = new HibernateDatastore(Market, Address)
+    @Override
+    List getDomainClasses() {
+        return [Market, Address]
+    }
 
     @Rollback
     @Issue('https://github.com/grails/grails-data-mapping/issues/1033')
@@ -24,7 +22,7 @@ class DeepValidationSpec extends Specification {
         Market m = new Market(address: new Address(notNullableMember: null))
 
         when: "save market without deepValidate"
-        m.save(deepValidate:false)
+        m.save(deepValidate: false)
 
         then: "market is saved, no validation error"
         Market.count() == 1
