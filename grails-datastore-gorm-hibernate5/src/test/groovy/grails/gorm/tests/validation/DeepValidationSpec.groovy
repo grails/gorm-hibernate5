@@ -19,20 +19,21 @@ class DeepValidationSpec extends GormDatastoreSpec {
     @Issue('https://github.com/grails/grails-data-mapping/issues/1033')
     void "performs deep validation correctly"() {
         given: "a market with and invalid address"
-        Market m = new Market(address: new Address(notNullableMember: null))
+        Market m = new Market(name: "Main", address: new Address(landmark: "The Golder Gate Bridge"))
 
         when: "save market without deepValidate"
         m.save(deepValidate: false)
 
         then: "market is saved, no validation error"
         Market.count() == 1
-        m.errors?.allErrors != []
+        m.errors?.allErrors == []
     }
 }
 
 @Entity
 class Market {
 
+    String name
     Address address
 
 }
@@ -40,9 +41,11 @@ class Market {
 @Entity
 class Address {
 
-    String notNullableMember
+    String streetName
+    String landmark
 
     static constraints = {
-        notNullableMember nullable: false
+        streetName nullable: false
+        landmark nullable: false
     }
 }
