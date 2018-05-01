@@ -31,6 +31,13 @@ class DeepValidationSpec extends GormDatastoreSpec {
 
         then:
         thrown(DataIntegrityViolationException)
+
+        when: "nested validation fails"
+        new City(name: "Faridabad").addToMarkets(name: "NIT 1", address: new Address(streetName: "1B, Main St.", landmark: "V2", postalCode: "11")).save(deepValidate: false)
+
+        then: "market is saved, no validation error"
+        City.count() == 1
+        Market.count() == 2
     }
 }
 
