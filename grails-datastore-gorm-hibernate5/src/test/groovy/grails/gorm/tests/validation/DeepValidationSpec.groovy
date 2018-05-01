@@ -38,6 +38,14 @@ class DeepValidationSpec extends GormDatastoreSpec {
         then: "market is saved, no validation error"
         City.count() == 1
         Market.count() == 2
+        Address.count() == 2
+
+        when: "invalid embedded object"
+        new City(name: "St. Louis", country: new Country()).save(deepValidate: false)
+
+        then: "should save the city"
+        City.count() == 2
+        Country.count() == 0
     }
 }
 
@@ -45,8 +53,13 @@ class DeepValidationSpec extends GormDatastoreSpec {
 class City {
 
     String name
+    Country country
 
     static hasMany = [markets: Market]
+    static embedded = ['country']
+    static constraints = {
+        country nullable: true
+    }
 
 }
 
@@ -73,4 +86,9 @@ class Address {
         landmark nullable: true
         postalCode validator: { value -> value ==~ POSTAL_CODE_PATTERN }
     }
+}
+
+@Entity
+class Country {
+    String name
 }
