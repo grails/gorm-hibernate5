@@ -3,6 +3,7 @@ package grails.gorm.tests.validation
 import grails.gorm.annotation.Entity
 import grails.gorm.tests.GormDatastoreSpec
 import grails.gorm.transactions.Rollback
+import org.springframework.dao.DataIntegrityViolationException
 import spock.lang.Issue
 
 /**
@@ -12,20 +13,36 @@ class DeepValidationSpec extends GormDatastoreSpec {
 
     @Override
     List getDomainClasses() {
-        return [Market, Address]
+        return [City, Market, Address]
     }
 
     @Rollback
     @Issue('https://github.com/grails/grails-data-mapping/issues/1033')
     void "performs deep validation correctly"() {
 
-        when: "save market with invalid address"
+        when: "save market with failing custom validator on child"
         new Market(name: "Main", address: new Address(streetName: "Main St.", landmark: "The Golder Gate Bridge", postalCode: "11")).save(deepValidate: false)
 
         then: "market is saved, no validation error"
         Market.count() == 1
+
+        when: "save market with nullable on child"
+        new Market(name: "NIT", address: new Address(landmark: "1B, Main St.", postalCode: "121001")).save(deepValidate: false)
+
+        then:
+        thrown(DataIntegrityViolationException)
     }
 }
+
+@Entity
+class City {
+
+    String name
+
+    static hasMany = [markets: Market]
+
+}
+
 
 @Entity
 class Market {
