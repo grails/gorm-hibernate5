@@ -196,13 +196,15 @@ The `grails.gorm.failOnError` setting can no longer be used to configure the pac
 
 GORM now includes its own implementation of dirty checking in order to improve performance. This implementation uses the `DirtyCheckable` trait to store changes in the entity itself so that Hibernate does not have to do internal array comparison to verify whether an object has changed or not.
 
-There may however be some differences in behaviour, so if you wish to continue to use the Hibernate implementatino you can re-enable it with the following configuration:
+There may however be some differences in behaviour, so if you wish to continue to use the Hibernate implementation you can re-enable it with the following configuration:
 
 [source,yaml]
 ----
 hibernate:
     hibernateDirtyChecking: true
 ----
+
+WARNING: The implementation modifies all setters of your class so that dirty checking is tracked per field. However, there is one corner case where you do `name = "blah"` in a method internal to the class, the setter will not be called and property will not be marked as dirty. Hence, changing it to `setName("blah")` resolves the issue.
 
 Some differences in behaviour and workarounds are covered below.
 
