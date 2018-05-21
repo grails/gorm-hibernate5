@@ -1152,7 +1152,12 @@ public class GrailsDomainBinder implements MetadataContributor {
             return addUnderscore(left, propertyColumnName);
         }
 
-        String right = getTableName(property.getAssociatedEntity(), sessionFactoryBeanName);
+        String right;
+        try {
+            right = getTableName(property.getAssociatedEntity(), sessionFactoryBeanName);
+        } catch (Exception e) {
+            throw new Error("Unable to get table name: This may be due to improper usage of mapWith='none'.");
+        }
 
         if (property instanceof ManyToMany) {
             if (hasJoinTableMapping) {
