@@ -1153,7 +1153,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         }
 
         if (property.getAssociatedEntity() == null) {
-            throw new MappingException("Expected an entity to be associated with the association "  + property.getOwner() + " and none was found. ");
+            throw new MappingException("Expected an entity to be associated with the association ("  + property + ") and none was found. ");
         }
 
         String right = getTableName(property.getAssociatedEntity(), sessionFactoryBeanName);
