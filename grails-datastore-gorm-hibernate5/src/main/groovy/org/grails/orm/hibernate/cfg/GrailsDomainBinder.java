@@ -2627,7 +2627,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         setCascadeBehaviour(grailsProperty, prop);
 
         // lazy to true
-        final boolean isToOne = grailsProperty instanceof ToOne;
+        final boolean isToOne = grailsProperty instanceof ToOne && !(grailsProperty instanceof Embedded);
         PersistentEntity propertyOwner = grailsProperty.getOwner();
         boolean isLazyable = isToOne ||
                 !(grailsProperty instanceof Association) && !grailsProperty.equals(propertyOwner.getIdentity());
