@@ -43,6 +43,7 @@ abstract class HibernateSpec extends Specification {
         MutablePropertySources propertySources = loader.propertySources
         loader.load resourceLoader.getResource("application.yml")
         loader.load resourceLoader.getResource("application.groovy")
+        loader.load resourceLoader.getResource("application.properties")
         propertySources.addFirst(new MapPropertySource("defaults", getConfiguration()))
         Config config = new PropertySourcesConfig(propertySources)
         List<Class> domainClasses = getDomainClasses()
