@@ -514,12 +514,16 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         try {
             super.destroy();
         } finally {
             GrailsDomainBinder.clearMappingCache();
-            this.gormEnhancer.close();
+            try {
+                this.gormEnhancer.close();
+            } catch (Exception e) {
+                LOG.error("There was an error shutting down GORM for an entity: " + e.getMessage(), e);
+            }
         }
     }
 
