@@ -39,6 +39,7 @@ class MultiTenancyUnidirectionalOneToManySpec extends Specification {
         Vehicle.withTransaction {
             new Vehicle(model: "A5", year: 2017, manufacturer: "Audi")
                     .addToEngines(cylinders: 6, manufacturer: "VW")
+                    .addToWheels(spokes: 5)
                     .save(flush:true)
         }
 
@@ -46,6 +47,9 @@ class MultiTenancyUnidirectionalOneToManySpec extends Specification {
         Vehicle.withTransaction { Vehicle.count() } == 1
         Vehicle.withTransaction {
             Vehicle.first().engines.size()
+        } == 1
+        Vehicle.withTransaction {
+            Vehicle.where { year == 2017 }.list(fetch: [engines: "join", wheels: "join"]).size()
         } == 1
 
         when:
@@ -76,12 +80,27 @@ class Engine implements MultiTenant<Engine> {
 }
 
 @Entity
+class Wheel implements MultiTenant<Wheel> {
+    Integer spokes
+    String manufacturer
+//    static belongsTo = [vehicle: Vehicle] // If you remove this, it fails
+
+    static constraints = {
+        spokes nullable: false
+    }
+
+    static mapping = {
+        tenantId name:'manufacturer'
+    }
+}
+
+@Entity
 class Vehicle implements MultiTenant<Vehicle> {
     String model
     Integer year
     String manufacturer
 
-    static hasMany = [engines: Engine]
+    static hasMany = [engines: Engine, wheels: Wheel]
     static constraints = {
         model blank:false
         year min:1980
