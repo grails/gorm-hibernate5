@@ -121,9 +121,11 @@ subprojects { project ->
 
     if(isPluginProject) {
         group "org.grails.plugins"
+        version project.rootProject.version
     }
     else {
-        group "org.grails"        
+        group "org.grails"
+        version project.rootProject.version
     }
 
     if(project.name == 'docs') {
