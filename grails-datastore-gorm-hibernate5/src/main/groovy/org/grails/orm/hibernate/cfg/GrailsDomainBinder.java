@@ -1408,22 +1408,44 @@ public class GrailsDomainBinder implements MetadataContributor {
             bindSubClasses(entity, root, mappings, sessionFactoryBeanName);
         }
 
-        if(entity.isMultiTenant()) {
-            TenantId tenantId = entity.getTenantId();
-            if(tenantId != null) {
-                String filterCondition = getMultiTenantFilterCondition(sessionFactoryBeanName, entity);
-                root.addFilter(GormProperties.TENANT_IDENTITY,filterCondition, true, Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
-                mappings.addFilterDefinition(new FilterDefinition(
-                        GormProperties.TENANT_IDENTITY,
-                        filterCondition,
-                        Collections.singletonMap(GormProperties.TENANT_IDENTITY, root.getProperty(tenantId.getName()).getType())
-                ));
-            }
+        addMultiTenantFilterIfNecessary(entity, root, mappings, sessionFactoryBeanName);
 
-        }
         mappings.addEntityBinding(root);
     }
 
+    /**
+     * Add a Hibernate filter for multitenancy if the persistent class is multitenant
+     *
+     * @param entity target persistent entity for get tenant information
+     * @param persistentClass persistent class for add the filter and get tenant property info
+     * @param mappings mappings to add the filter
+     * @param sessionFactoryBeanName the session factory bean name
+     */
+    protected void addMultiTenantFilterIfNecessary(
+            HibernatePersistentEntity entity, PersistentClass persistentClass,
+            InFlightMetadataCollector mappings, String sessionFactoryBeanName) {
+        if (entity.isMultiTenant()) {
+            TenantId tenantId = entity.getTenantId();
+
+            if (tenantId != null) {
+                String filterCondition = getMultiTenantFilterCondition(sessionFactoryBeanName, entity);
+
+                persistentClass.addFilter(
+                        GormProperties.TENANT_IDENTITY,
+                        filterCondition,
+                        true,
+                        Collections.<String, String>emptyMap(),
+                        Collections.<String, String>emptyMap()
+                );
+
+                mappings.addFilterDefinition(new FilterDefinition(
+                        GormProperties.TENANT_IDENTITY,
+                        filterCondition,
+                        Collections.singletonMap(GormProperties.TENANT_IDENTITY, persistentClass.getProperty(tenantId.getName()).getType())
+                ));
+            }
+        }
+    }
 
     /**
      * Binds the sub classes of a root class using table-per-heirarchy inheritance mapping
@@ -1509,6 +1531,8 @@ public class GrailsDomainBinder implements MetadataContributor {
         else {
             bindSubClass(sub, subClass, mappings, sessionFactoryBeanName);
         }
+
+        addMultiTenantFilterIfNecessary(sub, subClass, mappings, sessionFactoryBeanName);
 
         final java.util.Collection<PersistentEntity> childEntities = sub.getMappingContext().getDirectChildEntities(sub);
         if (!childEntities.isEmpty()) {
