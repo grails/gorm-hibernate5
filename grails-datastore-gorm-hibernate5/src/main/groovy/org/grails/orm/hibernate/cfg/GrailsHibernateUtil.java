@@ -298,7 +298,7 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
      * @param target The target object
      * @param sessionFactory The SessionFactory instance
      */
-    public static void setObjectToReadyOnly(Object target, SessionFactory sessionFactory) {
+    public static void setObjectToReadOnly(Object target, SessionFactory sessionFactory) {
         Object resource = TransactionSynchronizationManager.getResource(sessionFactory);
         if(resource != null) {
             Session session = sessionFactory.getCurrentSession();
@@ -319,7 +319,7 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
     /**
      * Sets the target object to read-write, allowing Hibernate to dirty check it and auto-flush changes.
      *
-     * @see #setObjectToReadyOnly(Object, org.hibernate.SessionFactory)
+     * @see #setObjectToReadOnly(Object, org.hibernate.SessionFactory)
      *
      * @param target The target object
      * @param sessionFactory The SessionFactory instance

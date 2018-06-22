@@ -156,6 +156,6 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
 
     @Override
     void setObjectToReadOnly(Object target) {
-        GrailsHibernateUtil.setObjectToReadyOnly(target, sessionFactory)
+        GrailsHibernateUtil.setObjectToReadOnly(target, sessionFactory)
     }
 }
