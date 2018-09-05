@@ -55,12 +55,18 @@ class Person {
    static constraints = {
       lastUpdatedBy nullable: true
    }
-
+   
+   static mapping = {
+      autowire true
+   }
+   
    def beforeUpdate() {
       lastUpdatedBy = securityService.currentAuthenticatedUsername()
    }
 }
 ----
+
+Notice the usage of `autowire true` above. This is required for the bean `securityService` to be injected.
 
 
 ==== The beforeDelete event
