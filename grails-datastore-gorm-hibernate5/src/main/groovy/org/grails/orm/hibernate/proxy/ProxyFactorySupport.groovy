@@ -92,6 +92,7 @@ class ProxyFactorySupport {
                 setIdentifierMethod,
                 componentIdType);       
 }""")
+            initializerClass.addMethod(serializableProxyMethod)
 
             // Add method: Object invoke(Object, Method, Method, Object[])
             CtClass methodType = getClassFromPool(pool, Method.name)
