@@ -42,7 +42,7 @@ compile "org.grails:grails-datastore-web:{version}"
 
 ==== The AllTenantsResolver interface
 
-If you are using discriminator-based multi-tenancy then you may need to implement the link:../api/org/grails/datastore/mapping/multitenancy/AllTenantsResolver.html[AllTenantsResolver] interface in your `TenantResolver` implentation if you want to at any point iterate over all available tenants.
+If you are using discriminator-based multi-tenancy then you may need to implement the link:../api/org/grails/datastore/mapping/multitenancy/AllTenantsResolver.html[AllTenantsResolver] interface in your `TenantResolver` implementation if you want to at any point iterate over all available tenants.
 
 Typically with discriminator-based multi-tenancy the tenants are identified by some other domain class property. So for example an implementation would look like:
 
