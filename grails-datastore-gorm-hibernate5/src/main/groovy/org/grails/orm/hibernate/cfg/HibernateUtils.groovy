@@ -16,12 +16,6 @@
 package org.grails.orm.hibernate.cfg
 
 import groovy.transform.CompileStatic
-import groovy.transform.TypeCheckingMode
-import javassist.ClassPool
-import javassist.CtClass
-import javassist.CtMethod
-import javassist.LoaderClassPath
-import org.grails.datastore.mapping.core.exceptions.ConfigurationException
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.PersistentProperty
 import org.grails.datastore.mapping.model.config.GormProperties
@@ -33,8 +27,6 @@ import org.springframework.beans.PropertyAccessorFactory
 
 @CompileStatic
 class HibernateUtils {
-
-
 
     /**
      * Overrides a getter on a property that is a Hibernate proxy in order to make sure the initialized object is returned hence avoiding Hibernate proxy hell.
@@ -72,89 +64,5 @@ class HibernateUtils {
             }
         }
     }
-
-    // http://jira.codehaus.org/browse/GROOVY-6138 prevents using CompileStatic for this method
-    @CompileStatic(TypeCheckingMode.SKIP)
-    static void enhanceProxyClass(Class proxyClass) {
-        MetaClass mc = proxyClass.metaClass
-        MetaMethod grailsEnhancedMetaMethod = mc.getStaticMetaMethod("grailsEnhanced", (Class[])null)
-        if (grailsEnhancedMetaMethod != null && grailsEnhancedMetaMethod.invoke(proxyClass, null) == proxyClass) {
-            return
-        }
-
-        MetaClass superMc = proxyClass.getSuperclass().metaClass
-
-
-        // hasProperty
-        registerMetaMethod(mc, 'hasProperty', { String name ->
-            Object obj = getDelegate()
-            boolean result = superMc.hasProperty(obj, name)
-            if (!result) {
-                Object unwrapped = GrailsHibernateUtil.unwrapProxy((HibernateProxy)obj)
-                result = unwrapped.getMetaClass().hasProperty(obj, name)
-            }
-            return result
-        })
-        // respondsTo
-        registerMetaMethod(mc, 'respondsTo', { String name ->
-            Object obj = getDelegate()
-            def result = superMc.respondsTo(obj, name)
-            if (!result) {
-                Object unwrapped = GrailsHibernateUtil.unwrapProxy((HibernateProxy)obj)
-                result = unwrapped.getMetaClass().respondsTo(obj, name)
-            }
-            result
-        })
-        registerMetaMethod(mc, 'respondsTo', { String name, Object[] args ->
-            Object obj = getDelegate()
-            def result = superMc.respondsTo(obj, name, args)
-            if (!result) {
-                Object unwrapped = GrailsHibernateUtil.unwrapProxy((HibernateProxy)obj)
-                result = unwrapped.getMetaClass().respondsTo(obj, name, args)
-            }
-            result
-        })
-
-        // setter
-        registerMetaMethod(mc, 'propertyMissing', { String name, Object val ->
-            Object obj = getDelegate()
-            try {
-                superMc.setProperty(proxyClass, obj, name, val, true, true)
-            } catch (MissingPropertyException e) {
-                Object unwrapped = GrailsHibernateUtil.unwrapProxy((HibernateProxy)obj)
-                unwrapped.getMetaClass().setProperty(unwrapped, name, val)
-            }
-        })
-
-        // getter
-        registerMetaMethod(mc, 'propertyMissing', { String name ->
-            Object obj = getDelegate()
-            try {
-                return superMc.getProperty(proxyClass, obj, name, true, true)
-            } catch (MissingPropertyException e) {
-                Object unwrapped = GrailsHibernateUtil.unwrapProxy((HibernateProxy)obj)
-                unwrapped.getMetaClass().getProperty(unwrapped, name)
-            }
-        })
-
-        registerMetaMethod(mc, 'methodMissing', { String name, Object args ->
-            Object obj = getDelegate()
-            Object[] argsArray = (Object[])args
-            try {
-                superMc.invokeMethod(proxyClass, obj, name, argsArray, true, true)
-            } catch (MissingMethodException e) {
-                Object unwrapped = GrailsHibernateUtil.unwrapProxy((HibernateProxy)obj)
-                unwrapped.getMetaClass().invokeMethod(unwrapped, name, argsArray)
-            }
-        })
-
-        mc.static.grailsEnhanced = {->proxyClass}
-    }
-
-    @CompileStatic(TypeCheckingMode.SKIP)
-    private static final registerMetaMethod(MetaClass mc, String name, Closure c) {
-        mc."$name" = c
-    }
-
 
 }

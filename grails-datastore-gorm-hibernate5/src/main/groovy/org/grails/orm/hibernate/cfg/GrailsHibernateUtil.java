@@ -69,10 +69,6 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
 
     private static HibernateProxyHandler proxyHandler = new HibernateProxyHandler();
 
-    private static GrailsDomainBinder binder;
-
-
-
     public static void populateArgumentsForCriteria(AbstractHibernateDatastore datastore, Class<?> targetClass, Criteria c, Map argMap, ConversionService conversionService) {
         populateArgumentsForCriteria(datastore, targetClass, c, argMap, conversionService, true);
     }
@@ -168,8 +164,11 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
         }
     }
 
+    /**
+     * @deprecated No replacement. Do not use.
+     */
+    @Deprecated
     public static void setBinder(GrailsDomainBinder binder) {
-        GrailsHibernateUtil.binder = binder;
     }
 
     /**
@@ -336,7 +335,7 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
         }
 
         session.setReadOnly(actualTarget, false);
-        session.setFlushMode(FlushMode.AUTO);
+        session.setHibernateFlushMode(FlushMode.AUTO);
         incrementVersion(target);
     }
 
@@ -361,6 +360,7 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
      * @param target The GroovyObject
      * @param persistentClass The persistent class
      */
+    @Deprecated
     public static void ensureCorrectGroovyMetaClass(Object target, Class<?> persistentClass) {
         if (target instanceof GroovyObject) {
             GroovyObject go = ((GroovyObject)target);
@@ -432,8 +432,6 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
     public static boolean isMappedWithHibernate(PersistentEntity domainClass) {
         return domainClass instanceof HibernatePersistentEntity;
     }
-
-
 
     public static String qualify(final String prefix, final String name) {
         return StringHelper.qualify(prefix, name);

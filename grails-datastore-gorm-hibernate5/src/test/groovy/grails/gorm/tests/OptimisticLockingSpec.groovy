@@ -46,7 +46,7 @@ class OptimisticLockingSpec extends GormDatastoreSpec {
         setupClass.transactionStatus = null
 
         when:
-        OptLockVersioned.withNewSession {
+        OptLockVersioned.withTransaction {
             o = OptLockVersioned.get(o.id)
 
             Thread.start {
@@ -63,7 +63,7 @@ class OptimisticLockingSpec extends GormDatastoreSpec {
             }.join()
 
             o.name += ' in main session'
-            assert o.save(flush: true)
+            o.save(flush: true)
 
             session.clear()
             o = OptLockVersioned.get(o.id)
@@ -81,7 +81,7 @@ class OptimisticLockingSpec extends GormDatastoreSpec {
 
         when:
         def ex
-        OptLockNotVersioned.withNewSession {
+        OptLockNotVersioned.withTransaction {
             o = OptLockNotVersioned.get(o.id)
 
             Thread.start {
