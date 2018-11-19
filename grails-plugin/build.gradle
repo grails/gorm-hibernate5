@@ -25,8 +25,9 @@ dependencies {
     compileOnly("org.grails:grails-core:$grailsVersion")
     compileOnly("org.grails:grails-validation:$grailsVersion")
 
-    compileOnly("org.grails:grails-plugin-testing:$grailsVersion")
-    
+    compileOnly "org.spockframework:spock-core:1.2-groovy-2.5", {
+        exclude module:'groovy-all'
+    }
     compile "org.hibernate:hibernate-core:${hibernate5Version}"
     compile "org.grails:grails-datastore-web:$gormVersion"
     compile "org.grails:grails-datastore-gorm-support:$gormVersion"
@@ -46,6 +47,6 @@ dependencies {
     testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
 
     testCompile("org.grails:grails-validation:$grailsVersion")
-    testCompile  "org.grails:grails-plugin-testing:$grailsVersion"
+    testCompile "org.grails:grails-gorm-testing-support:1.1.4"
     compile 'org.springframework:spring-orm:4.2.3.RELEASE'
 }

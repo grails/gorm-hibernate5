@@ -1,4 +1,7 @@
 dependencies {
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
+
+    compile "org.codehaus.groovy:groovy:$groovyVersion"
     compile("org.grails:grails-datastore-gorm-hibernate-core:$gormVersion") {
         exclude group:'org.hibernate', module:'hibernate-core'
         exclude group:'org.hibernate', module:'hibernate-validator'
@@ -27,7 +30,8 @@ dependencies {
         exclude group:'commons-collections', module:'commons-collections'
         exclude group:'org.slf4j', module:'slf4j-api'
     }
-    runtime('javax.el:javax.el-api:2.2.4')
+    compile 'javax.validation:validation-api:2.0.1.Final'
+    runtime('javax.el:javax.el-api:3.0.1-b06')
 
     compileOnly ("net.sf.ehcache:ehcache-core:2.4.8") {
         exclude group: 'commons-logging', module:'commons-logging'
@@ -63,7 +67,7 @@ dependencies {
     testRuntime "org.slf4j:slf4j-simple:1.7.10"
     testRuntime "org.slf4j:jcl-over-slf4j:1.7.10"
     // The groovydoc task needs the Hibernate 4.x jars in the classpath
-    documentation("org.hibernate:hibernate-core:${hibernateVersion}.Final")
+    documentation("org.hibernate:hibernate-core:${hibernate5Version}.Final")
 
 }
 

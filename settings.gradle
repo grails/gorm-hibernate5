@@ -15,7 +15,6 @@ include "examples/grails3-database-per-tenant"
 include "examples/grails3-schema-per-tenant"
 include "examples/grails3-partitioned-multi-tenancy"
 include "examples/standalone-hibernate5"
-include "examples/standalone-hibernate52"
 include "examples/spring-boot-hibernate5"
 
 findProject(':boot-plugin').name = 'gorm-hibernate5-spring-boot'

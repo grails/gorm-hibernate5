@@ -15,15 +15,15 @@
  */
 package org.grails.orm.hibernate.cfg;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.AbstractStandardBasicType;
-import org.hibernate.type.TypeResolver;
+import org.hibernate.type.spi.TypeConfiguration;
 import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -46,9 +46,9 @@ public class IdentityEnumType implements UserType, ParameterizedType, Serializab
 
     private static final long serialVersionUID = -6625622185856547501L;
 
-    private static final Log LOG = LogFactory.getLog(IdentityEnumType.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IdentityEnumType.class);
 
-    private static TypeResolver typeResolver = new TypeResolver();
+    private static TypeConfiguration typeConfiguration = new TypeConfiguration();
     public static final String ENUM_ID_ACCESSOR = "getId";
 
     public static final String PARAM_ENUM_CLASS = "enumClass";
@@ -84,7 +84,7 @@ public class IdentityEnumType implements UserType, ParameterizedType, Serializab
                 int mods = idAccessor.getModifiers();
                 if (Modifier.isPublic(mods) && !Modifier.isStatic(mods)) {
                     Class<?> returnType = idAccessor.getReturnType();
-                    return returnType != null && typeResolver.basic(returnType.getName()) instanceof AbstractStandardBasicType;
+                    return returnType != null && typeConfiguration.getBasicTypeRegistry().getRegisteredType(returnType.getName()) instanceof AbstractStandardBasicType;
                 }
             }
             catch (NoSuchMethodException e) {
@@ -103,7 +103,7 @@ public class IdentityEnumType implements UserType, ParameterizedType, Serializab
                 LOG.debug(String.format("Building ID-mapping for Enum Class %s", enumClass.getName()));
             }
             bidiMap = getBidiEnumMap(enumClass);
-            type = (AbstractStandardBasicType<?>)typeResolver.basic(bidiMap.keyType.getName());
+            type = (AbstractStandardBasicType<?>)typeConfiguration.getBasicTypeRegistry().getRegisteredType(bidiMap.keyType.getName());
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Mapped Basic Type is %s", type));
             }

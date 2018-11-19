@@ -5,15 +5,11 @@ import org.h2.Driver
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.dialect.H2Dialect
-import org.springframework.context.ApplicationContext
 import org.springframework.context.support.GenericApplicationContext
 import org.springframework.jdbc.datasource.DriverManagerDataSource
 import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.util.Log4jConfigurer
-import spock.lang.IgnoreRest
 import spock.lang.Specification
 
-import javax.sql.DataSource
 
 /**
  * Created by graemerocher on 29/01/14.

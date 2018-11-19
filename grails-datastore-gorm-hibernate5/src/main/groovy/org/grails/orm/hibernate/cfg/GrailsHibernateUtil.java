@@ -17,8 +17,6 @@ package org.grails.orm.hibernate.cfg;
 import groovy.lang.GroovyObject;
 import groovy.lang.GroovySystem;
 import groovy.lang.MetaClass;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.grails.datastore.mapping.model.PersistentEntity;
 import org.grails.datastore.mapping.model.PersistentProperty;
 import org.grails.datastore.mapping.model.config.GormProperties;
@@ -28,7 +26,6 @@ import org.grails.datastore.mapping.reflect.ClassUtils;
 import org.grails.orm.hibernate.AbstractHibernateDatastore;
 import org.grails.orm.hibernate.datasource.MultipleDataSourceSupport;
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler;
-import org.grails.orm.hibernate.proxy.ProxyFactorySupport;
 import org.grails.orm.hibernate.support.HibernateRuntimeUtils;
 import org.hibernate.*;
 import org.hibernate.criterion.Order;
@@ -36,16 +33,12 @@ import org.hibernate.engine.spi.EntityEntry;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.engine.spi.Status;
 import org.hibernate.internal.util.StringHelper;
-import org.hibernate.mapping.PersistentClass;
-import org.hibernate.mapping.Property;
 import org.hibernate.proxy.HibernateProxy;
-import org.hibernate.proxy.ProxyFactory;
-import org.hibernate.type.CompositeType;
-import org.hibernate.type.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -55,7 +48,7 @@ import java.util.*;
  * @since 0.4
  */
 public class GrailsHibernateUtil extends HibernateRuntimeUtils {
-    protected static final Log LOG = LogFactory.getLog(GrailsHibernateUtil.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(GrailsHibernateUtil.class);
 
     public static final String ARGUMENT_FETCH_SIZE = "fetchSize";
     public static final String ARGUMENT_TIMEOUT = "timeout";
@@ -307,7 +300,7 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
                     target = ((HibernateProxy)target).getHibernateLazyInitializer().getImplementation();
                 }
                 session.setReadOnly(target, true);
-                session.setFlushMode(FlushMode.MANUAL);
+                session.setHibernateFlushMode(FlushMode.MANUAL);
             }
         }
     }
@@ -406,40 +399,6 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
      */
     public static boolean isInitialized(Object obj, String associationName) {
         return proxyHandler.isInitialized(obj, associationName);
-    }
-
-    /**
-     * Constructs a proxy factory instance
-     *
-     * @param persistentClass The persistent class
-     * @return The factory
-     */
-    public static ProxyFactory buildProxyFactory(PersistentClass persistentClass) {
-        ProxyFactory proxyFactory = ProxyFactorySupport.createProxyFactory();
-
-        @SuppressWarnings("unchecked")
-        Set<Class> proxyInterfaces = new HashSet<>();
-        proxyInterfaces.add(HibernateProxy.class);
-
-        final Class<?> javaClass = persistentClass.getMappedClass();
-        final Property identifierProperty = persistentClass.getIdentifierProperty();
-        final Method idGetterMethod = identifierProperty!=null?  identifierProperty.getGetter(javaClass).getMethod() : null;
-        final Method idSetterMethod = identifierProperty!=null? identifierProperty.getSetter(javaClass).getMethod() : null;
-        final Type identifierType = persistentClass.hasEmbeddedIdentifier() ? persistentClass.getIdentifier().getType() : null;
-
-        try {
-            proxyFactory.postInstantiate(persistentClass.getEntityName(), javaClass, proxyInterfaces,
-                    idGetterMethod, idSetterMethod,
-                    identifierType instanceof CompositeType ?
-                            (CompositeType) identifierType :
-                            null);
-        }
-        catch (HibernateException e) {
-            LOG.warn("Cannot instantiate proxy factory: " + e.getMessage());
-            return null;
-        }
-
-        return proxyFactory;
     }
 
     public static Object unwrapIfProxy(Object instance) {

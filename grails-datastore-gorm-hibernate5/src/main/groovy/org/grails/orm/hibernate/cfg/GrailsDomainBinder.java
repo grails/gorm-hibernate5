@@ -16,8 +16,6 @@ package org.grails.orm.hibernate.cfg;
 
 import groovy.lang.Closure;
 import groovy.transform.Trait;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.transform.trait.Traits;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
@@ -29,12 +27,8 @@ import org.grails.datastore.mapping.model.types.ToOne;
 import org.grails.datastore.mapping.reflect.EntityReflector;
 import org.grails.datastore.mapping.reflect.NameUtils;
 import org.grails.orm.hibernate.access.TraitPropertyAccessStrategy;
-import org.grails.orm.hibernate.proxy.GroovyAwarePojoEntityTuplizer;
-import org.hibernate.EntityMode;
 import org.hibernate.FetchMode;
 import org.hibernate.MappingException;
-import org.hibernate.annotations.common.reflection.java.JavaReflectionManager;
-import org.hibernate.boot.internal.ClassLoaderAccessImpl;
 import org.hibernate.boot.internal.MetadataBuildingContextRootImpl;
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
@@ -55,6 +49,8 @@ import org.hibernate.persister.entity.UnionSubclassEntityPersister;
 import org.hibernate.type.*;
 import org.hibernate.usertype.UserCollectionType;
 import org.jboss.jandex.IndexView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.Entity;
@@ -76,6 +72,7 @@ import java.util.Set;
  * @author Graeme Rocher
  * @since 0.1
  */
+@SuppressWarnings("WeakerAccess")
 public class GrailsDomainBinder implements MetadataContributor {
 
     protected static final String CASCADE_ALL_DELETE_ORPHAN = "all-delete-orphan";
@@ -92,7 +89,7 @@ public class GrailsDomainBinder implements MetadataContributor {
     protected static final String ENUM_CLASS_PROP = "enumClass";
     protected static final String ENUM_TYPE_PROP = "type";
     protected static final String DEFAULT_ENUM_TYPE = "default";
-    protected static final Log LOG = LogFactory.getLog(GrailsDomainBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(GrailsDomainBinder.class);
     public static final String SEQUENCE_KEY = "sequence";
     /**
      * Overrideable naming strategy. Defaults to <code>ImprovedNamingStrategy</code> but can
@@ -116,7 +113,10 @@ public class GrailsDomainBinder implements MetadataContributor {
     protected PersistentEntityNamingStrategy namingStrategy;
     protected MetadataBuildingContext metadataBuildingContext;
 
-    public GrailsDomainBinder(String dataSourceName, String sessionFactoryName, HibernateMappingContext hibernateMappingContext) {
+    public GrailsDomainBinder(
+            String dataSourceName,
+            String sessionFactoryName,
+            HibernateMappingContext hibernateMappingContext) {
         this.sessionFactoryName = sessionFactoryName;
         this.dataSourceName = dataSourceName;
         this.hibernateMappingContext = hibernateMappingContext;
@@ -147,14 +147,10 @@ public class GrailsDomainBinder implements MetadataContributor {
         MetadataBuildingOptions options = metadataCollector.getMetadataBuildingOptions();
         ClassLoaderService classLoaderService = options.getServiceRegistry().getService(ClassLoaderService.class);
 
-        final ClassLoaderAccess classLoaderAccess = new ClassLoaderAccessImpl(
-                options.getTempClassLoader(),
-                classLoaderService
-        );
 
         this.metadataBuildingContext = new MetadataBuildingContextRootImpl(
+                metadataCollector.getBootstrapContext(),
                 options,
-                classLoaderAccess,
                 metadataCollector
         );
 
@@ -215,7 +211,7 @@ public class GrailsDomainBinder implements MetadataContributor {
                                      Map<?, ?> persistentClasses, org.hibernate.mapping.Map map, String sessionFactoryBeanName) {
         bindCollectionSecondPass(property, mappings, persistentClasses, map, sessionFactoryBeanName);
 
-        SimpleValue value = new SimpleValue(mappings, map.getCollectionTable());
+        SimpleValue value = new SimpleValue(metadataBuildingContext, map.getCollectionTable());
 
         bindSimpleValue(getIndexColumnType(property, STRING_TYPE), value, true,
                 getIndexColumnName(property, sessionFactoryBeanName), mappings);
@@ -231,7 +227,7 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         if(!(property instanceof org.grails.datastore.mapping.model.types.OneToMany) && !(property instanceof ManyToMany)) {
 
-            SimpleValue elt = new SimpleValue(mappings, map.getCollectionTable());
+            SimpleValue elt = new SimpleValue(metadataBuildingContext, map.getCollectionTable());
             map.setElement(elt);
 
             String typeName = getTypeName(property,getPropertyConfig(property), getMapping(property.getOwner()));
@@ -277,7 +273,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         }
 
         Table collectionTable = list.getCollectionTable();
-        SimpleValue iv = new SimpleValue(mappings, collectionTable);
+        SimpleValue iv = new SimpleValue(metadataBuildingContext, collectionTable);
         bindSimpleValue("integer", iv, true, columnName, mappings);
         iv.setTypeName("integer");
         list.setIndex(iv);
@@ -399,7 +395,7 @@ public class GrailsDomainBinder implements MetadataContributor {
                 }
                 //NOTE: this will build the set for the in clause if it has sublcasses
                 Set<String> discSet = buildDiscriminatorSet((HibernatePersistentEntity) referenced);
-                String inclause = DefaultGroovyMethods.join(discSet, ",");
+                String inclause = String.join(",", discSet);
 
                 collection.setWhere(discriminatorColumnName + " in (" + inclause + ")");
             }
@@ -427,9 +423,9 @@ public class GrailsDomainBinder implements MetadataContributor {
             String filterCondition = getMultiTenantFilterCondition(sessionFactoryBeanName, referenced);
             if(filterCondition != null) {
                 if (isUnidirectionalOneToMany(property)) {
-                    collection.addManyToManyFilter(GormProperties.TENANT_IDENTITY, filterCondition, true, Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
+                    collection.addManyToManyFilter(GormProperties.TENANT_IDENTITY, filterCondition, true, Collections.emptyMap(), Collections.emptyMap());
                 } else {
-                    collection.addFilter(GormProperties.TENANT_IDENTITY, filterCondition, true, Collections.<String, String>emptyMap(), Collections.<String, String>emptyMap());
+                    collection.addFilter(GormProperties.TENANT_IDENTITY, filterCondition, true, Collections.emptyMap(), Collections.emptyMap());
                 }
             }
         }
@@ -473,7 +469,7 @@ public class GrailsDomainBinder implements MetadataContributor {
             if (property.isBidirectional()) {
                 if (LOG.isDebugEnabled())
                     LOG.debug("[GrailsDomainBinder] Mapping other side " + otherSide.getOwner().getName() + "." + otherSide.getName() + " -> " + collection.getCollectionTable().getName() + " as ManyToOne");
-                ManyToOne element = new ManyToOne(mappings, collection.getCollectionTable());
+                ManyToOne element = new ManyToOne(metadataBuildingContext, collection.getCollectionTable());
                 bindManyToMany((Association)otherSide, element, mappings, sessionFactoryBeanName);
                 collection.setElement(element);
                 bindCollectionForPropertyConfig(collection, propConfig);
@@ -509,8 +505,8 @@ public class GrailsDomainBinder implements MetadataContributor {
     protected String buildOrderByClause(String hqlOrderBy, PersistentClass associatedClass, String role, String defaultOrder) {
         String orderByString = null;
         if (hqlOrderBy != null) {
-            List<String> properties = new ArrayList<String>();
-            List<String> ordering = new ArrayList<String>();
+            List<String> properties = new ArrayList<>();
+            List<String> ordering = new ArrayList<>();
             StringBuilder orderByBuffer = new StringBuilder();
             if (hqlOrderBy.length() == 0) {
                 //order by id
@@ -608,7 +604,7 @@ public class GrailsDomainBinder implements MetadataContributor {
     }
 
     protected Set<String> buildDiscriminatorSet(HibernatePersistentEntity domainClass) {
-        Set<String> theSet = new HashSet<String>();
+        Set<String> theSet = new HashSet<>();
 
         Mapping mapping = domainClass.getMapping().getMappedForm();
         String discriminator = domainClass.getName();
@@ -658,11 +654,11 @@ public class GrailsDomainBinder implements MetadataContributor {
         SimpleValue element;
         final boolean isBasicCollectionType = property instanceof Basic;
         if (isBasicCollectionType) {
-            element = new SimpleValue(mappings, collection.getCollectionTable());
+            element = new SimpleValue(metadataBuildingContext, collection.getCollectionTable());
         }
         else {
             // for a normal unidirectional one-to-many we use a join column
-            element = new ManyToOne(mappings, collection.getCollectionTable());
+            element = new ManyToOne(metadataBuildingContext, collection.getCollectionTable());
             bindUnidirectionalOneToManyInverseValues(property, (ManyToOne) element);
         }
         collection.setInverse(false);
@@ -690,7 +686,7 @@ public class GrailsDomainBinder implements MetadataContributor {
 
                 String typeName = getTypeName(property, config, getMapping(property.getOwner()));
                 if (typeName == null) {
-                    Type type = mappings.getTypeResolver().basic(className);
+                    Type type = mappings.getTypeConfiguration().getBasicTypeRegistry().getRegisteredType(className);
                     if (type != null) {
                         typeName = type.getName();
                     }
@@ -902,7 +898,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         if (LOG.isDebugEnabled())
             LOG.debug("[GrailsDomainBinder] creating dependant key value  to table [" + keyValue.getTable().getName() + "]");
 
-        key = new DependantValue(mappings, collection.getCollectionTable(), keyValue);
+        key = new DependantValue(metadataBuildingContext, collection.getCollectionTable(), keyValue);
 
         key.setTypeName(null);
         // make nullable and non-updateable
@@ -1351,7 +1347,6 @@ public class GrailsDomainBinder implements MetadataContributor {
         persistentClass.setJpaEntityName(unqualify(entityName));
         persistentClass.setProxyInterfaceName(entityName);
         persistentClass.setClassName(entityName);
-        persistentClass.addTuplizer(EntityMode.POJO, GroovyAwarePojoEntityTuplizer.class.getName());
 
         // set dynamic insert to false
         persistentClass.setDynamicInsert(false);
@@ -1434,8 +1429,8 @@ public class GrailsDomainBinder implements MetadataContributor {
                         GormProperties.TENANT_IDENTITY,
                         filterCondition,
                         true,
-                        Collections.<String, String>emptyMap(),
-                        Collections.<String, String>emptyMap()
+                        Collections.emptyMap(),
+                        Collections.emptyMap()
                 );
 
                 mappings.addFilterDefinition(new FilterDefinition(
@@ -1604,7 +1599,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         LOG.info("Mapping joined-subclass: " + joinedSubclass.getEntityName() +
                 " -> " + joinedSubclass.getTable().getName());
 
-        SimpleValue key = new DependantValue(mappings, mytable, joinedSubclass.getIdentifier());
+        SimpleValue key = new DependantValue(metadataBuildingContext, mytable, joinedSubclass.getIdentifier());
         joinedSubclass.setKey(key);
         final PersistentProperty identifier = sub.getIdentity();
         String columnName = getColumnNameForPropertyAndPath(identifier, EMPTY_PATH, null, sessionFactoryBeanName);
@@ -1659,7 +1654,7 @@ public class GrailsDomainBinder implements MetadataContributor {
      */
     protected void bindDiscriminatorProperty(Table table, RootClass entity, InFlightMetadataCollector mappings) {
         Mapping m = getMapping(entity.getMappedClass());
-        SimpleValue d = new SimpleValue(mappings, table);
+        SimpleValue d = new SimpleValue(metadataBuildingContext, table);
         entity.setDiscriminator(d);
         DiscriminatorConfig discriminatorConfig = m != null ? m.getDiscriminator() : null;
 
@@ -1818,7 +1813,7 @@ public class GrailsDomainBinder implements MetadataContributor {
     protected void bindCompositeId(PersistentEntity domainClass, RootClass root,
                                    CompositeIdentity compositeIdentity, InFlightMetadataCollector mappings, String sessionFactoryBeanName) {
         HibernatePersistentEntity hibernatePersistentEntity = (HibernatePersistentEntity) domainClass;
-        Component id = new Component(mappings, root);
+        Component id = new Component(metadataBuildingContext, root);
         id.setNullValue("undefined");
         root.setIdentifier(id);
         root.setEmbeddedIdentifier(true);
@@ -1889,13 +1884,13 @@ public class GrailsDomainBinder implements MetadataContributor {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("[GrailsDomainBinder] Binding property [" + currentGrailsProp.getName() + "] as SimpleValue");
                 }
-                value = new SimpleValue(mappings, table);
+                value = new SimpleValue(metadataBuildingContext, table);
                 bindSimpleValue(currentGrailsProp, null, (SimpleValue) value, EMPTY_PATH, mappings, sessionFactoryBeanName);
             }
             else if (collectionType != null) {
                 String typeName = getTypeName(currentGrailsProp, getPropertyConfig(currentGrailsProp),gormMapping);
                 if ("serializable".equals(typeName)) {
-                    value = new SimpleValue(mappings, table);
+                    value = new SimpleValue(metadataBuildingContext, table);
                     bindSimpleValue(typeName, (SimpleValue) value, currentGrailsProp.isNullable(),
                             getColumnNameForPropertyAndPath(currentGrailsProp, EMPTY_PATH, null, sessionFactoryBeanName), mappings);
                 }
@@ -1908,7 +1903,7 @@ public class GrailsDomainBinder implements MetadataContributor {
                 }
             }
             else if (currentGrailsProp.getType().isEnum()) {
-                value = new SimpleValue(mappings, table);
+                value = new SimpleValue(metadataBuildingContext, table);
                 bindEnumType(currentGrailsProp, (SimpleValue) value, EMPTY_PATH, sessionFactoryBeanName);
             }
             else if(currentGrailsProp instanceof Association) {
@@ -1917,7 +1912,7 @@ public class GrailsDomainBinder implements MetadataContributor {
                     if (LOG.isDebugEnabled())
                         LOG.debug("[GrailsDomainBinder] Binding property [" + currentGrailsProp.getName() + "] as ManyToOne");
 
-                    value = new ManyToOne(mappings, table);
+                    value = new ManyToOne(metadataBuildingContext, table);
                     bindManyToOne((Association) currentGrailsProp, (ManyToOne) value, EMPTY_PATH, mappings, sessionFactoryBeanName);
                 }
                 else if (currentGrailsProp instanceof org.grails.datastore.mapping.model.types.OneToOne && userType == null) {
@@ -1931,16 +1926,16 @@ public class GrailsDomainBinder implements MetadataContributor {
                                 "." + currentGrailsProp.getName() + "] is not bidirectional. Specify the other side of the relationship!");
                     }
                     else if (canBindOneToOneWithSingleColumnAndForeignKey((Association) currentGrailsProp)) {
-                        value = new OneToOne(mappings, table, persistentClass);
+                        value = new OneToOne(metadataBuildingContext, table, persistentClass);
                         bindOneToOne((org.grails.datastore.mapping.model.types.OneToOne) currentGrailsProp, (OneToOne) value, EMPTY_PATH, sessionFactoryBeanName);
                     }
                     else {
                         if (isHasOne && association.isBidirectional()) {
-                            value = new OneToOne(mappings, table, persistentClass);
+                            value = new OneToOne(metadataBuildingContext, table, persistentClass);
                             bindOneToOne((org.grails.datastore.mapping.model.types.OneToOne) currentGrailsProp, (OneToOne) value, EMPTY_PATH, sessionFactoryBeanName);
                         }
                         else {
-                            value = new ManyToOne(mappings, table);
+                            value = new ManyToOne(metadataBuildingContext, table);
                             bindManyToOne((Association) currentGrailsProp, (ManyToOne) value, EMPTY_PATH, mappings, sessionFactoryBeanName);
                         }
                     }
@@ -1955,7 +1950,7 @@ public class GrailsDomainBinder implements MetadataContributor {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("[GrailsDomainBinder] Binding property [" + currentGrailsProp.getName() + "] as SimpleValue");
                 }
-                value = new SimpleValue(mappings, table);
+                value = new SimpleValue(metadataBuildingContext, table);
                 bindSimpleValue(currentGrailsProp, null, (SimpleValue) value, EMPTY_PATH, mappings, sessionFactoryBeanName);
             }
 
@@ -1966,7 +1961,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         }
 
         for (Embedded association : embedded) {
-            Value value = new Component(mappings, persistentClass);
+            Value value = new Component(metadataBuildingContext, persistentClass);
 
             bindComponent((Component) value, association, true, mappings, sessionFactoryBeanName);
             Property property = createProperty(value, persistentClass, association, mappings);
@@ -2230,30 +2225,30 @@ public class GrailsDomainBinder implements MetadataContributor {
             if (LOG.isDebugEnabled())
                 LOG.debug("[GrailsDomainBinder] Binding property [" + currentGrailsProp.getName() + "] as ManyToOne");
 
-            value = new ManyToOne(mappings, table);
+            value = new ManyToOne(metadataBuildingContext, table);
             bindManyToOne((Association) currentGrailsProp, (ManyToOne) value, path, mappings, sessionFactoryBeanName);
         } else if (currentGrailsProp instanceof org.grails.datastore.mapping.model.types.OneToOne) {
             if (LOG.isDebugEnabled())
                 LOG.debug("[GrailsDomainBinder] Binding property [" + currentGrailsProp.getName() + "] as OneToOne");
 
             if (canBindOneToOneWithSingleColumnAndForeignKey((Association) currentGrailsProp)) {
-                value = new OneToOne(mappings, table, persistentClass);
+                value = new OneToOne(metadataBuildingContext, table, persistentClass);
                 bindOneToOne((org.grails.datastore.mapping.model.types.OneToOne) currentGrailsProp, (OneToOne) value, path, sessionFactoryBeanName);
             }
             else {
-                value = new ManyToOne(mappings, table);
+                value = new ManyToOne(metadataBuildingContext, table);
                 bindManyToOne((Association) currentGrailsProp, (ManyToOne) value, path, mappings, sessionFactoryBeanName);
             }
         }
         else if (currentGrailsProp instanceof Embedded) {
-            value = new Component(mappings, persistentClass);
+            value = new Component(metadataBuildingContext, persistentClass);
             bindComponent((Component) value, (Embedded) currentGrailsProp, true, mappings, sessionFactoryBeanName);
         }
         else {
             if (LOG.isDebugEnabled())
                 LOG.debug("[GrailsDomainBinder] Binding property [" + currentGrailsProp.getName() + "] as SimpleValue");
 
-            value = new SimpleValue(mappings, table);
+            value = new SimpleValue(metadataBuildingContext, table);
             if (currentGrailsProp.getType().isEnum()) {
                 bindEnumType(currentGrailsProp, (SimpleValue) value, path, sessionFactoryBeanName);
             }
@@ -2510,7 +2505,7 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         if(version != null) {
 
-            SimpleValue val = new SimpleValue(mappings, entity.getTable());
+            SimpleValue val = new SimpleValue(metadataBuildingContext, entity.getTable());
 
             bindSimpleValue(version, null, val, EMPTY_PATH, mappings, sessionFactoryBeanName);
 
@@ -2545,7 +2540,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         boolean useSequence = mapping != null && mapping.isTablePerConcreteClass();
 
         // create the id value
-        SimpleValue id = new SimpleValue(mappings, entity.getTable());
+        SimpleValue id = new SimpleValue(metadataBuildingContext, entity.getTable());
         // set identifier on entity
 
         Properties params = new Properties();
@@ -2689,7 +2684,7 @@ public class GrailsDomainBinder implements MetadataContributor {
 
     protected boolean getUpdateableness(PersistentProperty grailsProperty) {
         PropertyConfig config = getPropertyConfig(grailsProperty);
-        return config == null || config.getUpdateable();
+        return config == null || config.getUpdatable();
     }
 
     protected boolean isBidirectionalManyToOneWithListMapping(PersistentProperty grailsProperty, Property prop) {
@@ -3012,7 +3007,7 @@ public class GrailsDomainBinder implements MetadataContributor {
 
     protected void createKeyForProps(PersistentProperty grailsProp, String path, Table table,
                                      String columnName, List<?> propertyNames, String sessionFactoryBeanName) {
-        List<Column> keyList = new ArrayList<Column>();
+        List<Column> keyList = new ArrayList<>();
         keyList.add(new Column(columnName));
         for (Iterator<?> i = propertyNames.iterator(); i.hasNext();) {
             String propertyName = (String) i.next();
@@ -3058,8 +3053,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         }
 
         String[] tokens = indexDefinition.split(",");
-        for (int i = 0; i < tokens.length; i++) {
-            String index = tokens[i];
+        for (String index : tokens) {
             table.getOrCreateIndex(index).addColumn(column);
         }
     }
@@ -3461,7 +3455,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         protected static CollectionType MAP;
         protected static boolean initialized;
 
-        protected static final Map<Class<?>, CollectionType> INSTANCES = new HashMap<Class<?>, CollectionType>();
+        protected static final Map<Class<?>, CollectionType> INSTANCES = new HashMap<>();
 
         public abstract Collection create(ToMany property, PersistentClass owner,
                                           String path, InFlightMetadataCollector mappings, String sessionFactoryBeanName) throws MappingException;

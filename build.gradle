@@ -16,7 +16,7 @@ buildscript {
 
 group "org.grails"
 //version "6.1.10.RELEASE"
-version "6.1.11.BUILD-SNAPSHOT"
+version "7.0.0.BUILD-SNAPSHOT"
 println "GORM VERSION = ${project.gormVersion}"
 
 ext {
@@ -24,7 +24,7 @@ ext {
     isCiBuild = project.hasProperty("isCiBuild")
     isBuildSnapshot = version.endsWith("BUILD-SNAPSHOT")
 
-    servletApiVersion = "3.0.1"
+    servletApiVersion = "4.0.1"
 
     nexusUsername = System.getenv("SONATYPE_USERNAME") ?: project.hasProperty("sonatypeOssUsername") ? project.sonatypeOssUsername : ''
     nexusPassword = System.getenv("SONATYPE_PASSWORD") ?: project.hasProperty("sonatypeOssPassword") ? project.sonatypeOssPassword : ''
@@ -153,13 +153,13 @@ subprojects { project ->
         apply plugin: "io.github.groovylang.groovydoc"
 
 
-        sourceCompatibility = "1.7"
-        targetCompatibility = "1.7"
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
 
         dependencies {
             documentation "org.fusesource.jansi:jansi:1.11"
             testCompile "org.codehaus.groovy:groovy-test:$groovyVersion"
-            testCompile "org.spockframework:spock-core:1.0-groovy-2.4", {
+            testCompile "org.spockframework:spock-core:1.2-groovy-2.5", {
                 exclude module:'groovy-all'
             }
         }

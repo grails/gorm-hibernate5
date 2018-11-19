@@ -213,7 +213,11 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
 
         ConfigurationHelper.resolvePlaceHolders(getProperties());
 
-        final GrailsDomainBinder domainBinder = new GrailsDomainBinder(dataSourceName, sessionFactoryBeanName, hibernateMappingContext);
+        final GrailsDomainBinder domainBinder = new GrailsDomainBinder(
+                dataSourceName,
+                sessionFactoryBeanName,
+                hibernateMappingContext
+        );
 
         List<Class> annotatedClasses = new ArrayList<>();
         for (PersistentEntity persistentEntity : hibernateMappingContext.getPersistentEntities()) {
