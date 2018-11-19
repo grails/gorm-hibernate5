@@ -17,12 +17,12 @@ package org.grails.orm.hibernate;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.FlushModeType;
 
+import org.grails.datastore.gorm.timestamp.DefaultTimestampProvider;
 import org.grails.datastore.mapping.model.PersistentProperty;
 import org.grails.datastore.mapping.model.config.GormProperties;
 import org.grails.datastore.mapping.proxy.ProxyHandler;
@@ -52,6 +52,8 @@ import org.springframework.context.ApplicationEventPublisher;
 public class HibernateSession extends AbstractHibernateSession {
 
     ProxyHandler proxyHandler = new HibernateProxyHandler();
+    DefaultTimestampProvider timestampProvider;
+
     public HibernateSession(HibernateDatastore hibernateDatastore, SessionFactory sessionFactory, int defaultFlushMode) {
         super(hibernateDatastore, sessionFactory);
 
@@ -127,7 +129,10 @@ public class HibernateSession extends AbstractHibernateSession {
                 PersistentEntity targetEntity = criteria.getPersistentEntity();
                 PersistentProperty lastUpdated = targetEntity.getPropertyByName(GormProperties.LAST_UPDATED);
                 if(lastUpdated != null && targetEntity.getMapping().getMappedForm().isAutoTimestamp()) {
-                    properties.put(GormProperties.LAST_UPDATED, new Date());
+                    if (timestampProvider == null) {
+                        timestampProvider = new DefaultTimestampProvider();
+                    }
+                    properties.put(GormProperties.LAST_UPDATED, timestampProvider.createTimestamp(lastUpdated.getType()));
                 }
 
                 JpaQueryInfo jpaQueryInfo = builder.buildUpdate(properties);

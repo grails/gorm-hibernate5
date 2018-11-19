@@ -141,3 +141,81 @@ class Person {
 You can also replace "none" with any property name of the target class. And of course this works for normal domain classes too, not just self-referential ones. Nor is the `mappedBy` property limited to many-to-one and one-to-one associations: it also works for one-to-many and many-to-many associations as you'll see in the next section.
 
 WARNING: If you have a property called "none" on your domain class, this approach won't work currently! The "none" property will be treated as the reverse direction of the association (or the "back reference"). Fortunately, "none" is not a common domain class property name.
+
+===== Replacing a many-to-one collection
+
+Given these GORM entities:
+
+[source,groovy]
+----
+class Book {
+    String name
+    static hasMany = [reviews: Review]
+}
+class Review {
+    String author
+    String quote
+    static belongsTo = [book: Book]
+}
+----
+
+Imagine you have a book with two reviews:
+
+[source,groovy]
+----
+new Book(name: 'Daemon')
+                .addToReviews(new Review(quote: 'Daemon does for surfing the Web what Jaws did for swimming in the ocean.', author: 'Chicago Sun-Times'))
+                .addToReviews(new Review(quote: 'Daemon is wet-yourself scary, tech-savvy, mind-blowing!', author: 'Paste Magazine'))
+                .save()
+----
+
+You could create a method to replace the `reviews` collection as illustrated next:
+
+[source,groovy]
+----
+Book replaceReviews(Serializable idParam, List<Review> newReviews) {
+    Book book = Book.where { id == idParam }.join('reviews').get()
+    clearReviews(book)
+    newReviews.each { book.addToReviews(it) }
+    book.save()
+}
+
+void clearReviews(Book book) {
+    List<Serializable> ids = []
+    book.reviews.collect().each {
+        book.removeFromReviews(it)
+        ids << it.id
+    }
+    Review.executeUpdate("delete Review r where r.id in :ids", [ids: ids])
+}
+----
+
+Alternatively you could leverage http://docs.grails.org/latest/ref/Database%20Mapping/cascade.html[cascade] behaviour.
+
+[source,groovy]
+----
+class Book {
+    String name
+    static hasMany = [reviews: Review]
+    static mappping = {
+        reviews cascade: 'all-delete-orphan'
+    }
+}
+class Review {
+    String author
+    String quote
+    static belongsTo = [book: Book]
+}
+----
+
+The cascade behaviour takes cares of deleting every orphan `Review`. Thus, invoking `.clear()` suffices to remove the book' previous reviews.
+
+[source,groovy]
+----
+Book replaceReviews(Serializable idParam, List<Review> newReviews) {
+    Book book = Book.where { id == idParam }.join('reviews').get()
+    book.reviews.clear()
+    newReviews.each { book.addToReviews(it) }
+    book.save()
+}
+----

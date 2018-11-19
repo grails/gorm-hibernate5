@@ -24,7 +24,6 @@ import org.grails.datastore.gorm.jdbc.MultiTenantDataSource;
 import org.grails.datastore.gorm.jdbc.connections.DataSourceConnectionSource;
 import org.grails.datastore.gorm.jdbc.connections.DataSourceConnectionSourceFactory;
 import org.grails.datastore.gorm.jdbc.connections.DataSourceSettings;
-import org.grails.datastore.gorm.jdbc.schema.SchemaHandler;
 import org.grails.datastore.gorm.utils.ClasspathEntityScanner;
 import org.grails.datastore.gorm.validation.constraints.MappingContextAwareConstraintFactory;
 import org.grails.datastore.gorm.validation.constraints.builtin.UniqueConstraint;
@@ -51,9 +50,15 @@ import org.grails.orm.hibernate.connections.HibernateConnectionSourceSettings;
 import org.grails.orm.hibernate.event.listener.HibernateEventListener;
 import org.grails.orm.hibernate.multitenancy.MultiTenantEventListener;
 import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor;
+import org.grails.orm.hibernate.support.HibernateVersionSupport;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.Metadata;
 import org.hibernate.boot.SchemaAutoTooling;
 import org.hibernate.cfg.Environment;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.integrator.spi.Integrator;
+import org.hibernate.integrator.spi.IntegratorService;
+import org.hibernate.service.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -65,6 +70,7 @@ import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -84,6 +90,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     protected ConfigurableApplicationEventPublisher eventPublisher;
     protected final HibernateGormEnhancer gormEnhancer;
     protected final Map<String, HibernateDatastore> datastoresByConnectionSource = new LinkedHashMap<>();
+    protected final Metadata metadata;
 
     /**
      * Create a new HibernateDatastore for the given connection sources and mapping context
@@ -94,6 +101,8 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
      */
     public HibernateDatastore(final ConnectionSources<SessionFactory, HibernateConnectionSourceSettings> connectionSources, final HibernateMappingContext mappingContext, final ConfigurableApplicationEventPublisher eventPublisher) {
         super(connectionSources, mappingContext);
+
+        this.metadata = getMetadataInternal();
 
         HibernateConnectionSource defaultConnectionSource = (HibernateConnectionSource) connectionSources.getDefaultConnectionSource();
         this.transactionManager = new GrailsHibernateTransactionManager(
@@ -323,8 +332,6 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     }
 
 
-
-
     /**
      * Obtain a child {@link HibernateDatastore} by connection name
      *
@@ -342,6 +349,11 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
             }
             return hibernateDatastore;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "HibernateDatastore: " + getDataSourceName();
     }
 
     @Override
@@ -499,12 +511,16 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         try {
             super.destroy();
         } finally {
             GrailsDomainBinder.clearMappingCache();
-            this.gormEnhancer.close();
+            try {
+                this.gormEnhancer.close();
+            } catch (IOException e) {
+                LOG.error("There was an error shutting down GORM enhancer", e);
+            }
         }
     }
 
@@ -530,6 +546,10 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
             }
         }
 
+    }
+
+    public Metadata getMetadata() {
+        return metadata;
     }
 
     protected void registerAllEntitiesWithEnhancer() {
@@ -608,6 +628,18 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
             }
         };
         datastoresByConnectionSource.put(connectionSource.getName(), childDatastore);
+    }
+
+    private Metadata getMetadataInternal() {
+        Metadata metadata = null;
+        ServiceRegistry bootstrapServiceRegistry = ((SessionFactoryImplementor) sessionFactory).getServiceRegistry().getParentServiceRegistry();
+        Iterable<Integrator> integrators = bootstrapServiceRegistry.getService(IntegratorService.class).getIntegrators();
+        for (Integrator integrator : integrators) {
+            if (integrator instanceof MetadataIntegrator) {
+                metadata = ((MetadataIntegrator) integrator).getMetadata();
+            }
+        }
+        return metadata;
     }
 
     private static HibernateConnectionSourceFactory createConnectionFactoryForDataSource(final DataSource dataSource, Class... classes) {

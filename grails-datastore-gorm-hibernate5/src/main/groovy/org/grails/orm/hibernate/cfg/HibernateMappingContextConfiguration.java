@@ -9,6 +9,7 @@ import org.grails.datastore.mapping.validation.ValidatorRegistry;
 import org.grails.orm.hibernate.EventListenerIntegrator;
 import org.grails.orm.hibernate.GrailsSessionContext;
 import org.grails.orm.hibernate.HibernateEventListeners;
+import org.grails.orm.hibernate.MetadataIntegrator;
 import org.grails.orm.hibernate.access.TraitPropertyAccessStrategy;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
@@ -251,6 +252,7 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
         EventListenerIntegrator eventListenerIntegrator = new EventListenerIntegrator(hibernateEventListeners, eventListeners);
         BootstrapServiceRegistry bootstrapServiceRegistry = createBootstrapServiceRegistryBuilder()
                                                                     .applyIntegrator(eventListenerIntegrator)
+                                                                    .applyIntegrator(new MetadataIntegrator())
                                                                     .applyClassLoaderService(classLoaderService)
                                                                     .build();
         StrategySelector strategySelector = bootstrapServiceRegistry.getService(StrategySelector.class);
