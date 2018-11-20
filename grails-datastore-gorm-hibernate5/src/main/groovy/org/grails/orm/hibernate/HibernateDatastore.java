@@ -565,7 +565,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
         HibernateConnectionSource defaultConnectionSource = (HibernateConnectionSource) connectionSources.getDefaultConnectionSource();
         HibernateConnectionSourceSettings tenantSettings;
         try {
-            tenantSettings = connectionSources.getDefaultConnectionSource().getSettings().clone();
+            tenantSettings = (HibernateConnectionSourceSettings)connectionSources.getDefaultConnectionSource().getSettings().clone();
         } catch (CloneNotSupportedException e) {
             throw new ConfigurationException("Couldn't clone default Hibernate settings! " + e.getMessage(), e);
         }

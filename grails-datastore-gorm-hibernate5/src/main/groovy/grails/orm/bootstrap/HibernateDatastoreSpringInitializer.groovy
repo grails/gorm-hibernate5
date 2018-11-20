@@ -112,7 +112,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
     @Override
     protected Class<AbstractDatastorePersistenceContextInterceptor> getPersistenceInterceptorClass() {
-        getClass().classLoader.loadClass('org.grails.orm.hibernate5.support.HibernatePersistenceContextInterceptor')
+        getClass().classLoader.loadClass('org.grails.plugin.hibernate.support.HibernatePersistenceContextInterceptor')
     }
 
     /**
@@ -167,9 +167,9 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             grailsDomainClassMappingContext(hibernateDatastore:"getMappingContext")
 
             if(isGrailsPresent) {
-                if(ClassUtils.isPresent("org.grails.orm.hibernate5.support.AggregatePersistenceContextInterceptor")) {
+                if(ClassUtils.isPresent("org.grails.plugin.hibernate.support.AggregatePersistenceContextInterceptor")) {
                     ClassLoader cl = ClassUtils.getClassLoader()
-                    persistenceInterceptor(cl.loadClass("org.grails.orm.hibernate5.support.AggregatePersistenceContextInterceptor"), ref("hibernateDatastore"))
+                    persistenceInterceptor(cl.loadClass("org.grails.plugin.hibernate.support.AggregatePersistenceContextInterceptor"), ref("hibernateDatastore"))
                     proxyHandler(cl.loadClass("org.grails.datastore.gorm.proxy.ProxyHandlerAdapter"), ref('hibernateProxyHandler'))
                 }
 
@@ -178,9 +178,9 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                 boolean isWebApplication = beanDefinitionRegistry?.containsBeanDefinition("dispatcherServlet") ||
                         beanDefinitionRegistry?.containsBeanDefinition("grailsControllerHelper")
 
-                if (isWebApplication && osivEnabled && ClassUtils.isPresent("org.grails.orm.hibernate5.support.GrailsOpenSessionInViewInterceptor")) {
+                if (isWebApplication && osivEnabled && ClassUtils.isPresent("org.grails.plugin.hibernate.support.GrailsOpenSessionInViewInterceptor")) {
                     ClassLoader cl = ClassUtils.getClassLoader()
-                    openSessionInViewInterceptor(cl.loadClass("org.grails.orm.hibernate5.support.GrailsOpenSessionInViewInterceptor")) {
+                    openSessionInViewInterceptor(cl.loadClass("org.grails.plugin.hibernate.support.GrailsOpenSessionInViewInterceptor")) {
                         hibernateDatastore = ref("hibernateDatastore")
                     }
                 }

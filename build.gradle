@@ -157,7 +157,7 @@ subprojects { project ->
     dependencies {
         documentation "org.fusesource.jansi:jansi:1.11"
         documentation "org.codehaus.groovy:groovy-dateutil:$groovyVersion"
-        
+
         testCompile "org.codehaus.groovy:groovy-test:$groovyVersion"
         testCompile "org.spockframework:spock-core:1.2-groovy-2.5", {
             exclude module:'groovy-all'

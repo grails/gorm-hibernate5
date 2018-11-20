@@ -2,12 +2,7 @@ dependencies {
     compile "org.slf4j:slf4j-api:$slf4jVersion"
 
     compile "org.codehaus.groovy:groovy:$groovyVersion"
-    compile("org.grails:grails-datastore-gorm-hibernate-core:$gormVersion") {
-        exclude group:'org.hibernate', module:'hibernate-core'
-        exclude group:'org.hibernate', module:'hibernate-validator'
-        exclude group:'org.hibernate', module:'hibernate-ehcache'
-        exclude group:'org.hibernate', module:'hibernate-commons-annotations'
-    }
+    compile("org.grails:grails-datastore-gorm:$gormVersion")
 
     // Web dependencies provided
     compileOnly "javax.servlet:javax.servlet-api:$servletApiVersion"

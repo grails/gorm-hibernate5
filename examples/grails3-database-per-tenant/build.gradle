@@ -11,6 +11,11 @@ configurations.all {
     }
 }
 
+grails {
+    agent {
+        enabled = false
+    }
+}
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-logging"
     compile "org.springframework.boot:spring-boot-autoconfigure"

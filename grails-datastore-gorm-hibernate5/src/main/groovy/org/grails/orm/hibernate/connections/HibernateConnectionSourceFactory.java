@@ -222,7 +222,7 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
             eventTriggeringInterceptor = BeanUtils.instantiate(closureEventTriggeringInterceptorClass);
         }
 
-        hibernateSettings.eventTriggeringInterceptor(eventTriggeringInterceptor);
+        hibernateSettings.setEventTriggeringInterceptor(eventTriggeringInterceptor);
 
         try {
             Class<? extends NamingStrategy> namingStrategy = hibernateSettings.getNaming_strategy();
