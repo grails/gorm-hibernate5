@@ -31,7 +31,7 @@ class HibernateConnectionSourceFactorySpec extends Specification {
 
         then:"The session factory is created"
         connectionSource.source instanceof SessionFactory
-        connectionSource.source.allClassMetadata.get(Foo.name)
+        connectionSource.source.getMetamodel().entity(Foo.name)
         connectionSource.source.openSession().createCriteria(Foo).list().size() == 0
 
         when:"The connection source is closed"

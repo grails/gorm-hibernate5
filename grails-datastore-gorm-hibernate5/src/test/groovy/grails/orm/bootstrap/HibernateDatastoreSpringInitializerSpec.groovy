@@ -1,111 +1,17 @@
 package grails.orm.bootstrap
 
 import grails.persistence.Entity
-import org.h2.Driver
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.dialect.H2Dialect
-import org.springframework.context.support.GenericApplicationContext
-import org.springframework.jdbc.datasource.DriverManagerDataSource
 import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.Specification
-
 
 /**
  * Created by graemerocher on 29/01/14.
  */
 class HibernateDatastoreSpringInitializerSpec extends Specification{
 
-    void "Test that GORM is initialized correctly for an existing BeanDefinitionRegistry"() {
-        given:"An initializer instance"
-
-        def datastoreInitializer = new HibernateDatastoreSpringInitializer(['hibernate.hbm2ddl.auto': 'create'], Person)
-        def applicationContext = new GenericApplicationContext()
-        def dataSource = new DriverManagerDataSource("jdbc:h2:mem:grailsDb1;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_DELAY=-1", 'sa', '')
-        dataSource.driverClassName = Driver.name
-        applicationContext.beanFactory.registerSingleton("dataSource", dataSource)
-
-
-        when:"The application context is configured"
-        datastoreInitializer.configureForBeanDefinitionRegistry(applicationContext)
-        boolean refreshCalled = false
-        applicationContext.refresh()
-        refreshCalled = true
-        def conn = dataSource.getConnection()
-
-        then:"The database tables are created correctly"
-        conn.prepareStatement("SELECT * FROM PERSON").execute()
-
-        when:"A GORM method is invoked"
-        def total = Person.withNewSession { Person.count() }
-
-        then:"The correct results are returned"
-        total == 0
-
-        when:"A new domain instance is created"
-        def p = new Person()
-
-        then:"it is initially invalid"
-        ! Person.withNewSession { p.validate() }
-
-        when:"it is made valid"
-        p.name = "Bob"
-
-        then:"It can be saved"
-        Person.withNewSession { p.save(flush:true) }
-        Person.withNewSession { Person.count() } == 1
-
-
-        cleanup:
-        if(refreshCalled && applicationContext.isRunning()) {
-            applicationContext.stop()
-        }
-
-    }
-
-    void "Test that GORM is initialized correctly for a DataSource"() {
-        given:"An initializer instance"
-
-        def datastoreInitializer = new HibernateDatastoreSpringInitializer(['hibernate.hbm2ddl.auto': 'create'], Person)
-        def dataSource = new DriverManagerDataSource("jdbc:h2:mem:grailsDb2;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_DELAY=-1", 'sa', '')
-        dataSource.driverClassName = Driver.name
-
-
-        when:"The application context is configured"
-        datastoreInitializer.configureForDataSource(dataSource)
-        def conn = dataSource.getConnection()
-
-        then:"The database tables are created correctly"
-        Person.withNewSession {  Session s ->
-            assert s.connection().metaData.getURL() == "jdbc:h2:mem:grailsDb2"
-            return true
-        }
-        conn.prepareStatement("SELECT * FROM PERSON").execute()
-
-        when:"A GORM method is invoked"
-        def total = Person.withNewSession { Person.count() }
-
-        then:"The correct results are returned"
-        total == 0
-
-        when:"A new domain instance is created"
-        def p = new Person()
-
-        then:"it is initially invalid"
-        !Person.withNewSession { p.validate() }
-
-        when:"it is made valid"
-        p.name = "Bob"
-
-        then:"It can be saved"
-        Person.withNewSession { p.save(flush:true) }
-        Person.withNewSession { Person.count()  } == 1
-
-
-
-    }
-
-//    @IgnoreRest
     void "Test configure multiple data sources"() {
         given:"An initializer instance"
         Map config = [
@@ -126,20 +32,15 @@ class HibernateDatastoreSpringInitializerSpec extends Specification{
 
         then:"Each session factory has the correct number of persistent entities"
         applicationContext.getBeansOfType(PlatformTransactionManager).size() == 3
-        // the data source beans should not be configured because DataSourceGrailsPlugin will handle that
-        // when GORM is upgraded to Grails 3.3.x these assertions can be removed.
-        !applicationContext.containsBean('dataSource')
-        !applicationContext.containsBean("dataSource_books")
-        !applicationContext.containsBean("dataSource_moreBooks")
-        applicationContext.getBean("sessionFactory", SessionFactory).allClassMetadata.values().size() == 2
-        applicationContext.getBean("sessionFactory", SessionFactory).allClassMetadata.containsKey(Person.name)
-        applicationContext.getBean("sessionFactory", SessionFactory).allClassMetadata.containsKey(Author.name)
-        applicationContext.getBean("sessionFactory_books", SessionFactory).allClassMetadata.values().size() == 2
-        applicationContext.getBean("sessionFactory_books", SessionFactory).allClassMetadata.containsKey(Book.name)
-        applicationContext.getBean("sessionFactory_books", SessionFactory).allClassMetadata.containsKey(Author.name)
-        applicationContext.getBean("sessionFactory_moreBooks", SessionFactory).allClassMetadata.values().size() == 2
-        applicationContext.getBean("sessionFactory_moreBooks", SessionFactory).allClassMetadata.containsKey(Book.name)
-        applicationContext.getBean("sessionFactory_moreBooks", SessionFactory).allClassMetadata.containsKey(Author.name)
+        applicationContext.getBean("sessionFactory", SessionFactory).metamodel.entities.size() == 2
+        applicationContext.getBean("sessionFactory", SessionFactory).metamodel.entity(Person.name)
+        applicationContext.getBean("sessionFactory", SessionFactory).metamodel.entity(Author.name)
+        applicationContext.getBean("sessionFactory_books", SessionFactory).metamodel.entities.size() == 2
+        applicationContext.getBean("sessionFactory_books", SessionFactory).metamodel.entity(Book.name)
+        applicationContext.getBean("sessionFactory_books", SessionFactory).metamodel.entity(Author.name)
+        applicationContext.getBean("sessionFactory_moreBooks", SessionFactory).metamodel.entities.size() == 2
+        applicationContext.getBean("sessionFactory_moreBooks", SessionFactory).metamodel.entity(Book.name)
+        applicationContext.getBean("sessionFactory_moreBooks", SessionFactory).metamodel.entity(Author.name)
 
         and:"Each domain has the correct data source(s)"
         Person.withNewSession { Person.count() == 0 }

@@ -36,7 +36,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.context.ConfigurableApplicationContext
@@ -65,7 +64,7 @@ import java.beans.Introspector
 @ConditionalOnBean(DataSource)
 @ConditionalOnMissingBean(HibernateDatastoreSpringInitializer)
 @AutoConfigureAfter(DataSourceAutoConfiguration)
-@AutoConfigureBefore([HibernateJpaAutoConfiguration, WebMvcAutoConfiguration])
+@AutoConfigureBefore([HibernateJpaAutoConfiguration])
 class HibernateGormAutoConfiguration implements ApplicationContextAware,BeanFactoryAware {
 
     BeanFactory beanFactory

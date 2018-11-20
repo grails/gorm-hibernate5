@@ -151,8 +151,6 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
             def config = this.configuration
             final boolean isGrailsPresent = isGrailsPresent()
-            final boolean isNewVersion = GrailsVersion.isAtLeastMajorMinor(3,3)
-
             dataSourceConnectionSourceFactory(CachedDataSourceConnectionSourceFactory)
             hibernateConnectionSourceFactory(HibernateConnectionSourceFactory, persistentClasses as Class[]) { bean ->
                 bean.autowire = true
@@ -166,11 +164,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             getBeanDefinition("transactionManager").beanClass = PlatformTransactionManager
             hibernateDatastoreConnectionSourcesRegistrar(HibernateDatastoreConnectionSourcesRegistrar, dataSources)
             // domain model mapping context, used for configuration
-            grailsDomainClassMappingContext(hibernateDatastore:"getMappingContext") {
-                if(!isNewVersion && isGrailsPresent && (beanDefinitionRegistry instanceof BeanFactory)) {
-                    validatorRegistry = new BeanFactoryValidatorRegistry((BeanFactory)beanDefinitionRegistry)
-                }
-            }
+            grailsDomainClassMappingContext(hibernateDatastore:"getMappingContext")
 
             if(isGrailsPresent) {
                 if(ClassUtils.isPresent("org.grails.orm.hibernate5.support.AggregatePersistenceContextInterceptor")) {
@@ -180,20 +174,6 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                 }
 
 
-                // override Validator beans with Hibernate aware instances
-                if(!isNewVersion && ClassUtils.isPresent("org.grails.orm.hibernate.validation.HibernateDomainClassValidator")) {
-                    ClassLoader cl = ClassUtils.getClassLoader()
-                    Class hibernateValidatorClass = cl.loadClass("org.grails.orm.hibernate.validation.HibernateDomainClassValidator")
-                    for(cls in persistentClasses) {
-                        "${cls.name}Validator"(hibernateValidatorClass) {
-                            proxyHandler = ref("hibernateProxyHandler")
-                            messageSource = ref("messageSource")
-                            domainClass = ref("${cls.name}DomainClass")
-                            grailsApplication = ref('grailsApplication')
-                            mappingContext = ref("grailsDomainClassMappingContext")
-                        }
-                    }
-                }
                 boolean osivEnabled = config.getProperty("hibernate.osiv.enabled", Boolean, true)
                 boolean isWebApplication = beanDefinitionRegistry?.containsBeanDefinition("dispatcherServlet") ||
                         beanDefinitionRegistry?.containsBeanDefinition("grailsControllerHelper")

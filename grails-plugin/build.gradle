@@ -1,9 +1,3 @@
-dependencyManagement {
-    imports {
-        mavenBom "org.grails:grails-bom:$grailsVersion"
-    }
-    applyMavenExclusions false
-}
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         if(details.requested.group == 'org.grails' &&

@@ -1,13 +1,13 @@
 package functional.tests
 
 import grails.test.hibernate.HibernateSpec
-import grails.test.mixin.TestFor
+import grails.testing.web.controllers.ControllerUnitTest
+
 
 /**
  * Created by graemerocher on 24/10/16.
  */
-@TestFor(BookController)
-class BookControllerUnitSpec extends HibernateSpec {
+class BookControllerUnitSpec extends HibernateSpec implements ControllerUnitTest<BookController> {
 
     def setup() {
         def bookService = Mock(BookService)

@@ -2660,7 +2660,7 @@ public class GrailsDomainBinder implements MetadataContributor {
             prop.setLazy(isLazy);
 
             if (isLazy && isToOne && !(PersistentAttributeInterceptable.class.isAssignableFrom(propertyOwner.getJavaClass()))) {
-                handleLazyProxy(propertyOwner, grailsProperty);
+//                handleLazyProxy(propertyOwner, grailsProperty);
             }
         }
     }
@@ -3296,10 +3296,6 @@ public class GrailsDomainBinder implements MetadataContributor {
         }
 
         return maxSize;
-    }
-
-    protected void handleLazyProxy(PersistentEntity domainClass, PersistentProperty grailsProperty) {
-        HibernateUtils.handleLazyProxy(domainClass, grailsProperty);
     }
 
     protected void handleUniqueConstraint(PersistentProperty property, Column column, String path, Table table, String columnName, String sessionFactoryBeanName) {

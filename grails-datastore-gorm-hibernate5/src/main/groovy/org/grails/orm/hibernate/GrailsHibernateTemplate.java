@@ -16,8 +16,6 @@
 package org.grails.orm.hibernate;
 
 import groovy.lang.Closure;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.hibernate.*;
 import org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl;
@@ -26,6 +24,8 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.event.spi.EventSource;
 import org.hibernate.exception.GenericJDBCException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -55,7 +55,7 @@ import java.util.List;
 
 public class GrailsHibernateTemplate implements IHibernateTemplate {
 
-    private static final Log LOG = LogFactory.getLog(GrailsHibernateTemplate.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GrailsHibernateTemplate.class);
 
     private boolean osivReadOnly;
     private boolean passReadOnlyToHibernate = false;
@@ -743,13 +743,11 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
     }
 
     public void deleteAll(final Collection<?> objects) {
-        execute(new GrailsHibernateTemplate.HibernateCallback<Void>() {
-            public Void doInHibernate(Session session) throws HibernateException {
-                for (Object entity : getIterableAsCollection(objects)) {
-                    session.delete(entity);
-                }
-                return null;
+        execute((HibernateCallback<Void>) session -> {
+            for (Object entity : getIterableAsCollection(objects)) {
+                session.delete(entity);
             }
+            return null;
         });
     }
 

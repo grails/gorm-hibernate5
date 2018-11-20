@@ -58,3 +58,14 @@ class Player extends Person {
         height nullable: true
     }
 }
+
+@Entity
+class Book {
+    String title
+
+    static constraints = {
+        title validator: { val ->
+            val.asBoolean()
+        }
+    }
+}

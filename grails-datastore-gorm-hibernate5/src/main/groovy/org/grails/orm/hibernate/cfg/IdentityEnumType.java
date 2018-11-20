@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -53,7 +52,7 @@ public class IdentityEnumType implements UserType, ParameterizedType, Serializab
 
     public static final String PARAM_ENUM_CLASS = "enumClass";
 
-    private static final Map<Class<? extends Enum<?>>, BidiEnumMap> ENUM_MAPPINGS = new HashMap<Class<? extends Enum<?>>, BidiEnumMap>();
+    private static final Map<Class<? extends Enum<?>>, BidiEnumMap> ENUM_MAPPINGS = new HashMap<>();
     protected Class<? extends Enum<?>> enumClass;
     protected BidiEnumMap bidiMap;
     protected AbstractStandardBasicType<?> type;
@@ -75,24 +74,6 @@ public class IdentityEnumType implements UserType, ParameterizedType, Serializab
         return m;
     }
 
-
-    @SuppressWarnings("unchecked")
-    public static boolean supports(@SuppressWarnings("rawtypes") Class enumClass) {
-        if (enumClass.isEnum()) {
-            try {
-                Method idAccessor = enumClass.getMethod(ENUM_ID_ACCESSOR);
-                int mods = idAccessor.getModifiers();
-                if (Modifier.isPublic(mods) && !Modifier.isStatic(mods)) {
-                    Class<?> returnType = idAccessor.getReturnType();
-                    return returnType != null && typeConfiguration.getBasicTypeRegistry().getRegisteredType(returnType.getName()) instanceof AbstractStandardBasicType;
-                }
-            }
-            catch (NoSuchMethodException e) {
-                // ignore
-            }
-        }
-        return false;
-    }
 
     @SuppressWarnings("unchecked")
     public void setParameterValues(Properties properties) {
@@ -179,7 +160,7 @@ public class IdentityEnumType implements UserType, ParameterizedType, Serializab
 
         private BidiEnumMap(Class<? extends Enum> enumClass) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Building Bidirectional Enum Map..."));
+                LOG.debug("Building Bidirectional Enum Map...");
             }
 
             EnumMap enumToKey = new EnumMap(enumClass);

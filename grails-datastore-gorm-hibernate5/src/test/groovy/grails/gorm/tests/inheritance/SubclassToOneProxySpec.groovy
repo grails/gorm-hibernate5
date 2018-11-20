@@ -15,7 +15,6 @@ class SubclassToOneProxySpec extends GormDatastoreSpec {
 
         expect:
         session.mappingContext.proxyFactory.isProxy(owner.@superclassProxy)
-        owner.superclassProxy instanceof SubclassProxy
     }
 
     @Override

@@ -15,8 +15,6 @@
  */
 package org.grails.orm.hibernate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -25,6 +23,8 @@ import org.hibernate.context.spi.CurrentSessionContext;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.transaction.jta.platform.spi.JtaPlatform;
 import org.hibernate.service.spi.ServiceBinding;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.orm.hibernate5.SessionHolder;
 import org.springframework.orm.hibernate5.SpringFlushSynchronization;
@@ -48,7 +48,7 @@ public class GrailsSessionContext implements CurrentSessionContext {
 
     private static final long serialVersionUID = 1;
 
-    private static final Log LOG = LogFactory.getLog(GrailsSessionContext.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GrailsSessionContext.class);
 
     protected final SessionFactoryImplementor sessionFactory;
     protected CurrentSessionContext jtaSessionContext;

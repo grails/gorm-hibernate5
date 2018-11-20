@@ -121,52 +121,48 @@ public class HibernateSession extends AbstractHibernateSession {
      * @return The total number of records updated
      */
     public long updateAll(final QueryableCriteria criteria, final Map<String, Object> properties) {
-        return getHibernateTemplate().execute(new GrailsHibernateTemplate.HibernateCallback<Integer>() {
-            public Integer doInHibernate(Session session) throws HibernateException, SQLException {
-                JpaQueryBuilder builder = new JpaQueryBuilder(criteria);
-                builder.setConversionService(getMappingContext().getConversionService());
-                builder.setHibernateCompatible(true);
-                PersistentEntity targetEntity = criteria.getPersistentEntity();
-                PersistentProperty lastUpdated = targetEntity.getPropertyByName(GormProperties.LAST_UPDATED);
-                if(lastUpdated != null && targetEntity.getMapping().getMappedForm().isAutoTimestamp()) {
-                    if (timestampProvider == null) {
-                        timestampProvider = new DefaultTimestampProvider();
-                    }
-                    properties.put(GormProperties.LAST_UPDATED, timestampProvider.createTimestamp(lastUpdated.getType()));
+        return getHibernateTemplate().execute((GrailsHibernateTemplate.HibernateCallback<Integer>) session -> {
+            JpaQueryBuilder builder = new JpaQueryBuilder(criteria);
+            builder.setConversionService(getMappingContext().getConversionService());
+            builder.setHibernateCompatible(true);
+            PersistentEntity targetEntity = criteria.getPersistentEntity();
+            PersistentProperty lastUpdated = targetEntity.getPropertyByName(GormProperties.LAST_UPDATED);
+            if(lastUpdated != null && targetEntity.getMapping().getMappedForm().isAutoTimestamp()) {
+                if (timestampProvider == null) {
+                    timestampProvider = new DefaultTimestampProvider();
                 }
-
-                JpaQueryInfo jpaQueryInfo = builder.buildUpdate(properties);
-
-                org.hibernate.query.Query query = session.createQuery(jpaQueryInfo.getQuery());
-                getHibernateTemplate().applySettings(query);
-                List parameters = jpaQueryInfo.getParameters();
-                if (parameters != null) {
-                    for (int i = 0, count = parameters.size(); i < count; i++) {
-                        query.setParameter(JpaQueryBuilder.PARAMETER_NAME_PREFIX + (i+1), parameters.get(i));
-                    }
-                }
-
-                HibernateHqlQuery hqlQuery = new HibernateHqlQuery(HibernateSession.this, targetEntity, query);
-                ApplicationEventPublisher applicationEventPublisher = datastore.getApplicationEventPublisher();
-                applicationEventPublisher.publishEvent(new PreQueryEvent(datastore, hqlQuery));
-                int result = query.executeUpdate();
-                applicationEventPublisher.publishEvent(new PostQueryEvent(datastore, hqlQuery, Collections.singletonList(result)));
-                return result;
+                properties.put(GormProperties.LAST_UPDATED, timestampProvider.createTimestamp(lastUpdated.getType()));
             }
+
+            JpaQueryInfo jpaQueryInfo = builder.buildUpdate(properties);
+
+            org.hibernate.query.Query query = session.createQuery(jpaQueryInfo.getQuery());
+            getHibernateTemplate().applySettings(query);
+            List parameters = jpaQueryInfo.getParameters();
+            if (parameters != null) {
+                for (int i = 0, count = parameters.size(); i < count; i++) {
+                    query.setParameter(JpaQueryBuilder.PARAMETER_NAME_PREFIX + (i+1), parameters.get(i));
+                }
+            }
+
+            HibernateHqlQuery hqlQuery = new HibernateHqlQuery(HibernateSession.this, targetEntity, query);
+            ApplicationEventPublisher applicationEventPublisher = datastore.getApplicationEventPublisher();
+            applicationEventPublisher.publishEvent(new PreQueryEvent(datastore, hqlQuery));
+            int result = query.executeUpdate();
+            applicationEventPublisher.publishEvent(new PostQueryEvent(datastore, hqlQuery, Collections.singletonList(result)));
+            return result;
         });
     }
 
     public List retrieveAll(final Class type, final Iterable keys) {
         final PersistentEntity persistentEntity = getMappingContext().getPersistentEntity(type.getName());
-        return getHibernateTemplate().execute(new GrailsHibernateTemplate.HibernateCallback<List>() {
-            public List doInHibernate(org.hibernate.Session session) throws HibernateException, SQLException {
-                Criteria criteria = session.createCriteria(type);
-                getHibernateTemplate().applySettings(criteria);
-                criteria.add(
-                        Restrictions.in(persistentEntity.getIdentity().getName(), getIterableAsCollection(keys)));
+        return getHibernateTemplate().execute(session -> {
+            Criteria criteria = session.createCriteria(type);
+            getHibernateTemplate().applySettings(criteria);
+            criteria.add(
+                    Restrictions.in(persistentEntity.getIdentity().getName(), getIterableAsCollection(keys)));
 
-                return new HibernateQuery(criteria, persistentEntity).list();
-            }
+            return new HibernateQuery(criteria, persistentEntity).list();
         });
     }
 

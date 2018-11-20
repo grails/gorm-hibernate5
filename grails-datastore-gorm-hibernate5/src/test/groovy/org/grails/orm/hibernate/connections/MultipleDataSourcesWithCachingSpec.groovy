@@ -29,7 +29,7 @@ class MultipleDataSourcesWithCachingSpec extends Specification {
 
         when:
         HibernateDatastore datastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config),CachingBook )
-        CachingBook book = CachingBook.withNewSession {
+        CachingBook book = CachingBook.withTransaction {
             new CachingBook(name:"The Stand").save(flush:true)
             CachingBook.get( CachingBook.first().id )
 

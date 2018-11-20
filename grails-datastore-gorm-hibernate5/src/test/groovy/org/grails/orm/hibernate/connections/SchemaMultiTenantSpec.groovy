@@ -8,6 +8,7 @@ import org.grails.datastore.mapping.multitenancy.resolvers.SystemPropertyTenantR
 import org.grails.orm.hibernate.HibernateDatastore
 import org.hibernate.Session
 import org.hibernate.dialect.H2Dialect
+import org.hibernate.resource.jdbc.spi.JdbcSessionOwner
 import org.springframework.orm.hibernate5.SessionHolder
 import org.springframework.transaction.support.TransactionSynchronizationManager
 import spock.lang.AutoCleanup
@@ -55,20 +56,26 @@ class SchemaMultiTenantSpec extends Specification {
         System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, "moreBooks")
 
         then:"the correct tenant is used"
-        SingleTenantAuthor.withNewSession { SingleTenantAuthor.count() == 0 }
-        SingleTenantAuthor.withNewSession { Session s ->
-            assert s.connection().metaData.getURL() == "jdbc:h2:mem:grailsDB"
-            return true
+        SingleTenantAuthor.withTransaction { SingleTenantAuthor.count() == 0 }
+        SingleTenantAuthor.withTransaction {
+            SingleTenantAuthor.withSession { Session s ->
+                def conn = ((JdbcSessionOwner) s).getJdbcConnectionAccess().obtainConnection()
+                assert conn.metaData.getURL() == "jdbc:h2:mem:grailsDB"
+                return true
+            }
         }
 
         when:"An object is saved"
-        SingleTenantAuthor.withNewSession { Session s ->
-            assert s.connection().metaData.getURL() == "jdbc:h2:mem:grailsDB"
-            new SingleTenantAuthor(name: "Stephen King").save(flush:true)
+        SingleTenantAuthor.withTransaction {
+            SingleTenantAuthor.withSession{ Session s ->
+                def conn = ((JdbcSessionOwner) s).getJdbcConnectionAccess().obtainConnection()
+                assert conn.metaData.getURL() == "jdbc:h2:mem:grailsDB"
+                new SingleTenantAuthor(name: "Stephen King").save(flush:true)
+            }
         }
 
         then:"The results are correct"
-        SingleTenantAuthor.withNewSession { SingleTenantAuthor.count() == 1 }
+        SingleTenantAuthor.withTransaction { SingleTenantAuthor.count() == 1 }
 
         when:
         def author =  SingleTenantAuthor.withNewSession {
@@ -84,17 +91,21 @@ class SchemaMultiTenantSpec extends Specification {
         }
 
         then:"The results are correct"
-        SingleTenantAuthor.withNewSession { SingleTenantAuthor.count() == 2 }
+        SingleTenantAuthor.withTransaction { SingleTenantAuthor.count() == 2 }
 
         when:"The tenant id is switched"
         System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, "books")
 
 
         then:"the correct tenant is used"
-        SingleTenantAuthor.withNewSession { SingleTenantAuthor.count() == 0 }
-        SingleTenantAuthor.withNewSession { Session s ->
-            assert s.connection().metaData.getURL() == "jdbc:h2:mem:grailsDB"
-            SingleTenantAuthor.count() == 0
+        SingleTenantAuthor.withTransaction { SingleTenantAuthor.count() == 0 }
+        SingleTenantAuthor.withTransaction {
+
+            SingleTenantAuthor.withSession { Session s ->
+                def conn = ((JdbcSessionOwner) s).getJdbcConnectionAccess().obtainConnection()
+                assert conn.metaData.getURL() == "jdbc:h2:mem:grailsDB"
+                SingleTenantAuthor.count() == 0
+            }
         }
         SingleTenantAuthor.withTenant("moreBooks") { String tenantId, Session s ->
             assert s != null

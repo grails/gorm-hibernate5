@@ -50,7 +50,6 @@ import org.grails.orm.hibernate.connections.HibernateConnectionSourceSettings;
 import org.grails.orm.hibernate.event.listener.HibernateEventListener;
 import org.grails.orm.hibernate.multitenancy.MultiTenantEventListener;
 import org.grails.orm.hibernate.support.ClosureEventTriggeringInterceptor;
-import org.grails.orm.hibernate.support.HibernateVersionSupport;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.SchemaAutoTooling;
@@ -298,7 +297,7 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
      * @param classes The classes
      */
     public HibernateDatastore(Class...classes) {
-        this(DatastoreUtils.createPropertyResolver(Collections.singletonMap(Settings.SETTING_DB_CREATE, (Object) "create-drop")), new HibernateConnectionSourceFactory(classes));
+        this(DatastoreUtils.createPropertyResolver(Collections.singletonMap(Settings.SETTING_DB_CREATE, "create-drop")), new HibernateConnectionSourceFactory(classes));
     }
 
     /**

@@ -17,7 +17,6 @@ package org.grails.orm.hibernate;
 
 import org.grails.orm.hibernate.GrailsHibernateTemplate.HibernateCallback;
 import org.hibernate.FlushMode;
-import org.hibernate.Session;
 
 /**
  * Workaround for VerifyErrors in Groovy when using a HibernateCallback.
@@ -33,23 +32,19 @@ public class InstanceApiHelper {
     }
 
     public void delete(final Object obj, final boolean flush) {
-        hibernateTemplate.execute(new HibernateCallback<Void>() {
-            public Void doInHibernate(Session session) {
-                session.delete(obj);
-                if (flush) {
-                    session.flush();
-                }
-                return null;
+        hibernateTemplate.execute((HibernateCallback<Void>) session -> {
+            session.delete(obj);
+            if (flush) {
+                session.flush();
             }
+            return null;
         });
     }
 
     public void setFlushModeManual() {
-        hibernateTemplate.execute(new HibernateCallback<Void>() {
-            public Void doInHibernate(Session session) {
-                session.setFlushMode(FlushMode.MANUAL);
-                return null;
-            }
+        hibernateTemplate.execute((HibernateCallback<Void>) session -> {
+            session.setHibernateFlushMode(FlushMode.MANUAL);
+            return null;
         });
     }
 }

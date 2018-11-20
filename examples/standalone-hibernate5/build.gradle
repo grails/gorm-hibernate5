@@ -5,7 +5,7 @@ apply plugin:"groovy"
 dependencies {
     compile project(":grails-datastore-gorm-hibernate5")
     runtime "com.h2database:h2:1.4.192"
-    runtime "org.apache.tomcat:tomcat-jdbc:8.5.0"
+    runtime 'org.apache.tomcat:tomcat-jdbc:9.0.13'
     runtime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
     runtime "org.slf4j:slf4j-api:1.7.10"
     compile "org.grails:grails-core:3.2.4"
