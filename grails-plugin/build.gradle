@@ -15,10 +15,7 @@ configurations.all {
 }
 
 dependencies {
-
     compileOnly("org.grails:grails-core:$grailsVersion")
-    compileOnly("org.grails:grails-validation:$grailsVersion")
-
     compileOnly "org.spockframework:spock-core:1.2-groovy-2.5", {
         exclude module:'groovy-all'
     }
@@ -38,12 +35,10 @@ dependencies {
         exclude group:'javax.transaction', module:'jta'
     }
 
+    testCompile "org.grails:grails-gorm-testing-support:1.1.4"
     testRuntime "com.h2database:h2:1.4.192"
     testRuntime "org.apache.tomcat:tomcat-jdbc:8.5.0"
     testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
     testRuntime "org.springframework:spring-aop:$springVersion"
     testRuntime "org.springframework:spring-expression:$springVersion"
-    testCompile("org.grails:grails-validation:$grailsVersion")
-    testCompile "org.grails:grails-gorm-testing-support:1.1.4"
-
 }
