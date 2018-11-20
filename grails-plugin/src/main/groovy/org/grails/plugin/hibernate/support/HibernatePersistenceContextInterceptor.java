@@ -6,7 +6,6 @@ import org.grails.core.lifecycle.ShutdownOperations;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.orm.hibernate.AbstractHibernateDatastore;
 import org.grails.orm.hibernate.support.HibernateRuntimeUtils;
-import org.grails.orm.hibernate.support.SessionFactoryAwarePersistenceContextInterceptor;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

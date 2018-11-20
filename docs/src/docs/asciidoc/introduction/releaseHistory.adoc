@@ -1,3 +1,11 @@
+==== GORM 7.0
+
+GORM 7.0 brings support for the latest versions of key dependencies including:
+
+* Java 8 minimum (Java 11 supported)
+* Hibernate 5.3 minimum
+* Spring 5.2 minimum
+
 ==== GORM 6.1
 
 GORM 6.1 includes a variety of enhancements to GORM 6.0 including:

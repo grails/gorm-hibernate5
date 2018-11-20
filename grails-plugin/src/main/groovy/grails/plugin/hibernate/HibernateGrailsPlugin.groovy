@@ -6,12 +6,9 @@ import grails.core.GrailsClass
 import grails.orm.bootstrap.HibernateDatastoreSpringInitializer
 import grails.plugins.Plugin
 import grails.util.Environment
-import grails.validation.ConstrainedProperty
 import groovy.transform.CompileStatic
 import org.grails.config.PropertySourcesConfig
 import org.grails.core.artefact.DomainClassArtefactHandler
-import org.grails.orm.hibernate.validation.PersistentConstraintFactory
-import org.grails.orm.hibernate.validation.UniqueConstraint
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.core.convert.converter.Converter
@@ -64,10 +61,6 @@ class HibernateGrailsPlugin extends Plugin {
             ((PropertySourcesConfig)config).setConversionService(conversionService)
         }
 
-        ConstrainedProperty.registerNewConstraint(UniqueConstraint.UNIQUE_CONSTRAINT,
-                new PersistentConstraintFactory(applicationContext,
-                        UniqueConstraint))
-
 
         def domainClasses = grailsApplication.getArtefacts(DomainClassArtefactHandler.TYPE)
                                              .collect() { GrailsClass cls -> cls.clazz }
@@ -83,10 +76,6 @@ class HibernateGrailsPlugin extends Plugin {
         beans.call()
     }}
 
-    @Override
-    void onShutdown(Map<String, Object> event) {
-        ConstrainedProperty.removeConstraint(UniqueConstraint.UNIQUE_CONSTRAINT, PersistentConstraintFactory)
-    }
 
     @Override
     void onChange(Map<String, Object> event) {

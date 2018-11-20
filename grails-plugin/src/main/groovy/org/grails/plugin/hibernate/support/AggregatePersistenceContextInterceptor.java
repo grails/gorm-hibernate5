@@ -1,11 +1,9 @@
 package org.grails.plugin.hibernate.support;
 
 import org.grails.orm.hibernate.AbstractHibernateDatastore;
-import org.grails.orm.hibernate.support.AbstractMultipleDataSourceAggregatePersistenceContextInterceptor;
-import org.grails.orm.hibernate.support.SessionFactoryAwarePersistenceContextInterceptor;
 
 /**
- * Concrete implementation of the {@link org.grails.orm.hibernate.support.AbstractMultipleDataSourceAggregatePersistenceContextInterceptor} class for Hibernate 4
+ * Concrete implementation of the {@link AbstractMultipleDataSourceAggregatePersistenceContextInterceptor} class for Hibernate 4
  *
  * @author Graeme Rocher
  * @author Burt Beckwith
