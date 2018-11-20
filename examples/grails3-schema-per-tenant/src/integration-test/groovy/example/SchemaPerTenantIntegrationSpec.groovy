@@ -1,7 +1,7 @@
 package example
 
 import grails.gorm.transactions.Rollback
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import grails.util.GrailsWebMockUtil
 import groovy.util.logging.Slf4j
 import org.grails.datastore.mapping.multitenancy.exceptions.TenantNotFoundException
