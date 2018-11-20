@@ -67,7 +67,7 @@ dependencies {
     testRuntime "org.slf4j:slf4j-simple:1.7.10"
     testRuntime "org.slf4j:jcl-over-slf4j:1.7.10"
     // The groovydoc task needs the Hibernate 4.x jars in the classpath
-    documentation("org.hibernate:hibernate-core:${hibernate5Version}.Final")
+    documentation("org.hibernate:hibernate-core:${hibernate5Version}")
 
 }
 

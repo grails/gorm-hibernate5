@@ -4,8 +4,8 @@ buildscript {
         maven { url "https://repo.grails.org/grails/core" }
     }
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2"
-        classpath 'com.bmuschko:gradle-nexus-plugin:2.3'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
         // classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
         classpath "io.github.groovylang.groovydoc:groovydoc-gradle-plugin:1.0.1"
         classpath "org.grails:grails-gradle-plugin:3.2.6"
@@ -66,7 +66,6 @@ subprojects { project ->
 
     boolean isPluginProject = project.name.endsWith("-plugin") && (project.name.startsWith("grails") || project.name.startsWith("rx-"))
     boolean isGrails3PluginProject = project.name.endsWith("-plugin") && !project.name.startsWith("grails2")
-    boolean isGrails2PluginProject = project.name.endsWith("-plugin") && project.name.startsWith("grails2")
 
     ext {
         projectInfo = new PublishingConvention(project)
@@ -136,38 +135,38 @@ subprojects { project ->
     if(isGrails3PluginProject) {
         apply plugin: "org.grails.grails-plugin"       
     }
-    else if(!isGrails2PluginProject) {
+    else {
         apply plugin:"groovy"
-        apply plugin: 'com.bmuschko.nexus' 
+        apply plugin: 'com.bmuschko.nexus'
 
         modifyPom {
             delegate.project pomInfo
-        }                               
+        }
     }
 
     apply plugin: 'maven-publish'
-    if(!isGrails2PluginProject) {
-        if(isGrails3PluginProject) {
-            apply plugin: 'com.jfrog.bintray'
-        }
-        apply plugin: "io.github.groovylang.groovydoc"
-
-
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
-
-        dependencies {
-            documentation "org.fusesource.jansi:jansi:1.11"
-            testCompile "org.codehaus.groovy:groovy-test:$groovyVersion"
-            testCompile "org.spockframework:spock-core:1.2-groovy-2.5", {
-                exclude module:'groovy-all'
-            }
-        }
-
-        groovydoc.jvmArgs "-Xmx512M"
-        groovydoc.classpath += configurations.documentation
-
+    if(isGrails3PluginProject) {
+        apply plugin: 'com.jfrog.bintray'
     }
+    apply plugin: "io.github.groovylang.groovydoc"
+
+
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+
+    dependencies {
+        documentation "org.fusesource.jansi:jansi:1.11"
+        documentation "org.codehaus.groovy:groovy-dateutil:$groovyVersion"
+        
+        testCompile "org.codehaus.groovy:groovy-test:$groovyVersion"
+        testCompile "org.spockframework:spock-core:1.2-groovy-2.5", {
+            exclude module:'groovy-all'
+        }
+    }
+
+    groovydoc.jvmArgs "-Xmx512M"
+    groovydoc.classpath += configurations.documentation
+
 
     publishing {
 
@@ -179,15 +178,7 @@ subprojects { project ->
                     username = u
                     password = p
                 }
-                if(isGrails2PluginProject) {
-                    if(isBuildSnapshot) {
-                        url  "https://repo.grails.org/grails/plugins-snapshots-local"
-                    }
-                    else {
-                        url  "https://repo.grails.org/grails/plugins-releases-local"
-                    }                    
-                }
-                else if(isGrails3PluginProject) {
+                if(isGrails3PluginProject) {
                     if(isBuildSnapshot) {
                         url  "https://repo.grails.org/grails/plugins3-snapshots-local"
                     }
@@ -213,57 +204,25 @@ subprojects { project ->
                 artifactId projectInfo.projectArtifactId
                 
 
-                if(!isGrails2PluginProject) {                    
-                    from components.java
-                    artifact sourcesJar {
-                        classifier "sources"
-                    }
-                    artifact javadocJar {
-                        classifier "javadoc"
-                    }                    
+                from components.java
+                artifact sourcesJar {
+                    classifier "sources"
                 }
-                else {
-                    artifact project.file("grails-hibernate5-${project.version}.zip")                    
+                artifact javadocJar {
+                    classifier "javadoc"
                 }
 
                 if(isGrails3PluginProject) {
-                    artifact source:"${sourceSets.main.output.classesDir}/META-INF/grails-plugin.xml",
+                    artifact source:"${sourceSets.main.groovy.outputDir}/META-INF/grails-plugin.xml",
                              classifier:"plugin",
                              extension:'xml'
                 }   
-                else if(isGrails2PluginProject) {
-                    artifact source:"plugin.xml",
-                             classifier:"plugin",
-                             extension:'xml'
-
-                }
 
                 pom.withXml {
                     def xml = asNode()
                     def dependency = xml.dependencies.find { dep -> dep.artifactId == 'slf4j-simple' }
                     dependency?.optional = true
                     xml.children().last() + pomInfo
-
-                    if(isGrails2PluginProject) {
-                        xml.dependencies.dependency.each { dep ->
-                            if(!dep.exclusions) {
-                                dep.appendNode('exclusions').replaceNode {
-                                    delegate.exclusions {
-                                        delegate.exclusion {
-                                            delegate.artifactId 'grails-datastore-gorm-support'
-                                            delegate.groupId 'org.grails'
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        def grailsDep = xml.dependencies.dependency.find { dep -> 
-                            dep.artifactId.text() == 'grails-dependencies' 
-                        }
-                        if(grailsDep) {
-                            grailsDep.replaceNode {}
-                        }                        
-                    }
                 }
 
             }
