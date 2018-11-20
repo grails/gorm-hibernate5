@@ -14,7 +14,6 @@
  */
 package org.grails.datastore.gorm.boot.autoconfigure
 
-import grails.orm.bootstrap.HibernateDatastoreSpringInitializer
 import groovy.transform.CompileStatic
 import org.grails.datastore.gorm.events.ConfigurableApplicationContextEventPublisher
 import org.grails.datastore.mapping.services.Service
@@ -62,7 +61,7 @@ import java.beans.Introspector
 @Configuration
 @ConditionalOnClass(HibernateMappingContextConfiguration)
 @ConditionalOnBean(DataSource)
-@ConditionalOnMissingBean(HibernateDatastoreSpringInitializer)
+@ConditionalOnMissingBean(type = "grails.orm.bootstrap.HibernateDatastoreSpringInitializer")
 @AutoConfigureAfter(DataSourceAutoConfiguration)
 @AutoConfigureBefore([HibernateJpaAutoConfiguration])
 class HibernateGormAutoConfiguration implements ApplicationContextAware,BeanFactoryAware {

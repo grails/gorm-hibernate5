@@ -22,6 +22,8 @@ dependencies {
     compileOnly "org.spockframework:spock-core:1.2-groovy-2.5", {
         exclude module:'groovy-all'
     }
+
+    compile "org.springframework:spring-orm:$springVersion"
     compile "org.hibernate:hibernate-core:${hibernate5Version}"
     compile "org.grails:grails-datastore-web:$gormVersion"
     compile "org.grails:grails-datastore-gorm-support:$gormVersion"
@@ -39,8 +41,9 @@ dependencies {
     testRuntime "com.h2database:h2:1.4.192"
     testRuntime "org.apache.tomcat:tomcat-jdbc:8.5.0"
     testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
-
+    testRuntime "org.springframework:spring-aop:$springVersion"
+    testRuntime "org.springframework:spring-expression:$springVersion"
     testCompile("org.grails:grails-validation:$grailsVersion")
     testCompile "org.grails:grails-gorm-testing-support:1.1.4"
-    compile 'org.springframework:spring-orm:4.2.3.RELEASE'
+
 }

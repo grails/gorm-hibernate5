@@ -2,7 +2,6 @@ package org.grails.datastore.gorm
 
 import grails.core.DefaultGrailsApplication
 import grails.core.GrailsApplication
-import grails.orm.bootstrap.HibernateDatastoreSpringInitializer
 import groovy.sql.Sql
 import groovy.transform.CompileStatic
 import org.grails.datastore.mapping.core.DatastoreUtils
