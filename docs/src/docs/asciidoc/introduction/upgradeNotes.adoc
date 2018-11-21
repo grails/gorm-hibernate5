@@ -16,3 +16,9 @@ GORM no longer creates custom proxy factories nor automatically unwraps Hibernat
 This makes it more consistent to the way regular Hibernate behaves and reduces the complexity required at the framework level.
 
 You may need to alter `instanceof` checks are manually unwrap proxies in certain cases.
+
+==== Module `grails-validation` Deprecated and Removed
+
+In GORM 6.x the `grails-validation` module was deprecated and replaced by `grails-datastore-gorm-validation`.
+
+Deprecated interfaces were maintained for backwards compatibility. In GORM 7.0 these deprecated classes have been removed and all dependency on `grails-validation` removed.
