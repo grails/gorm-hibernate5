@@ -22,3 +22,9 @@ You may need to alter `instanceof` checks are manually unwrap proxies in certain
 In GORM 6.x the `grails-validation` module was deprecated and replaced by `grails-datastore-gorm-validation`.
 
 Deprecated interfaces were maintained for backwards compatibility. In GORM 7.0 these deprecated classes have been removed and all dependency on `grails-validation` removed.
+
+==== Transactions Now Required for all Operations
+
+Previous versions of Hibernate allowed read operations to be executed without the presence of a declaration transaction.
+
+Hibernate 5.2 and above require the presence of an active transaction. If see a `javax.persistence.TransactionRequiredException` exception it means your method lacks a `@Transactional` annotation around it.
