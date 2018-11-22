@@ -1045,7 +1045,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         }
         // if it's a one-to-many mapping
         if (shouldBindCollectionWithForeignKey(property)) {
-            OneToMany oneToMany = new OneToMany(mappings, collection.getOwner());
+            OneToMany oneToMany = new OneToMany(metadataBuildingContext, collection.getOwner());
             collection.setElement(oneToMany);
             bindOneToMany((org.grails.datastore.mapping.model.types.OneToMany) property, oneToMany, mappings);
         } else {
@@ -1218,7 +1218,7 @@ public class GrailsDomainBinder implements MetadataContributor {
 
     protected NamingStrategy getNamingStrategy(String sessionFactoryBeanName) {
         String key = "sessionFactory".equals(sessionFactoryBeanName) ?
-                Mapping.DEFAULT_DATA_SOURCE :
+                ConnectionSource.DEFAULT :
                 sessionFactoryBeanName.substring("sessionFactory_".length());
         NamingStrategy namingStrategy = NAMING_STRATEGIES.get(key);
         return namingStrategy != null ? namingStrategy : new ImprovedNamingStrategy();
@@ -3479,7 +3479,7 @@ public class GrailsDomainBinder implements MetadataContributor {
                 @Override
                 public Collection create(ToMany property, PersistentClass owner,
                                          String path, InFlightMetadataCollector mappings, String sessionFactoryBeanName) throws MappingException {
-                    org.hibernate.mapping.Set coll = new org.hibernate.mapping.Set(mappings, owner);
+                    org.hibernate.mapping.Set coll = new org.hibernate.mapping.Set(buildingContext, owner);
                     coll.setCollectionTable(owner.getTable());
                     coll.setTypeName(getTypeName(property));
                     binder.bindCollection(property, coll, owner, mappings, path, sessionFactoryBeanName);
@@ -3493,7 +3493,7 @@ public class GrailsDomainBinder implements MetadataContributor {
                 @Override
                 public Collection create(ToMany property, PersistentClass owner,
                                          String path, InFlightMetadataCollector mappings, String sessionFactoryBeanName) throws MappingException {
-                    org.hibernate.mapping.List coll = new org.hibernate.mapping.List(mappings, owner);
+                    org.hibernate.mapping.List coll = new org.hibernate.mapping.List(buildingContext, owner);
                     coll.setCollectionTable(owner.getTable());
                     coll.setTypeName(getTypeName(property));
                     binder.bindCollection(property, coll, owner, mappings, path, sessionFactoryBeanName);
@@ -3506,7 +3506,7 @@ public class GrailsDomainBinder implements MetadataContributor {
                 @Override
                 public Collection create(ToMany property, PersistentClass owner,
                                          String path, InFlightMetadataCollector mappings, String sessionFactoryBeanName) throws MappingException {
-                    Bag coll = new Bag(mappings, owner);
+                    Bag coll = new Bag(buildingContext, owner);
                     coll.setCollectionTable(owner.getTable());
                     coll.setTypeName(getTypeName(property));
                     binder.bindCollection(property, coll, owner, mappings, path, sessionFactoryBeanName);
@@ -3519,7 +3519,7 @@ public class GrailsDomainBinder implements MetadataContributor {
                 @Override
                 public Collection create(ToMany property, PersistentClass owner,
                                          String path, InFlightMetadataCollector mappings, String sessionFactoryBeanName) throws MappingException {
-                    org.hibernate.mapping.Map map = new org.hibernate.mapping.Map(mappings, owner);
+                    org.hibernate.mapping.Map map = new org.hibernate.mapping.Map(buildingContext, owner);
                     map.setTypeName(getTypeName(property));
                     binder.bindCollection(property, map, owner, mappings, path, sessionFactoryBeanName);
                     return map;

@@ -21,8 +21,8 @@ import java.util.Collection;
 import groovy.lang.Closure;
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 /**
  * Template interface that can be used with both Hibernate 3 and Hibernate 4

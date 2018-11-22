@@ -13,15 +13,14 @@ import org.hibernate.criterion.*;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.transform.ResultTransformer;
-import org.hibernate.type.AssociationType;
-import org.hibernate.type.EmbeddedComponentType;
 import org.hibernate.type.Type;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
 
 import javax.persistence.criteria.JoinType;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EntityType;
 import java.beans.PropertyDescriptor;
 import java.util.*;
 
@@ -1761,13 +1760,15 @@ public abstract class AbstractHibernateCriteriaBuilder extends GroovyObjectSuppo
 
             final PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(targetClass, name);
             if (pd != null && pd.getReadMethod() != null) {
-                ClassMetadata meta = sessionFactory.getClassMetadata(targetClass);
-                Type type = meta.getPropertyType(name);
-                if (type.isAssociationType()) {
+                final Metamodel metamodel = sessionFactory.getMetamodel();
+                final EntityType<?> entityType = metamodel.entity(targetClass);
+                final Attribute<?, ?> attribute = entityType.getAttribute(name);
+
+                if (attribute.isAssociation()) {
                     Class oldTargetClass = targetClass;
-                    targetClass = getClassForAssociationType((AssociationType) type);
+                    targetClass = getClassForAssociationType(attribute);
                     if (targetClass.equals(oldTargetClass) && !hasMoreThanOneArg) {
-                        joinType = CriteriaSpecification.LEFT_JOIN; // default to left join if joining on the same table
+                        joinType = org.hibernate.sql.JoinType.LEFT_OUTER_JOIN.getJoinTypeValue(); // default to left join if joining on the same table
                     }
                     associationStack.add(name);
                     final String associationPath = getAssociationPath();
@@ -1788,7 +1789,7 @@ public abstract class AbstractHibernateCriteriaBuilder extends GroovyObjectSuppo
 
                     return name;
                 }
-                if (type instanceof EmbeddedComponentType) {
+                if (attribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
                     associationStack.add(name);
                     logicalExpressionStack.add(new LogicalExpression(AND));
                     Class oldTargetClass = targetClass;
@@ -1976,7 +1977,7 @@ public abstract class AbstractHibernateCriteriaBuilder extends GroovyObjectSuppo
      */
     public abstract Criteria createAlias(String associationPath, String alias, int joinType);
 
-    protected abstract Class getClassForAssociationType(AssociationType type);
+    protected abstract Class getClassForAssociationType(Attribute<?, ?> type);
 
 
     /**

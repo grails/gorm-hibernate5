@@ -96,10 +96,12 @@ public class HibernateQuery extends AbstractHibernateQuery {
         return (PropertyMapping) ((SessionFactoryImplementor) sessionFactory).getEntityPersister(name);
     }
 
+    @Deprecated
     protected TypeResolver getTypeResolver(SessionFactory sessionFactory) {
         return ((SessionFactoryImplementor) sessionFactory).getTypeResolver();
     }
 
+    @Deprecated
     protected Dialect getDialect(SessionFactory sessionFactory) {
         return ((SessionFactoryImplementor) sessionFactory).getDialect();
     }
@@ -109,23 +111,20 @@ public class HibernateQuery extends AbstractHibernateQuery {
         final CriteriaImpl impl = (CriteriaImpl) criteria;
         final HibernateSession hibernateSession = (HibernateSession) getSession();
         final GrailsHibernateTemplate hibernateTemplate = (GrailsHibernateTemplate) hibernateSession.getNativeInterface();
-        return hibernateTemplate.execute(new GrailsHibernateTemplate.HibernateCallback<Object>() {
-            @Override
-            public HibernateQuery doInHibernate(Session session) throws HibernateException, SQLException {
-                Criteria newCriteria = session.createCriteria(impl.getEntityOrClassName());
+        return hibernateTemplate.execute((GrailsHibernateTemplate.HibernateCallback<Object>) session -> {
+            Criteria newCriteria = session.createCriteria(impl.getEntityOrClassName());
 
-                Iterator iterator = impl.iterateExpressionEntries();
-                while (iterator.hasNext()) {
-                    CriteriaImpl.CriterionEntry entry = (CriteriaImpl.CriterionEntry) iterator.next();
-                    newCriteria.add(entry.getCriterion());
-                }
-                Iterator subcriteriaIterator = impl.iterateSubcriteria();
-                while (subcriteriaIterator.hasNext()) {
-                    CriteriaImpl.Subcriteria sub = (CriteriaImpl.Subcriteria) subcriteriaIterator.next();
-                    newCriteria.createAlias(sub.getPath(), sub.getAlias(), sub.getJoinType(), sub.getWithClause());
-                }
-                return new HibernateQuery(newCriteria, hibernateSession, entity);
+            Iterator iterator = impl.iterateExpressionEntries();
+            while (iterator.hasNext()) {
+                CriteriaImpl.CriterionEntry entry = (CriteriaImpl.CriterionEntry) iterator.next();
+                newCriteria.add(entry.getCriterion());
             }
+            Iterator subcriteriaIterator = impl.iterateSubcriteria();
+            while (subcriteriaIterator.hasNext()) {
+                CriteriaImpl.Subcriteria sub = (CriteriaImpl.Subcriteria) subcriteriaIterator.next();
+                newCriteria.createAlias(sub.getPath(), sub.getAlias(), sub.getJoinType(), sub.getWithClause());
+            }
+            return new HibernateQuery(newCriteria, hibernateSession, entity);
         });
     }
 }

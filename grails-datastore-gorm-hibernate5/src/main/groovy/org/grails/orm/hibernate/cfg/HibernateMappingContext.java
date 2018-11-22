@@ -84,45 +84,6 @@ public class HibernateMappingContext extends AbstractMappingContext {
         this(new HibernateConnectionSourceSettings());
     }
 
-    @Deprecated
-    public HibernateMappingContext(PropertyResolver configuration, Object contextObject, Class...persistentClasses) {
-        this(configuration.getProperty(Settings.SETTING_DEFAULT_MAPPING, Closure.class, null), contextObject);
-        addPersistentEntities(persistentClasses);
-    }
-
-    @Deprecated
-    public HibernateMappingContext(PropertyResolver configuration, Object contextObject, Closure defaultConstraints, Class...persistentClasses) {
-        this(configuration.getProperty(Settings.SETTING_DEFAULT_MAPPING, Closure.class, null), contextObject);
-        setDefaultConstraints(defaultConstraints);
-        addPersistentEntities(persistentClasses);
-    }
-
-
-    @Deprecated
-    public HibernateMappingContext(PropertyResolver configuration, Object contextObject) {
-        this(configuration.getProperty(Settings.SETTING_DEFAULT_MAPPING, Closure.class, null), contextObject);
-    }
-
-    @Deprecated
-    public HibernateMappingContext(Closure defaultMapping) {
-        this(defaultMapping, null);
-    }
-
-    @Deprecated
-    public HibernateMappingContext(Closure defaultMapping, Object contextObject) {
-        this.mappingFactory = new HibernateMappingFactory();
-        if(defaultMapping != null) {
-            this.mappingFactory.setDefaultMapping(defaultMapping);
-        }
-        this.mappingFactory.setContextObject(contextObject);
-        this.syntaxStrategy = new JpaMappingConfigurationStrategy(mappingFactory) {
-            @Override
-            protected boolean supportsCustomType(Class<?> propertyType) {
-                return !Errors.class.isAssignableFrom(propertyType);
-            }
-        };
-    }
-
     /**
      * Sets the default constraints to be used
      *

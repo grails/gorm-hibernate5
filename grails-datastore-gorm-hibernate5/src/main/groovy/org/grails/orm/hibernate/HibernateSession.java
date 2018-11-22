@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.FlushModeType;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.grails.datastore.gorm.timestamp.DefaultTimestampProvider;
 import org.grails.datastore.mapping.model.PersistentProperty;
@@ -86,30 +89,28 @@ public class HibernateSession extends AbstractHibernateSession {
      * @return The total number of records deleted
      */
     public long deleteAll(final QueryableCriteria criteria) {
-        return getHibernateTemplate().execute(new GrailsHibernateTemplate.HibernateCallback<Integer>() {
-            public Integer doInHibernate(Session session) throws HibernateException, SQLException {
-                JpaQueryBuilder builder = new JpaQueryBuilder(criteria);
-                builder.setConversionService(getMappingContext().getConversionService());
-                builder.setHibernateCompatible(true);
-                JpaQueryInfo jpaQueryInfo = builder.buildDelete();
+        return getHibernateTemplate().execute((GrailsHibernateTemplate.HibernateCallback<Integer>) session -> {
+            JpaQueryBuilder builder = new JpaQueryBuilder(criteria);
+            builder.setConversionService(getMappingContext().getConversionService());
+            builder.setHibernateCompatible(true);
+            JpaQueryInfo jpaQueryInfo = builder.buildDelete();
 
-                org.hibernate.query.Query query = session.createQuery(jpaQueryInfo.getQuery());
-                getHibernateTemplate().applySettings(query);
+            org.hibernate.query.Query query = session.createQuery(jpaQueryInfo.getQuery());
+            getHibernateTemplate().applySettings(query);
 
-                List parameters = jpaQueryInfo.getParameters();
-                if (parameters != null) {
-                    for (int i = 0, count = parameters.size(); i < count; i++) {
-                        query.setParameter(JpaQueryBuilder.PARAMETER_NAME_PREFIX + (i+1), parameters.get(i));
-                    }
+            List parameters = jpaQueryInfo.getParameters();
+            if (parameters != null) {
+                for (int i = 0, count = parameters.size(); i < count; i++) {
+                    query.setParameter(JpaQueryBuilder.PARAMETER_NAME_PREFIX + (i+1), parameters.get(i));
                 }
-
-                HibernateHqlQuery hqlQuery = new HibernateHqlQuery(HibernateSession.this, criteria.getPersistentEntity(), query);
-                ApplicationEventPublisher applicationEventPublisher = datastore.getApplicationEventPublisher();
-                applicationEventPublisher.publishEvent(new PreQueryEvent(datastore, hqlQuery));
-                int result = query.executeUpdate();
-                applicationEventPublisher.publishEvent(new PostQueryEvent(datastore, hqlQuery, Collections.singletonList(result)));
-                return result;
             }
+
+            HibernateHqlQuery hqlQuery = new HibernateHqlQuery(HibernateSession.this, criteria.getPersistentEntity(), query);
+            ApplicationEventPublisher applicationEventPublisher = datastore.getApplicationEventPublisher();
+            applicationEventPublisher.publishEvent(new PreQueryEvent(datastore, hqlQuery));
+            int result = query.executeUpdate();
+            applicationEventPublisher.publishEvent(new PostQueryEvent(datastore, hqlQuery, Collections.singletonList(result)));
+            return result;
         });
     }
 
@@ -157,12 +158,19 @@ public class HibernateSession extends AbstractHibernateSession {
     public List retrieveAll(final Class type, final Iterable keys) {
         final PersistentEntity persistentEntity = getMappingContext().getPersistentEntity(type.getName());
         return getHibernateTemplate().execute(session -> {
-            Criteria criteria = session.createCriteria(type);
-            getHibernateTemplate().applySettings(criteria);
-            criteria.add(
-                    Restrictions.in(persistentEntity.getIdentity().getName(), getIterableAsCollection(keys)));
+            final CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+            CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(type);
+            final Root root = criteriaQuery.from(type);
+            final String id = persistentEntity.getIdentity().getName();
+            criteriaQuery = criteriaQuery.where(
+                criteriaBuilder.in(
+                    root.get(id).in(getIterableAsCollection(keys))
+                )
+            );
+            final org.hibernate.query.Query jpaQuery = session.createQuery(criteriaQuery);
+            getHibernateTemplate().applySettings(jpaQuery);
 
-            return new HibernateQuery(criteria, persistentEntity).list();
+            return new HibernateHqlQuery(this, persistentEntity, jpaQuery).list();
         });
     }
 

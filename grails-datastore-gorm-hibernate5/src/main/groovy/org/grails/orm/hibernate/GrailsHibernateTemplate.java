@@ -24,6 +24,7 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.event.spi.EventSource;
 import org.hibernate.exception.GenericJDBCException;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -41,6 +42,9 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.util.Assert;
 
 import javax.persistence.PersistenceException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -146,12 +150,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             sessionHolder = new SessionHolder(newSession);
             TransactionSynchronizationManager.bindResource(sessionFactory, sessionHolder);
 
-            return execute(new HibernateCallback<T>() {
-                @Override
-                public T doInHibernate(Session session) throws HibernateException, SQLException {
-                    return callable.call(session);
-                }
-            });
+            return execute(callable::call);
         }
         finally {
             try {
@@ -217,7 +216,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
     }
 
     @Override
-    public void applySettings(Query query) {
+    public void applySettings(org.hibernate.query.Query query) {
         if (exposeNativeSession) {
             prepareQuery(query);
         }
@@ -316,7 +315,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             if (existingTransaction) {
                 LOG.debug("Not closing pre-bound Hibernate Session after HibernateTemplate");
                 if (previousFlushMode != null) {
-                    session.setFlushMode(previousFlushMode);
+                    session.setHibernateFlushMode(previousFlushMode);
                 }
             } else {
                 SessionFactoryUtils.closeSession(session);
@@ -362,12 +361,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
     }
 
     public <T> T get(final Class<T> entityClass, final Serializable id) throws DataAccessException {
-        return doExecute(new HibernateCallback<T>() {
-            @SuppressWarnings("unchecked")
-            public T doInHibernate(Session session) throws HibernateException {
-                return (T) session.get(entityClass, id);
-            }
-        }, true);
+        return doExecute(session -> session.get(entityClass, id), true);
     }
 
     public <T> T get(final Class<T> entityClass, final Serializable id, final LockMode mode) {
@@ -375,76 +369,53 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
     }
 
     public void delete(final Object entity) throws DataAccessException {
-        doExecute(new HibernateCallback<Object>() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                session.delete(entity);
-                return null;
-            }
+        doExecute(session -> {
+            session.delete(entity);
+            return null;
         }, true);
     }
 
     public void flush(final Object entity) throws DataAccessException {
-        doExecute(new HibernateCallback<Object>() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                session.flush();
-                return null;
-            }
+        doExecute(session -> {
+            session.flush();
+            return null;
         }, true);
     }
 
     public <T> T load(final Class<T> entityClass, final Serializable id) throws DataAccessException {
-        return doExecute(new HibernateCallback<T>() {
-            @SuppressWarnings("unchecked")
-            public T doInHibernate(Session session) throws HibernateException {
-                return (T) session.load(entityClass, id);
-            }
-        }, true);
+        return doExecute(session -> session.load(entityClass, id), true);
     }
 
     public <T> T lock(final Class<T> entityClass, final Serializable id, final LockMode lockMode) throws DataAccessException {
-        return doExecute(new HibernateCallback<T>() {
-            @SuppressWarnings("unchecked")
-            public T doInHibernate(Session session) throws HibernateException {
-                return (T) session.get(entityClass, id, new LockOptions(lockMode));
-            }
-        }, true);
+        return doExecute(session -> session.get(entityClass, id, new LockOptions(lockMode)), true);
     }
 
     public <T> List<T> loadAll(final Class<T> entityClass) throws DataAccessException {
-        return doExecute(new HibernateCallback<List<T>>() {
-            @SuppressWarnings("unchecked")
-            public List<T> doInHibernate(Session session) throws HibernateException {
-                Criteria criteria = session.createCriteria(entityClass);
-                criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-                prepareCriteria(criteria);
-                return criteria.list();
-            }
+        return doExecute(session -> {
+            final CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+            final CriteriaQuery<T> query = criteriaBuilder.createQuery(entityClass);
+            final Root<T> root = query.from(entityClass);
+            final Query<T> jpaQuery = session.createQuery(query);
+            prepareCriteria(jpaQuery);
+            return jpaQuery.getResultList();
         }, true);
     }
 
     public boolean contains(final Object entity) throws DataAccessException {
-        return doExecute(new HibernateCallback<Boolean>() {
-            public Boolean doInHibernate(Session session) {
-                return session.contains(entity);
-            }
-        }, true);
+        return doExecute(session -> session.contains(entity), true);
     }
 
     public void evict(final Object entity) throws DataAccessException {
-        doExecute(new HibernateCallback<Object>() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                session.evict(entity);
-                return null;
-            }
+        doExecute(session -> {
+            session.evict(entity);
+            return null;
         }, true);
     }
 
     public void lock(final Object entity, final LockMode lockMode) throws DataAccessException {
-        doExecute(new HibernateCallback<Object>() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                session.buildLockRequest(new LockOptions(lockMode)).lock(entity);//LockMode.PESSIMISTIC_WRITE
-                return null;
-            }
+        doExecute(session -> {
+            session.buildLockRequest(new LockOptions(lockMode)).lock(entity);//LockMode.PESSIMISTIC_WRITE
+            return null;
         }, true);
     }
 
@@ -453,15 +424,13 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
     }
 
     public void refresh(final Object entity, final LockMode lockMode) throws DataAccessException {
-        doExecute(new HibernateCallback<Object>() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                if (lockMode == null) {
-                    session.refresh(entity);
-                } else {
-                    session.refresh(entity, new LockOptions(lockMode));
-                }
-                return null;
+        doExecute(session -> {
+            if (lockMode == null) {
+                session.refresh(entity);
+            } else {
+                session.refresh(entity, new LockOptions(lockMode));
             }
+            return null;
         }, true);
     }
 
@@ -479,7 +448,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
      *
      * @param query the Query object to prepare
      */
-    protected void prepareQuery(Query query) {
+    protected void prepareQuery(org.hibernate.query.Query query) {
         if (cacheQueries) {
             query.setCacheable(true);
         }
@@ -497,7 +466,9 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
      * transaction timeout.
      *
      * @param criteria the Criteria object to prepare
+     * @deprecated Deprecated because Hibernate Criteria are deprecated
      */
+    @Deprecated
     protected void prepareCriteria(Criteria criteria) {
         if (cacheQueries) {
             criteria.setCacheable(true);
@@ -510,6 +481,26 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             criteria.setTimeout(sessionHolder.getTimeToLiveInSeconds());
         }
     }
+
+    /**
+     * Prepare the given Query object, applying cache settings and/or a
+     * transaction timeout.
+     *
+     * @param jpaQuery the Query object to prepare
+     */
+    protected <T> void prepareCriteria(Query<T> jpaQuery) {
+        if (cacheQueries) {
+            jpaQuery.setCacheable(true);
+        }
+        if (shouldPassReadOnlyToHibernate()) {
+            jpaQuery.setReadOnly(true);
+        }
+        SessionHolder sessionHolder = (SessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
+        if (sessionHolder != null && sessionHolder.hasTimeout()) {
+            jpaQuery.setTimeout(sessionHolder.getTimeToLiveInSeconds());
+        }
+    }
+
 
     /**
      * Invocation handler that suppresses close calls on Hibernate Sessions.
@@ -547,11 +538,13 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
 
                 // If return value is a Query or Criteria, apply transaction timeout.
                 // Applies to createQuery, getNamedQuery, createCriteria.
-                if (retVal instanceof Query) {
-                    prepareQuery(((Query) retVal));
+                if (retVal instanceof org.hibernate.query.Query) {
+                    prepareQuery(((org.hibernate.query.Query) retVal));
                 }
                 if (retVal instanceof Criteria) {
                     prepareCriteria(((Criteria) retVal));
+                } else if (retVal instanceof Query) {
+                    prepareCriteria(((Query) retVal));
                 }
 
                 return retVal;
@@ -666,17 +659,17 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             if (existingTransaction) {
                 FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (!previousFlushMode.lessThan(FlushMode.COMMIT)) {
-                    session.setFlushMode(FlushMode.MANUAL);
+                    session.setHibernateFlushMode(FlushMode.MANUAL);
                     return previousFlushMode;
                 }
             } else {
-                session.setFlushMode(FlushMode.MANUAL);
+                session.setHibernateFlushMode(FlushMode.MANUAL);
             }
         } else if (getFlushMode() == FLUSH_EAGER) {
             if (existingTransaction) {
                 FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (!previousFlushMode.equals(FlushMode.AUTO)) {
-                    session.setFlushMode(FlushMode.AUTO);
+                    session.setHibernateFlushMode(FlushMode.AUTO);
                     return previousFlushMode;
                 }
             } else {
@@ -686,21 +679,21 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
             if (existingTransaction) {
                 FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (previousFlushMode.equals(FlushMode.AUTO) || previousFlushMode.equals(FlushMode.ALWAYS)) {
-                    session.setFlushMode(FlushMode.COMMIT);
+                    session.setHibernateFlushMode(FlushMode.COMMIT);
                     return previousFlushMode;
                 }
             } else {
-                session.setFlushMode(FlushMode.COMMIT);
+                session.setHibernateFlushMode(FlushMode.COMMIT);
             }
         } else if (getFlushMode() == FLUSH_ALWAYS) {
             if (existingTransaction) {
                 FlushMode previousFlushMode = session.getHibernateFlushMode();
                 if (!previousFlushMode.equals(FlushMode.ALWAYS)) {
-                    session.setFlushMode(FlushMode.ALWAYS);
+                    session.setHibernateFlushMode(FlushMode.ALWAYS);
                     return previousFlushMode;
                 }
             } else {
-                session.setFlushMode(FlushMode.ALWAYS);
+                session.setHibernateFlushMode(FlushMode.ALWAYS);
             }
         }
         return null;
@@ -713,6 +706,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     protected DataAccessException convertHibernateAccessException(HibernateException ex) {
         if (ex instanceof JDBCException) {
             return convertJdbcAccessException((JDBCException) ex, jdbcExceptionTranslator);
@@ -723,6 +717,7 @@ public class GrailsHibernateTemplate implements IHibernateTemplate {
         return SessionFactoryUtils.convertHibernateAccessException(ex);
     }
 
+    @SuppressWarnings("SqlDialectInspection")
     protected DataAccessException convertJdbcAccessException(JDBCException ex, SQLExceptionTranslator translator) {
         String msg = ex.getMessage();
         String sql = ex.getSQL();

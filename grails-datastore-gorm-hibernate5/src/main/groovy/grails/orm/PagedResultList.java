@@ -16,7 +16,6 @@
 package grails.orm;
 
 import org.grails.orm.hibernate.GrailsHibernateTemplate;
-import org.grails.orm.hibernate.query.AbstractHibernateQuery;
 import org.grails.orm.hibernate.query.HibernateQuery;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -33,8 +32,10 @@ import java.util.Iterator;
  *
  * @author Siegfried Puchbauer
  * @since 1.0
+ * @deprecated Use {@link org.grails.orm.hibernate.query.PagedResultList} instead.
  */
 @SuppressWarnings({"unchecked","rawtypes"})
+@Deprecated
 public class PagedResultList extends grails.gorm.PagedResultList {
 
     private transient GrailsHibernateTemplate hibernateTemplate;

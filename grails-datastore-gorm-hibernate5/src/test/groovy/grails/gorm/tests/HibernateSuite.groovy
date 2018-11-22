@@ -7,8 +7,9 @@ import org.junit.runners.Suite
  * Created by graemerocher on 06/07/2016.
  */
 @RunWith(Suite)
+
 @Suite.SuiteClasses([
-      SaveAllSpec
+        OrderBySpec
 ])
 class HibernateSuite {
 }

@@ -16,7 +16,6 @@
 package org.grails.orm.hibernate
 
 import grails.orm.HibernateCriteriaBuilder
-import grails.orm.PagedResultList
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.grails.datastore.gorm.GormEnhancer
@@ -28,6 +27,7 @@ import org.grails.datastore.mapping.query.event.PreQueryEvent
 import org.grails.orm.hibernate.exceptions.GrailsQueryException
 import org.grails.orm.hibernate.query.GrailsHibernateQueryUtils
 import org.grails.orm.hibernate.query.HibernateHqlQuery
+import org.grails.orm.hibernate.query.PagedResultList
 import org.grails.orm.hibernate.query.HibernateQuery
 import org.hibernate.*
 import org.hibernate.query.Query
@@ -37,6 +37,9 @@ import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import javax.persistence.FlushModeType
+import javax.persistence.criteria.CriteriaBuilder
+import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Root
 
 /**
  * The implementation of the GORM static method contract for Hibernate
@@ -72,21 +75,48 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
     @Override
     List<D> list(Map params = Collections.emptyMap()) {
         hibernateTemplate.execute { Session session ->
-            Criteria c = session.createCriteria(persistentEntity.javaClass)
-            HibernateQuery hibernateQuery = new HibernateQuery(c,new HibernateSession((HibernateDatastore)datastore, sessionFactory), persistentEntity)
-            hibernateTemplate.applySettings c
+            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder()
+            CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(persistentEntity.javaClass)
+            Root queryRoot = criteriaQuery.from(persistentEntity.javaClass)
+            GrailsHibernateQueryUtils.populateArgumentsForCriteria(
+                    persistentEntity,
+                    criteriaQuery,
+                    queryRoot,
+                    criteriaBuilder,
+                    params,
+                    datastore.mappingContext.conversionService,
+                    true
+            )
+            Query query = session.createQuery(criteriaQuery)
+
+            GrailsHibernateQueryUtils.populateArgumentsForCriteria(
+                    persistentEntity,
+                    query,
+                    params,
+                    datastore.mappingContext.conversionService,
+                    true
+            )
+
+            HibernateHqlQuery hibernateQuery = new HibernateHqlQuery(
+                    new HibernateSession((HibernateDatastore)datastore, sessionFactory),
+                    persistentEntity,
+                    query
+            )
+            hibernateTemplate.applySettings(query)
 
             params = params ? new HashMap(params) : Collections.emptyMap()
-            setResultTransformer(c)
             if(params.containsKey(DynamicFinder.ARGUMENT_MAX)) {
-                c.setMaxResults(Integer.MAX_VALUE)
-                GrailsHibernateQueryUtils.populateArgumentsForCriteria(persistentEntity, c, params, datastore.mappingContext.conversionService, true)
-                return new PagedResultList(hibernateTemplate, hibernateQuery)
+                return new PagedResultList(
+                        hibernateTemplate,
+                        persistentEntity,
+                        query,
+                        criteriaQuery,
+                        queryRoot,
+                        criteriaBuilder
+                )
             }
             else {
-                GrailsHibernateQueryUtils.populateArgumentsForCriteria(persistentEntity, c, params, datastore.mappingContext.conversionService, true)
-                def results = hibernateQuery.listForCriteria()
-                return results
+                return hibernateQuery.list()
             }
         }
     }
