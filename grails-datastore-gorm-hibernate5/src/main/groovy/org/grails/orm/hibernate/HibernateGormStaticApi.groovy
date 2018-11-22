@@ -49,7 +49,6 @@ import javax.persistence.criteria.Root
  */
 @CompileStatic
 class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
-    protected GrailsHibernateTemplate hibernateTemplate
     protected SessionFactory sessionFactory
     protected ConversionService conversionService
     protected Class identityType
@@ -59,17 +58,19 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
 
     HibernateGormStaticApi(Class<D> persistentClass, HibernateDatastore datastore, List<FinderMethod> finders,
                 ClassLoader classLoader, PlatformTransactionManager transactionManager) {
-        super(persistentClass, datastore, finders, transactionManager, null)
+        super(persistentClass, datastore, finders, transactionManager)
         this.classLoader = classLoader
         sessionFactory = datastore.getSessionFactory()
         conversionService = datastore.mappingContext.conversionService
 
         identityType = persistentEntity.identity?.type
-        hibernateTemplate = new GrailsHibernateTemplate(sessionFactory, datastore)
         this.defaultFlushMode = datastore.getDefaultFlushMode()
-        super.hibernateTemplate = hibernateTemplate
-        
         instanceApi = new HibernateGormInstanceApi<>(persistentClass, datastore, classLoader)
+    }
+
+    @Override
+    GrailsHibernateTemplate getHibernateTemplate() {
+        return (GrailsHibernateTemplate)super.getHibernateTemplate()
     }
 
     @Override

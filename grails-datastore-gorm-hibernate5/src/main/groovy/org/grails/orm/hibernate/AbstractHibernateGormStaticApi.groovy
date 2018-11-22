@@ -28,6 +28,9 @@ import org.hibernate.transform.DistinctRootEntityResultTransformer
 import org.springframework.core.convert.ConversionService
 import org.springframework.transaction.PlatformTransactionManager
 
+import javax.persistence.criteria.CriteriaBuilder
+import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Root
 import java.util.regex.Pattern
 
 /**
@@ -40,18 +43,35 @@ import java.util.regex.Pattern
 abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
 
     protected ProxyHandler proxyHandler
-    protected IHibernateTemplate hibernateTemplate
+    protected GrailsHibernateTemplate hibernateTemplate
     protected ConversionService conversionService
+    protected final HibernateSession hibernateSession
 
-    AbstractHibernateGormStaticApi(Class<D> persistentClass, Datastore datastore, List<FinderMethod> finders, IHibernateTemplate hibernateTemplate) {
-        this(persistentClass, datastore, finders, null, hibernateTemplate)
+    AbstractHibernateGormStaticApi(
+            Class<D> persistentClass,
+            HibernateDatastore datastore,
+            List<FinderMethod> finders) {
+        this(persistentClass, datastore, finders, null)
     }
 
-    AbstractHibernateGormStaticApi(Class<D> persistentClass, Datastore datastore, List<FinderMethod> finders, PlatformTransactionManager transactionManager, IHibernateTemplate hibernateTemplate) {
+    AbstractHibernateGormStaticApi(
+            Class<D> persistentClass,
+            HibernateDatastore  datastore,
+            List<FinderMethod> finders,
+            PlatformTransactionManager transactionManager) {
         super(persistentClass, datastore, finders, transactionManager)
-        this.hibernateTemplate = hibernateTemplate
+        this.hibernateTemplate = new GrailsHibernateTemplate(datastore.getSessionFactory(), datastore)
         this.conversionService = datastore.mappingContext.conversionService
         this.proxyHandler = datastore.mappingContext.proxyHandler
+        this.hibernateSession = new HibernateSession(
+                (HibernateDatastore)datastore,
+                hibernateTemplate.getSessionFactory(),
+                hibernateTemplate.getFlushMode()
+        )
+    }
+
+    IHibernateTemplate getHibernateTemplate() {
+        return hibernateTemplate
     }
 
     @Override
@@ -81,13 +101,18 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
 
         if(persistentEntity.isMultiTenant()) {
             // for multi-tenant entities we process get(..) via a query
+
             (D)hibernateTemplate.execute(  { Session session ->
-                def criteria = session.createCriteria(persistentEntity.javaClass)
-                criteria.add Restrictions.idEq(id)
-                firePreQueryEvent(session,criteria)
-                def result = (D) criteria.uniqueResult()
-                firePostQueryEvent(session, criteria, result)
-                return proxyHandler.unwrap( result )
+                CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder()
+                CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(persistentEntity.javaClass)
+                Root queryRoot = criteriaQuery.from(persistentEntity.javaClass)
+                criteriaQuery = criteriaQuery.where (
+                        criteriaBuilder.equal(queryRoot.get(persistentEntity.identity.name), id)
+                )
+                Query criteria = session.createQuery(criteriaQuery)
+                HibernateHqlQuery hibernateHqlQuery = new HibernateHqlQuery(
+                        hibernateSession, persistentEntity, criteria)
+                return proxyHandler.unwrap( hibernateHqlQuery.singleResult() )
             } )
         }
         else {
@@ -832,7 +857,7 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
             q.setReadOnly((Boolean)args.remove(DynamicFinder.ARGUMENT_READ_ONLY));
         }
         if (args.containsKey(DynamicFinder.ARGUMENT_FLUSH_MODE)) {
-            q.setFlushMode((FlushMode)args.remove(DynamicFinder.ARGUMENT_FLUSH_MODE));
+            q.setHibernateFlushMode((FlushMode)args.remove(DynamicFinder.ARGUMENT_FLUSH_MODE));
         }
 
         args.remove(DynamicFinder.ARGUMENT_CACHE)
