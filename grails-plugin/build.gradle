@@ -20,6 +20,7 @@ dependencies {
         exclude module:'groovy-all'
     }
 
+    compile "org.springframework.boot:spring-boot:$springBootVersion"
     compile "org.springframework:spring-orm:$springVersion"
     compile "org.hibernate:hibernate-core:${hibernate5Version}"
     compile "org.grails:grails-datastore-web:$gormVersion"
