@@ -20,6 +20,7 @@ dependencies {
         exclude module:'groovy-all'
     }
 
+    compile "org.springframework.boot:spring-boot:$springBootVersion"
     compile "org.springframework:spring-orm:$springVersion"
     compile "org.hibernate:hibernate-core:${hibernate5Version}"
     compile "org.grails:grails-datastore-web:$gormVersion"
@@ -35,7 +36,7 @@ dependencies {
         exclude group:'javax.transaction', module:'jta'
     }
 
-    testCompile "org.grails:grails-gorm-testing-support:1.1.4"
+    testCompile "org.grails:grails-gorm-testing-support:$testingSupportVersion"
     testRuntime "com.h2database:h2:1.4.192"
     testRuntime "org.apache.tomcat:tomcat-jdbc:8.5.0"
     testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
