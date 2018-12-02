@@ -2,17 +2,18 @@ package grails.test.mixin.hibernate
 
 import grails.gorm.annotation.Entity
 import grails.test.hibernate.HibernateSpec
+import grails.testing.spock.OnceBefore
 
 /**
  * Created by graemerocher on 15/07/2016.
  */
 class HibernateSpecSpec extends HibernateSpec {
 
-    void setupSpec() {
-        Book.withTransaction {
-            new Book(title: "The Stand").save(flush:true)
-        }
+    @OnceBefore
+    void addBook() {
+        new Book(title: "The Stand").save(flush:true)
     }
+
     void "test hibernate spec"() {
         expect:
         hibernateDatastore.connectionSources.defaultConnectionSource.settings.dataSource.dbCreate == 'create-drop'
@@ -37,7 +38,10 @@ class HibernateSpecSpec extends HibernateSpec {
         !new Player(sport:"Football", name: "Cantona", age:70).validate()
         new Player(sport:"Football", name: "Cantona", age:50).validate()
     }
+
+    List<Class> getDomainClasses() { [Person, Player, Book] }
 }
+
 @Entity
 class Person {
     String name

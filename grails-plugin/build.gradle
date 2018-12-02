@@ -35,7 +35,7 @@ dependencies {
         exclude group:'org.grails', module:'grails-core'
         exclude group:'javax.transaction', module:'jta'
     }
-
+    testRuntime 'org.yaml:snakeyaml:1.23'
     testCompile "org.grails:grails-gorm-testing-support:$testingSupportVersion"
     testRuntime "com.h2database:h2:1.4.192"
     testRuntime "org.apache.tomcat:tomcat-jdbc:8.5.0"

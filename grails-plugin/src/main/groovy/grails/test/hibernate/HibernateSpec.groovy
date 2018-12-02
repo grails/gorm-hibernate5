@@ -39,9 +39,14 @@ abstract class HibernateSpec extends Specification {
         ResourceLoader resourceLoader = new DefaultResourceLoader()
 
         List<PropertySource> propertySources = []
-        for (PropertySourceLoader loader : propertySourceLoaders) {
-            propertySources.addAll(load(resourceLoader, loader, "application.yml"))
-            propertySources.addAll(load(resourceLoader, loader, "application.groovy"))
+
+        PropertySourceLoader ymlLoader = propertySourceLoaders.find { it.getFileExtensions().toList().contains("yml") }
+        if (ymlLoader) {
+            propertySources.addAll(load(resourceLoader, ymlLoader, "application.yml"))
+        }
+        PropertySourceLoader groovyLoader = propertySourceLoaders.find { it.getFileExtensions().toList().contains("groovy") }
+        if (groovyLoader) {
+            propertySources.addAll(load(resourceLoader, groovyLoader, "application.groovy"))
         }
 
         Map<String, Object> mapPropertySource = getConfiguration() as Map<String, Object>

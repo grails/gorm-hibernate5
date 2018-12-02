@@ -2,7 +2,7 @@ package functionaltests
 
 
 import grails.testing.mixin.integration.Integration
-import grails.transaction.*
+import grails.gorm.transactions.*
 import spock.lang.*
 import example.Book
 import ds2.Book as SecondBook

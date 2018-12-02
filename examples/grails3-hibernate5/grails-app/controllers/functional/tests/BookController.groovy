@@ -1,7 +1,6 @@
 package functional.tests
 
-import static org.springframework.http.HttpStatus.*
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 
 @Transactional(readOnly = true)
 class BookController {
@@ -44,7 +43,7 @@ class BookController {
                 flash.message = message(code: 'default.created.message', args: [message(code: 'book.label', default: 'Book'), book.id])
                 redirect book
             }
-            '*' { respond book, [status: CREATED] }
+            '*' { respond book, [status: 201] }
         }
     }
 
@@ -73,7 +72,7 @@ class BookController {
                 flash.message = message(code: 'default.updated.message', args: [message(code: 'book.label', default: 'Book'), book.id])
                 redirect book
             }
-            '*'{ respond book, [status: OK] }
+            '*'{ respond book, [status: 200] }
         }
     }
 
@@ -93,7 +92,7 @@ class BookController {
                 flash.message = message(code: 'default.deleted.message', args: [message(code: 'book.label', default: 'Book'), book.id])
                 redirect action:"index", method:"GET"
             }
-            '*'{ render status: NO_CONTENT }
+            '*'{ render status: 204 }
         }
     }
 
@@ -103,7 +102,7 @@ class BookController {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: 'book.label', default: 'Book'), params.id])
                 redirect action: "index", method: "GET"
             }
-            '*'{ render status: NOT_FOUND }
+            '*'{ render status: 404 }
         }
     }
 }
