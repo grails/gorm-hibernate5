@@ -26,7 +26,7 @@ dependencies {
 
     compile "org.hibernate:hibernate-core:$hibernate5Version"
 
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
     runtime "com.h2database:h2"
     runtime 'org.yaml:snakeyaml:1.23'
     runtime 'org.apache.tomcat:tomcat-jdbc:9.0.13'
