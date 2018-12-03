@@ -16,7 +16,7 @@ configurations.all {
 
 dependencies {
     compileOnly("org.grails:grails-core:$grailsVersion")
-    compileOnly "org.spockframework:spock-core:1.2-groovy-2.5", {
+    compileOnly "org.spockframework:spock-core:$spockVersion", {
         exclude module:'groovy-all'
     }
 
