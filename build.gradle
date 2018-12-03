@@ -218,19 +218,16 @@ subprojects { project ->
                 artifactId projectInfo.projectArtifactId
 
                 from components.java
-                artifact sourcesJar {
-                    classifier "sources"
-                }
-                artifact javadocJar {
-                    classifier "javadoc"
-                }
+                afterEvaluate {
+                    artifact source: sourcesJar, classifier: "sources"
+                    artifact source: javadocJar, classifier: "javadoc"
 
-                if(isGrails3PluginProject) {
-                    artifact source:"${sourceSets.main.groovy.outputDir}/META-INF/grails-plugin.xml",
-                             classifier:"plugin",
-                             extension:'xml'
-                }   
-
+                    if(isGrails3PluginProject) {
+                        artifact source:"${sourceSets.main.groovy.outputDir}/META-INF/grails-plugin.xml",
+                                classifier:"plugin",
+                                extension:'xml'
+                    }
+                }
                 pom.withXml {
                     def xml = asNode()
                     def dependency = xml.dependencies.find { dep -> dep.artifactId == 'slf4j-simple' }
