@@ -1,6 +1,5 @@
 group "examples"
 
-
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         if(details.requested.group == 'org.grails' &&
@@ -42,5 +41,3 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 }
-
-

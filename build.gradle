@@ -134,7 +134,6 @@ subprojects { project ->
         return
     }       
 
-
     if(isGrails3PluginProject) {
         apply plugin: "org.grails.grails-plugin"       
     }
@@ -153,7 +152,6 @@ subprojects { project ->
     }
     apply plugin: "io.github.groovylang.groovydoc"
 
-
     sourceCompatibility = "1.8"
     targetCompatibility = "1.8"
 
@@ -169,7 +167,6 @@ subprojects { project ->
 
     groovydoc.jvmArgs "-Xmx512M"
     groovydoc.classpath += configurations.documentation
-
 
     publishing {
 
@@ -196,16 +193,13 @@ subprojects { project ->
                     else {
                         url  "https://repo.grails.org/grails/libs-releases-local"
                     }
-
                 }
-
             }
         }
 
         publications {
             maven(MavenPublication) {
                 artifactId projectInfo.projectArtifactId
-                
 
                 from components.java
                 artifact sourcesJar {
