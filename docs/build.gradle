@@ -50,24 +50,24 @@ asciidoctorj {
     version = '1.5.4'
 }
 
-task fetchSource << {
-    ant.mkdir dir: project.buildDir
-    ant.mkdir dir: checkOutDir
+task fetchSource {
+    doLast {
+        ant.mkdir dir: project.buildDir
+        ant.mkdir dir: checkOutDir
 
-    println "Downloading GORM source code."
-    def tag = System.getenv('TRAVIS_TAG')
-    if(tag) {
-        ant.get src: "https://github.com/grails/grails-data-mapping/archive/${tag}.zip", dest: zipFile, verbose: true
-    }
-    else {
-        ant.get src: "http://github.com/grails/grails-data-mapping/zipball/${githubBranch}", dest: zipFile, verbose: true
-    }
+        println "Downloading GORM source code."
+        def tag = System.getenv('TRAVIS_TAG')
+        if (tag) {
+            ant.get src: "https://github.com/grails/grails-data-mapping/archive/${tag}.zip", dest: zipFile, verbose: true
+        } else {
+            ant.get src: "http://github.com/grails/grails-data-mapping/zipball/${githubBranch}", dest: zipFile, verbose: true
+        }
 
-    ant.unzip src: zipFile, dest: checkOutDir, {
-        mapper type: "regexp", from: "(grails-\\S*?/)(.*)", to: "gorm-src/\\2"
+        ant.unzip src: zipFile, dest: checkOutDir, {
+            mapper type: "regexp", from: "(grails-\\S*?/)(.*)", to: "gorm-src/\\2"
+        }
+        println "GORM source code downloaded."
     }
-
-    println "GORM source code downloaded."
 }
 
 fetchSource.inputs.properties(branch:githubBranch)
