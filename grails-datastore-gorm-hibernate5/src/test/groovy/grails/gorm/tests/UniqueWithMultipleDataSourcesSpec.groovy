@@ -1,7 +1,7 @@
 package grails.gorm.tests
 
 import grails.gorm.annotation.Entity
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import groovy.transform.NotYetImplemented
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.datastore.mapping.core.connections.ConnectionSource

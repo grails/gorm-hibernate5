@@ -1,7 +1,7 @@
 package org.grails.orm.hibernate
 
 import grails.gorm.annotation.Entity
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.orm.hibernate.cfg.Settings
 import org.springframework.core.env.PropertyResolver

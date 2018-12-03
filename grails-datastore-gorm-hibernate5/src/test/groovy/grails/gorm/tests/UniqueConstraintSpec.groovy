@@ -1,10 +1,8 @@
 package grails.gorm.tests
 
 import grails.persistence.Entity
-import grails.transaction.Rollback
 import org.grails.datastore.gorm.GormEntity
 import org.grails.orm.hibernate.HibernateDatastore
-import org.junit.Ignore
 import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
 import spock.lang.Shared

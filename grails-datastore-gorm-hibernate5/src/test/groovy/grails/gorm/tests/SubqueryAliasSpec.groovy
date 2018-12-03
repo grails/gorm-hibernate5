@@ -1,6 +1,6 @@
 package grails.gorm.tests
 
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.grails.datastore.gorm.query.transform.ApplyDetachedCriteriaTransform
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.transaction.PlatformTransactionManager

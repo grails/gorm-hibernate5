@@ -2,8 +2,8 @@ package grails.gorm.tests
 
 import grails.gorm.DetachedCriteria
 import grails.gorm.annotation.Entity
-import grails.transaction.Rollback
-import grails.transaction.Transactional
+import grails.gorm.transactions.Rollback
+import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.query.Query
 import org.grails.orm.hibernate.HibernateDatastore
 import org.hibernate.exception.SQLGrammarException

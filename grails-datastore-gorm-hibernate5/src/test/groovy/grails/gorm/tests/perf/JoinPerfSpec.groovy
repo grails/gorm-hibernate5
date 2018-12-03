@@ -1,7 +1,7 @@
 package grails.gorm.tests.perf
 
 import grails.gorm.annotation.Entity
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import groovy.sql.Sql
 import groovy.transform.EqualsAndHashCode
 import org.grails.orm.hibernate.HibernateDatastore

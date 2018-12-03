@@ -2,7 +2,7 @@ package grails.gorm.tests.compositeid
 
 import grails.gorm.annotation.Entity
 import grails.gorm.hibernate.mapping.MappingBuilder
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup

@@ -1,7 +1,7 @@
 package grails.gorm.tests.jpa
 
 import grails.gorm.hibernate.HibernateEntity
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import groovy.transform.NotYetImplemented
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.types.Association

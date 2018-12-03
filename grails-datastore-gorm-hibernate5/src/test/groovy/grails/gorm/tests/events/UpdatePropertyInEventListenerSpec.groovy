@@ -1,7 +1,7 @@
 package grails.gorm.tests.events
 
 import grails.gorm.annotation.Entity
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.grails.datastore.gorm.events.ConfigurableApplicationEventPublisher
 import org.grails.datastore.mapping.core.Datastore
 import org.grails.datastore.mapping.engine.event.AbstractPersistenceEvent

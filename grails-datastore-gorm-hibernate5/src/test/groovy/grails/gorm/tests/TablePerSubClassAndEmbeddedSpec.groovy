@@ -2,7 +2,7 @@ package grails.gorm.tests
 
 import grails.gorm.DetachedCriteria
 import grails.gorm.annotation.Entity
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.grails.datastore.gorm.query.criteria.DetachedAssociationCriteria
 import org.grails.datastore.gorm.query.transform.ApplyDetachedCriteriaTransform
 import org.grails.orm.hibernate.HibernateDatastore
