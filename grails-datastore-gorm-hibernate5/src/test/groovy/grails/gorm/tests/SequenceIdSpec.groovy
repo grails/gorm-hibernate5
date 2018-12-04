@@ -1,9 +1,8 @@
 package grails.gorm.tests
 
 import grails.gorm.annotation.Entity
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.grails.orm.hibernate.HibernateDatastore
-import org.hibernate.Session
 import org.hibernate.engine.spi.SessionImplementor
 import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup

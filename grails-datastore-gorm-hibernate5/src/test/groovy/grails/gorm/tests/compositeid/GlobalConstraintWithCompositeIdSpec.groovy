@@ -1,7 +1,7 @@
 package grails.gorm.tests.compositeid
 
 import grails.gorm.annotation.Entity
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.orm.hibernate.HibernateDatastore
