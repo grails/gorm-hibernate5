@@ -4,7 +4,7 @@ import grails.gorm.MultiTenant
 import grails.gorm.multitenancy.CurrentTenant
 import grails.gorm.multitenancy.Tenant
 import grails.gorm.multitenancy.Tenants
-import grails.persistence.Entity
+import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.datastore.mapping.multitenancy.exceptions.TenantNotFoundException

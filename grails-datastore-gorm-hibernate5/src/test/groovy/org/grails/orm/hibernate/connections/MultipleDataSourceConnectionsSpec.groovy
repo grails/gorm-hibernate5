@@ -1,7 +1,7 @@
 package org.grails.orm.hibernate.connections
 
 import grails.gorm.transactions.Rollback
-import grails.persistence.Entity
+import grails.gorm.annotation.Entity
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.orm.hibernate.HibernateDatastore
 import org.hibernate.Session

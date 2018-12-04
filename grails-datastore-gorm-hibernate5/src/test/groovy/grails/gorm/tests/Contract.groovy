@@ -1,6 +1,6 @@
 package grails.gorm.tests
 
-import grails.persistence.Entity
+import grails.gorm.annotation.Entity
 
 /**
  * Created by graemerocher on 21/10/16.

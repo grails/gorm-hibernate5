@@ -1,7 +1,7 @@
 package grails.gorm.tests
 
 import grails.gorm.hibernate.HibernateEntity
-import grails.persistence.Entity
+import grails.gorm.annotation.Entity
 
 @Entity
 class Club implements HibernateEntity<Club> {

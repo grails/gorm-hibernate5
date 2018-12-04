@@ -1,6 +1,6 @@
 package grails.gorm.tests
 
-import grails.persistence.Entity
+import grails.gorm.annotation.Entity
 import org.grails.datastore.gorm.GormEntity
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.transaction.PlatformTransactionManager
