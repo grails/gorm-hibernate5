@@ -1,5 +1,7 @@
 package grails.gorm.tests
 
+import static grails.gorm.hibernate.mapping.MappingBuilder.define
+
 import grails.gorm.annotation.Entity
 import grails.gorm.transactions.Rollback
 import org.grails.orm.hibernate.HibernateDatastore
@@ -7,7 +9,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
-import static grails.gorm.hibernate.mapping.MappingBuilder.*
+
 /**
  * Created by graemerocher on 26/01/2017.
  */

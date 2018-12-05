@@ -2,7 +2,6 @@ package grails.gorm.tests.jpa
 
 import grails.gorm.hibernate.HibernateEntity
 import grails.gorm.transactions.Rollback
-import groovy.transform.NotYetImplemented
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.types.Association
 import org.grails.orm.hibernate.HibernateDatastore
@@ -17,7 +16,6 @@ import javax.persistence.Id
 import javax.persistence.OneToMany
 import javax.validation.ConstraintViolationException
 import javax.validation.constraints.Digits
-import javax.validation.constraints.NotNull
 
 /**
  * Created by graemerocher on 22/12/16.

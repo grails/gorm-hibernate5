@@ -1,6 +1,6 @@
 package grails.orm.bootstrap
 
-import grails.persistence.Entity
+import grails.gorm.annotation.Entity
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.dialect.H2Dialect

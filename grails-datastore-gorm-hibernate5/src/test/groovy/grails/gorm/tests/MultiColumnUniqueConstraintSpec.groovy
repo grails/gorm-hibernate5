@@ -1,6 +1,6 @@
 package grails.gorm.tests
 
-import grails.persistence.Entity
+import grails.gorm.annotation.Entity
 import org.springframework.dao.DataIntegrityViolationException
 import spock.lang.Issue
 

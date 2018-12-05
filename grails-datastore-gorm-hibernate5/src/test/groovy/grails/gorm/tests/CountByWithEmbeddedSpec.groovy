@@ -1,6 +1,6 @@
 package grails.gorm.tests
 
-import grails.persistence.Entity
+import grails.gorm.annotation.Entity
 import groovy.transform.NotYetImplemented
 import org.grails.orm.hibernate.GormSpec
 import spock.lang.Issue
