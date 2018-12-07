@@ -51,12 +51,12 @@ import org.springframework.validation.Validator
  */
 @CompileStatic
 abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
-    private static final String ARGUMENT_VALIDATE = "validate";
-    private static final String ARGUMENT_DEEP_VALIDATE = "deepValidate";
-    private static final String ARGUMENT_FLUSH = "flush";
-    private static final String ARGUMENT_INSERT = "insert";
-    private static final String ARGUMENT_MERGE = "merge";
-    private static final String ARGUMENT_FAIL_ON_ERROR = "failOnError";
+    private static final String ARGUMENT_VALIDATE = "validate"
+    private static final String ARGUMENT_DEEP_VALIDATE = "deepValidate"
+    private static final String ARGUMENT_FLUSH = "flush"
+    private static final String ARGUMENT_INSERT = "insert"
+    private static final String ARGUMENT_MERGE = "merge"
+    private static final String ARGUMENT_FAIL_ON_ERROR = "failOnError"
     private static final Class DEFERRED_BINDING
 
     static {
@@ -131,14 +131,14 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
                 }
 
                 if (errors.hasErrors()) {
-                    handleValidationError(domainClass,target,errors);
+                    handleValidationError(domainClass,target,errors)
                     if (shouldFail(arguments)) {
                         throw validationException.newInstance("Validation Error(s) occurred during save()", errors)
                     }
                     return null
                 }
 
-                setObjectToReadWrite(target);
+                setObjectToReadWrite(target)
             }
         }
 
@@ -260,7 +260,7 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
     protected D performMerge(final D target, final boolean flush) {
         hibernateTemplate.execute { Session session ->
             Object merged = session.merge(target)
-            session.lock(merged, LockMode.NONE);
+            session.lock(merged, LockMode.NONE)
             if (flush) {
                 flushSession session
             }
@@ -493,6 +493,6 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
     }
 
     SessionFactory getSessionFactory() {
-        return this.sessionFactory;
+        return this.sessionFactory
     }
 }
