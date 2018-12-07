@@ -47,7 +47,7 @@ import org.springframework.validation.Validator
  * Abstract extension of the {@link GormInstanceApi} class that provides common logic shared by Hibernate 3 and Hibernate 4
  *
  * @author Graeme Rocher
- * @param < D >
+ * @param <D>
  */
 @CompileStatic
 abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
