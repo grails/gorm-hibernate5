@@ -3,5 +3,4 @@ grails:
     profile: plugin
 ---
 dataSource:
-  dbCreate: none
   logSql: true
