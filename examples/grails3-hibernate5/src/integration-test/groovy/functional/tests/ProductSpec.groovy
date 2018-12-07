@@ -34,7 +34,6 @@ class ProductSpec extends Specification {
     }
 
     @Rollback
-    @NotYetImplemented // this fails because Grails is overriding the validator
     void "test that JPA entities can use javax.validation"() {
         when:"A basic entity is persisted and validated"
         Product c = new Product(price: "Bad", name: "iMac")
