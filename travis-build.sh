@@ -7,7 +7,7 @@ if [[ $TRAVIS_TAG =~ ^v[[:digit:]] ]]; then
 	echo "Skipping tests to Publish release"
 	./travis-publish.sh || EXIT_STATUS=$?
 else
-	./gradlew check --no-daemon -x gorm-hibernate5-spring-boot:test  || EXIT_STATUS=$?
+	./gradlew -Dgeb.env=chromeHeadless check --no-daemon -x gorm-hibernate5-spring-boot:test  || EXIT_STATUS=$?
 
     if [ $EXIT_STATUS -ne 0 ]; then
         echo "test failed => exit $EXIT_STATUS"

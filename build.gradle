@@ -10,6 +10,7 @@ buildscript {
         //classpath "io.github.groovylang.groovydoc:groovydoc-gradle-plugin:1.0.1"
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.2'
+        classpath "gradle.plugin.com.energizedwork.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
     }
 }
 
@@ -62,7 +63,10 @@ subprojects { project ->
                     details.useVersion(springBootVersion)
                 }
             }
-
+        }
+        boolean usesGeb = ['grails3-database-per-tenant', 'grails3-hibernate5', 'grails3-multiple-datasources', 'grails3-partitioned-multi-tenancy', 'grails3-schema-per-tenant'].any { projectName -> project.name.contains(projectName) }
+        if (usesGeb) {
+            apply plugin:"com.energizedwork.webdriver-binaries"
         }
         return
     }
