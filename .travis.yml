@@ -6,6 +6,7 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 jdk:
+- openjdk11
 - oraclejdk8
 env:
   global:
