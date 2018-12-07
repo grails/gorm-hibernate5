@@ -1,8 +1,6 @@
 #!/bin/bash
 EXIT_STATUS=0
 
-./gradlew --stop
-
 if [[ $TRAVIS_TAG =~ ^v[[:digit:]] ]]; then
 	echo "Skipping tests to Publish release"
 	./travis-publish.sh || EXIT_STATUS=$?
