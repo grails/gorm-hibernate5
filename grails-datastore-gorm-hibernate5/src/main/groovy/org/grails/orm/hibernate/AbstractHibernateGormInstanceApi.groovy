@@ -97,8 +97,6 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
         this.markDirty = datastore.markDirty
     }
 
-
-
     @Override
     D save(D target, Map arguments) {
 
@@ -151,8 +149,6 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
         GormValidateable validateable = (GormValidateable) target
         boolean shouldSkipValidation = !shouldValidate || shouldFlush
         validateable.skipValidation(shouldSkipValidation)
-
-
 
         try {
             if (shouldInsert(arguments)) {
