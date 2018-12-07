@@ -413,7 +413,7 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
      * @param target The target object
      * @param sessionFactory The SessionFactory instance
      */
-    public void setObjectToReadOnly(Object target) {
+    void setObjectToReadOnly(Object target) {
         hibernateTemplate.execute { Session session ->
             if (session.contains(target) && proxyHandler.isInitialized(target)) {
                 target = proxyHandler.unwrap(target)
@@ -430,7 +430,7 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
      * @param target The target object
      * @param sessionFactory The SessionFactory instance
      */
-    public abstract void setObjectToReadWrite(Object target)
+    abstract void setObjectToReadWrite(Object target)
 
     /**
      * Associates the Errors object on the instance
@@ -455,7 +455,7 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
      *
      * @see org.hibernate.event.def.AbstractSaveEventListener#getAssumedUnsaved()
      */
-    public static Boolean getAssumedUnsaved() {
+    static Boolean getAssumedUnsaved() {
         return insertActiveThreadLocal.get();
     }
 
@@ -463,14 +463,14 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
      * Called by org.grails.orm.hibernate.metaclass.SavePersistentMethod's performInsert
      * to set a ThreadLocal variable that determines the value for getAssumedUnsaved().
      */
-    public static void markInsertActive() {
+    static void markInsertActive() {
         insertActiveThreadLocal.set(Boolean.TRUE);
     }
 
     /**
      * Clears the ThreadLocal variable set by markInsertActive().
      */
-    public static void resetInsertActive() {
+    static void resetInsertActive() {
         insertActiveThreadLocal.remove();
     }
 
