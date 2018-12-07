@@ -3,17 +3,8 @@ package functional.tests
 import grails.testing.mixin.integration.Integration
 import geb.spock.*
 
-/**
- * See the API for {@link grails.test.mixin.support.GrailsUnitTestMixin} for usage instructions
- */
 @Integration
 class BookControllerSpec extends GebSpec {
-
-    def setup() {
-    }
-
-    def cleanup() {
-    }
 
     void "Test list books"() {
         when:"The home page is visited"
