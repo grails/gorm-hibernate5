@@ -14,11 +14,13 @@ class MultipleDataSourcesSpec extends Specification {
         when:
             new Book(title:"One").save(flush:true)
             new Book(title:"Two").save(flush:true)
-            new SecondBook(title:"Three").save(flush:true)
+            SecondBook.withTransaction {
+                new SecondBook(title:"Three").save(flush:true)
+            }
 
         then:
             Book.count() == 2
-            SecondBook.count() == 1
-            SecondBook.secondary.count() == 1
+            SecondBook.withTransaction(readOnly: true) { SecondBook.count() } == 1
+            SecondBook.withTransaction(readOnly: true)  { SecondBook.secondary.count() } == 1
     }
 }
