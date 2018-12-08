@@ -160,7 +160,7 @@ subprojects { project ->
     targetCompatibility = "1.8"
 
     dependencies {
-        documentation "org.fusesource.jansi:jansi:1.11"
+        documentation "org.fusesource.jansi:jansi:$jansiVersion"
         documentation "org.codehaus.groovy:groovy-dateutil:$groovyVersion"
 
         testCompile "org.codehaus.groovy:groovy-test:$groovyVersion"
