@@ -58,8 +58,8 @@ subprojects { project ->
         }
     }
 
-    if(project.name.startsWith("examples/")) {
-        if(project.name.startsWith("examples/grails")) {
+    if(project.name.startsWith("examples-")) {
+        if(project.name.startsWith("examples-grails")) {
             apply plugin:"org.grails.grails-web"
             apply plugin:"org.grails.grails-gsp"            
         }
@@ -76,7 +76,7 @@ subprojects { project ->
                 }
             }
         }
-        boolean usesGeb = ['grails3-database-per-tenant', 'grails3-hibernate5', 'grails3-multiple-datasources', 'grails3-partitioned-multi-tenancy', 'grails3-schema-per-tenant'].any { projectName -> project.name.contains(projectName) }
+        boolean usesGeb = project.name.contains('examples-grails') 
         if (usesGeb) {
             apply plugin:"com.energizedwork.webdriver-binaries"
         }

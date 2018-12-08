@@ -8,14 +8,26 @@ include 'docs'
 include "boot-plugin"
 include 'grails-plugin'
 
-// Example
-include "examples/grails3-hibernate5"
-include "examples/grails3-multiple-datasources"
-include "examples/grails3-database-per-tenant"
-include "examples/grails3-schema-per-tenant"
-include "examples/grails3-partitioned-multi-tenancy"
-include "examples/standalone-hibernate5"
-include "examples/spring-boot-hibernate5"
+include "examples-grails3-hibernate5"
+project(":examples-grails3-hibernate5").projectDir = new File(settingsDir, "examples/grails3-hibernate5")
+
+include "examples-grails3-multiple-datasources"
+project(":examples-grails3-multiple-datasources").projectDir = new File(settingsDir, "examples/grails3-multiple-datasources")
+
+include "examples-grails3-database-per-tenant"
+project(":examples-grails3-database-per-tenant").projectDir = new File(settingsDir, "examples/grails3-database-per-tenant")
+
+include "examples-grails3-schema-per-tenant"
+project(":examples-grails3-schema-per-tenant").projectDir = new File(settingsDir, "examples/grails3-schema-per-tenant")
+
+include "examples-grails3-partitioned-multi-tenancy"
+project(":examples-grails3-partitioned-multi-tenancy").projectDir = new File(settingsDir, "examples/grails3-partitioned-multi-tenancy")
+
+include "examples-standalone-hibernate5"
+project(":examples-standalone-hibernate5").projectDir = new File(settingsDir, "examples/standalone-hibernate5")
+
+include "examples-spring-boot-hibernate5"
+project(":examples-spring-boot-hibernate5").projectDir = new File(settingsDir, "examples/spring-boot-hibernate5")
 
 findProject(':boot-plugin').name = 'gorm-hibernate5-spring-boot'
 
