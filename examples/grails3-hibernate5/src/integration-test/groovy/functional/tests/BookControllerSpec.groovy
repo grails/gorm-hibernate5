@@ -23,6 +23,5 @@ class BookControllerSpec extends GebSpec {
         then:"The book is correct"
         title == "Show Book"
         $('li.fieldcontain div').text() == 'The Stand'
-
     }
 }

@@ -35,7 +35,6 @@ class DatabasePerTenantIntegrationSpec extends Specification {
         println book
         log.info("${book}")
 
-
         then:
         bookService.countBooks() == 1
         book?.id
@@ -51,12 +50,10 @@ class DatabasePerTenantIntegrationSpec extends Specification {
         println book
         log.info("${book}")
 
-
         then:
         anotherBookService.countBooks() == 1
         book?.id
     }
-
 
     void 'Test database per tenant'() {
         when:"When there is no tenant"
@@ -90,6 +87,5 @@ class DatabasePerTenantIntegrationSpec extends Specification {
         then:
         anotherBookService.countBooks() == 2
         bookService.countBooks()== 2
-
     }
 }

@@ -1,6 +1,5 @@
 package functionaltests
 
-
 import grails.testing.mixin.integration.Integration
 import grails.gorm.transactions.*
 import spock.lang.*
@@ -10,7 +9,6 @@ import ds2.Book as SecondBook
 @Integration
 @Rollback
 class MultipleDataSourcesSpec extends Specification {
-
 
     void "Test multiple data source persistence"() {
         when:

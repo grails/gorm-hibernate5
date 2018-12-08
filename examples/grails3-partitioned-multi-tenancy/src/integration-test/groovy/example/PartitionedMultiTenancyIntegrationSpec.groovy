@@ -55,7 +55,6 @@ class PartitionedMultiTenancyIntegrationSpec extends Specification {
         book?.id
     }
 
-
     void 'Test database per tenant'() {
         when:"When there is no tenant"
         Book.count()
@@ -88,6 +87,5 @@ class PartitionedMultiTenancyIntegrationSpec extends Specification {
         then:
         anotherBookService.countBooks() == 2
         bookService.countBooks()== 2
-
     }
 }
