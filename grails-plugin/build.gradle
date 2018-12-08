@@ -43,3 +43,5 @@ dependencies {
     testRuntime "org.springframework:spring-aop:$springVersion"
     testRuntime "org.springframework:spring-expression:$springVersion"
 }
+
+apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
