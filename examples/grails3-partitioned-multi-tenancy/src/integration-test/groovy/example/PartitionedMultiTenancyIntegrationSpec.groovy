@@ -17,6 +17,7 @@ class PartitionedMultiTenancyIntegrationSpec extends Specification {
     BookService bookService
     AnotherBookService anotherBookService
     GrailsWebRequest webRequest
+
     def setup() {
         webRequest = GrailsWebMockUtil.bindMockWebRequest()
     }

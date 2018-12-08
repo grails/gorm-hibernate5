@@ -19,6 +19,7 @@ class SchemaPerTenantIntegrationSpec extends Specification {
     AnotherBookService anotherBookService
     GrailsWebRequest webRequest
     HibernateDatastore hibernateDatastore
+
     def setup() {
         hibernateDatastore.addTenantForSchema("moreBooks")
         hibernateDatastore.addTenantForSchema("evenMoreBooks")

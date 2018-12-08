@@ -17,6 +17,7 @@ class DatabasePerTenantIntegrationSpec extends Specification {
     BookService bookService
     AnotherBookService anotherBookService
     GrailsWebRequest webRequest
+
     def setup() {
         webRequest = GrailsWebMockUtil.bindMockWebRequest()
     }
