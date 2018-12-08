@@ -7,9 +7,6 @@ import spock.lang.*
 import example.Book
 import ds2.Book as SecondBook
 
-/**
- * See the API for {@link grails.test.mixin.support.GrailsUnitTestMixin} for usage instructions
- */
 @Integration
 @Rollback
 class MultipleDataSourcesSpec extends Specification {
