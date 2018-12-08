@@ -58,7 +58,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
     String defaultDataSourceBeanName = ConnectionSource.DEFAULT
     String defaultSessionFactoryBeanName = SESSION_FACTORY_BEAN_NAME
-    Set<String> dataSources = [defaultDataSourceBeanName]
+    Set<String> dataSources = [defaultDataSourceBeanName] as Set<String>
     boolean enableReload = false
     boolean grailsPlugin = false
 
