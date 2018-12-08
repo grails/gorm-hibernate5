@@ -1,4 +1,4 @@
-//import org.groovy.lang.groovydoc.tasks.GroovydocTask
+import org.groovy.lang.groovydoc.tasks.GroovydocTask
 
 ext {
     githubBranch = "master"
@@ -79,39 +79,38 @@ task copyDocs(type:Copy, dependsOn:asciidoctor) {
     into "${project.buildDir}/docs/manual"
 }
 
-//task groovydoc(type:GroovydocTask, dependsOn:fetchSource) {
-//    docTitle = "GORM for Hibernate 5 - ${project.version}"
-//    destinationDir = project.file("build/docs/api")
-//    notimestamp = true
-//    noversionstamp = true
-//
-//    def files
-//    for(p in coreProjects) {
-//        if(files == null) {
-//            files = project.files("${checkOutDir}/gorm-src/grails-datastore-${p}/src/main/groovy")
-//        }
-//        else {
-//            files += project.files("${checkOutDir}/gorm-src/grails-datastore-${p}/src/main/groovy")
-//        }
-//    }
-//    project.rootProject.subprojects
-//            .findAll { !it.name.contains('-rx-') && !it.name.startsWith('grails2') && !it.name.startsWith('examples') }
-//            .each { subproject ->
-//        if(subproject.file('src/main/groovy').exists()) {
-//            files += subproject.files("src/main/groovy")
-//        }
-//    }
-//    source = files
-//    classpath = configurations.documentation
-//    jvmArgs "-Xmx1024m"
-//}
+task groovydoc(type:GroovydocTask, dependsOn:fetchSource) {
+    docTitle = "GORM for Hibernate 5 - ${project.version}"
+    destinationDir = project.file("build/docs/api")
+    notimestamp = true
+    noversionstamp = true
+
+    def files
+    for(p in coreProjects) {
+        if(files == null) {
+            files = project.files("${checkOutDir}/gorm-src/grails-datastore-${p}/src/main/groovy")
+        }
+        else {
+            files += project.files("${checkOutDir}/gorm-src/grails-datastore-${p}/src/main/groovy")
+        }
+    }
+    project.rootProject.subprojects
+            .findAll { !it.name.contains('-rx-') && !it.name.startsWith('grails2') && !it.name.startsWith('examples') }
+            .each { subproject ->
+        if(subproject.file('src/main/groovy').exists()) {
+            files += subproject.files("src/main/groovy")
+        }
+    }
+    source = files
+    classpath = configurations.documentation
+    jvmArgs "-Xmx1024m"
+}
 
 task copyResources(type:Copy) {
     from 'src/docs/resources'
     into "${project.buildDir}/docs"
 }
-// groovydoc,
-task docs(dependsOn:[asciidoctor, copyDocs, copyResources] +
+task docs(dependsOn:[asciidoctor, groovydoc, copyDocs, copyResources] +
         subprojects.findAll { project -> project.tasks.findByName('groovydoc')}
                 .collect { project -> project.tasks.groovydoc }
 )
