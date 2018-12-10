@@ -1,7 +1,7 @@
 package functional.tests
 
 import grails.testing.mixin.integration.Integration
-import geb.spock.*
+import geb.spock.GebSpec
 
 @Integration(applicationClass = Application)
 class BookControllerSpec extends GebSpec {
