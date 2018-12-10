@@ -11,7 +11,7 @@ import spock.lang.Specification
 /**
  * Created by graemerocher on 02/01/2017.
  */
-@Integration
+@Integration(applicationClass = Application)
 class ProductSpec extends Specification {
 
     @Rollback

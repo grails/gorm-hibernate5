@@ -1,5 +1,6 @@
 package example
 
+import datasources.Application
 import grails.gorm.transactions.Rollback
 import grails.testing.mixin.integration.Integration
 import grails.util.GrailsWebMockUtil
@@ -10,7 +11,7 @@ import org.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.web.context.request.RequestContextHolder
 import spock.lang.Specification
 
-@Integration
+@Integration(applicationClass = Application)
 @Slf4j
 @Rollback
 class DatabasePerTenantIntegrationSpec extends Specification {

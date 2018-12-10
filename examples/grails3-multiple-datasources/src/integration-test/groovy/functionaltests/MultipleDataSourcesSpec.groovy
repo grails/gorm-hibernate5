@@ -1,12 +1,13 @@
 package functionaltests
 
+import datasources.Application
 import grails.testing.mixin.integration.Integration
 import grails.gorm.transactions.*
 import spock.lang.*
 import example.Book
 import ds2.Book as SecondBook
 
-@Integration
+@Integration(applicationClass = Application)
 @Rollback
 class MultipleDataSourcesSpec extends Specification {
 
