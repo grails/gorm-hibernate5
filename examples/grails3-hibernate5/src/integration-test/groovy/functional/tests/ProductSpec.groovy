@@ -3,7 +3,6 @@ package functional.tests
 import another.Item
 import grails.testing.mixin.integration.Integration
 import grails.gorm.transactions.Rollback
-import groovy.transform.NotYetImplemented
 import spock.lang.Ignore
 import spock.lang.Issue
 import spock.lang.Specification
