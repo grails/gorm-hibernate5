@@ -49,7 +49,6 @@ dependencies {
     testCompile "net.sf.ehcache:ehcache-core:2.4.6"
     testCompile "org.hibernate:hibernate-ehcache:$hibernate5Version"
     
-    def tomcatVersion = '7.0.50'
     testCompile "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
     testRuntime "org.springframework:spring-aop:$springVersion"
     testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatVersion"
