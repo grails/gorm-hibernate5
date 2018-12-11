@@ -186,6 +186,11 @@ public class ClosureEventListener implements SaveOrUpdateEventListener,
         return false;
     }
 
+    @Override
+    public boolean requiresPostCommitHandling(EntityPersister persister) {
+        return false;
+    }
+
     public void onPostUpdate(PostUpdateEvent event) {
         final Object entity = event.getEntity();
         if (postUpdateEventListener == null) {

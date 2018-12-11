@@ -1351,7 +1351,7 @@ public abstract class AbstractHibernateCriteriaBuilder extends GroovyObjectSuppo
         else {
             String sortHead = property.substring(0,i);
             String sortTail = property.substring(i+1);
-            createAliasIfNeccessary(sortHead, sortHead, CriteriaSpecification.INNER_JOIN);
+            createAliasIfNeccessary(sortHead, sortHead, org.hibernate.sql.JoinType.INNER_JOIN.getJoinTypeValue());
             final Criteria sub = aliasInstanceStack.get(aliasInstanceStack.size()-1);
             addOrderInternal(sub, o, sortTail);
         }
@@ -1727,7 +1727,7 @@ public abstract class AbstractHibernateCriteriaBuilder extends GroovyObjectSuppo
         if (isAssociationQueryMethod(args) || isAssociationQueryWithJoinSpecificationMethod(args)) {
             final boolean hasMoreThanOneArg = args.length > 1;
             Object callable = hasMoreThanOneArg ? args[1] : args[0];
-            int joinType = hasMoreThanOneArg ? (Integer)args[0] : CriteriaSpecification.INNER_JOIN;
+            int joinType = hasMoreThanOneArg ? (Integer)args[0] : org.hibernate.sql.JoinType.INNER_JOIN.getJoinTypeValue();
 
             if (name.equals(AND) || name.equals(OR) || name.equals(NOT)) {
                 if (criteria == null) {
