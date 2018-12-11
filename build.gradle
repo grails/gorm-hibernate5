@@ -180,6 +180,7 @@ subprojects { project ->
         testCompile "org.spockframework:spock-core:$spockVersion", {
             exclude module:'groovy-all'
         }
+        documentation "info.picocli:picocli:$picocliVersion"
     }
 
     groovydoc.jvmArgs "-Xmx512M"

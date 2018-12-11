@@ -3,7 +3,6 @@ package functional.tests
 import another.Item
 import grails.testing.mixin.integration.Integration
 import grails.gorm.transactions.Rollback
-import groovy.transform.NotYetImplemented
 import spock.lang.Ignore
 import spock.lang.Issue
 import spock.lang.Specification
@@ -11,7 +10,7 @@ import spock.lang.Specification
 /**
  * Created by graemerocher on 02/01/2017.
  */
-@Integration
+@Integration(applicationClass = Application)
 class ProductSpec extends Specification {
 
     @Rollback
