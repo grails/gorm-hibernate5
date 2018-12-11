@@ -3,8 +3,6 @@ package functional.tests
 import another.Item
 import grails.testing.mixin.integration.Integration
 import grails.gorm.transactions.Rollback
-import spock.lang.Ignore
-import spock.lang.Issue
 import spock.lang.Specification
 
 /**
@@ -28,8 +26,6 @@ class ProductSpec extends Specification {
         query.count() == 0
     }
 
-    @Issue("https://github.com/grails/gorm-hibernate5/issues/115")
-    @Ignore
     @Rollback
     void "test entity in different package to application"() {
         expect:

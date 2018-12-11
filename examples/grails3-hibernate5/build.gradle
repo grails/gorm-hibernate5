@@ -59,3 +59,5 @@ tasks.withType(Test) {
 }
 
 apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
+//compileGroovy.groovyOptions.fork = true
+//compileGroovy.groovyOptions.forkOptions.jvmArgs = ['-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005']
