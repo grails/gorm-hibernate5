@@ -269,7 +269,9 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
             private static final long serialVersionUID = 1;
             public void sessionFactoryCreated(SessionFactory factory) {}
             public void sessionFactoryClosed(SessionFactory factory) {
-                ((ServiceRegistryImplementor)serviceRegistry).destroy();
+                if (serviceRegistry != null) {
+                    ((ServiceRegistryImplementor)serviceRegistry).destroy();
+                }
             }
         });
 
