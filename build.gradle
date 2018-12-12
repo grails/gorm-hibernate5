@@ -165,8 +165,10 @@ subprojects { project ->
     apply plugin: 'maven-publish'
     if(isGrails3PluginProject) {
         apply plugin: 'com.jfrog.bintray'
+    } else {
+        apply plugin: "io.github.groovylang.groovydoc"
+        groovydoc.jvmArgs "-Xmx512M"
     }
-    apply plugin: "io.github.groovylang.groovydoc"
 
     sourceCompatibility = "1.8"
     targetCompatibility = "1.8"
@@ -183,7 +185,6 @@ subprojects { project ->
         documentation "info.picocli:picocli:$picocliVersion"
     }
 
-    groovydoc.jvmArgs "-Xmx512M"
     groovydoc.classpath += configurations.documentation
 
     publishing {

@@ -15,10 +15,11 @@ configurations.all {
 }
 
 dependencies {
-    documentation ("org.grails:grails-core")
-    documentation ("org.grails:grails-bootstrap")
-    documentation ("org.grails:grails-spring")
+    documentation ("org.grails:grails-core:$grails3Version")
+    documentation ("org.grails:grails-bootstrap:$grails3Version")
+    documentation ("org.grails:grails-spring:$grails3Version")
 
+    compileOnly("org.grails:grails-bootstrap:$grails3Version")
     compileOnly("org.grails:grails-core:$grails3Version")
     compileOnly "org.spockframework:spock-core:$spockVersion", {
         exclude module:'groovy-all'
@@ -48,4 +49,5 @@ dependencies {
     testRuntime "org.springframework:spring-expression:$springVersion"
 }
 
+groovydoc.classpath += configurations.documentation
 apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
