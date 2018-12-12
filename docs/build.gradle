@@ -7,9 +7,7 @@ ext {
 
     coreProjects = [
             'core',
-            'gorm',
-            'gorm-hibernate-core',
-            'gorm-plugin-support'
+            'gorm'
     ]
 
 }
@@ -19,6 +17,10 @@ version rootProject.version
 apply plugin: 'org.asciidoctor.convert'
 
 dependencies {
+    documentation ("org.grails:grails-core:$grails3Version")
+    documentation ("org.grails:grails-bootstrap:$grails3Version")
+    documentation ("org.grails:grails-spring:$grails3Version")
+
     documentation "org.codehaus.groovy:groovy-all:$groovyVersion"
     documentation "org.fusesource.jansi:jansi:$jansiVersion"
     for(p in coreProjects) {
