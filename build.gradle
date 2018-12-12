@@ -26,19 +26,15 @@ plugins {
 
 group "org.grails"
 //version "6.1.10.RELEASE"
-version "7.0.0.BUILD-SNAPSHOT"
+version "7.0.0.M1"
 logger.info("GORM VERSION = ${project.gormVersion}")
 
 ext {
     isTravisBuild = System.getenv().get("TRAVIS") == 'true'
     isCiBuild = project.hasProperty("isCiBuild")
     isBuildSnapshot = version.endsWith("BUILD-SNAPSHOT")
-
-    servletApiVersion = "4.0.1"
-
     nexusUsername = System.getenv("SONATYPE_USERNAME") ?: project.hasProperty("sonatypeOssUsername") ? project.sonatypeOssUsername : ''
     nexusPassword = System.getenv("SONATYPE_PASSWORD") ?: project.hasProperty("sonatypeOssPassword") ? project.sonatypeOssPassword : ''
-
 }
 
 allprojects { project ->
