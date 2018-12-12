@@ -15,6 +15,9 @@ configurations.all {
 }
 
 dependencies {
+    documentation ("org.grails:grails-core")
+    documentation ("org.grails:grails-spring")
+
     compileOnly("org.grails:grails-core:$grails3Version")
     compileOnly "org.spockframework:spock-core:$spockVersion", {
         exclude module:'groovy-all'
