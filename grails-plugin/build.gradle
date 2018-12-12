@@ -16,6 +16,7 @@ configurations.all {
 
 dependencies {
     documentation ("org.grails:grails-core")
+    documentation ("org.grails:grails-bootstrap")
     documentation ("org.grails:grails-spring")
 
     compileOnly("org.grails:grails-core:$grails3Version")
