@@ -22,6 +22,7 @@ import org.hibernate.Session
 import org.hibernate.criterion.Example
 import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
+import org.hibernate.jpa.QueryHints
 import org.hibernate.query.NativeQuery
 import org.hibernate.query.Query
 import org.hibernate.transform.DistinctRootEntityResultTransformer
@@ -136,16 +137,19 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
         }
         
         (D)hibernateTemplate.execute(  { Session session ->
-            def criteria = session.createCriteria(persistentEntity.javaClass)
-            criteria.add Restrictions.idEq(id)
-            criteria.readOnly = true
-            firePreQueryEvent(session,criteria)
-            def result = (D) criteria.uniqueResult()
-            if(result) {
-                session.setReadOnly(result, true)
-            }
-            firePostQueryEvent(session, criteria, result)
-            return proxyHandler.unwrap( result )
+            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder()
+            CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(persistentEntity.javaClass)
+
+            Root queryRoot = criteriaQuery.from(persistentEntity.javaClass)
+            criteriaQuery = criteriaQuery.where (
+                    criteriaBuilder.equal(queryRoot.get(persistentEntity.identity.name), id)
+            )
+            Query criteria = session.createQuery(criteriaQuery)
+                                    .setHint(QueryHints.HINT_READONLY, true)
+            HibernateHqlQuery hibernateHqlQuery = new HibernateHqlQuery(
+                    hibernateSession, persistentEntity, criteria)
+            return proxyHandler.unwrap( hibernateHqlQuery.singleResult() )
+
         } )
     }
 
@@ -163,12 +167,12 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
     @Override
     List<D> getAll() {
         (List<D>)hibernateTemplate.execute({ Session session ->
-            Criteria criteria = session.createCriteria(persistentClass)
-            hibernateTemplate.applySettings(criteria)
-            firePreQueryEvent(session, criteria)
-            def results = criteria.list()
-            firePostQueryEvent(session, criteria, results)
-            return results
+            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder()
+            CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(persistentEntity.javaClass)
+            Query criteria = session.createQuery(criteriaQuery)
+            HibernateHqlQuery hibernateHqlQuery = new HibernateHqlQuery(
+                    hibernateSession, persistentEntity, criteria)
+            return hibernateHqlQuery.list()
         })
     }
 

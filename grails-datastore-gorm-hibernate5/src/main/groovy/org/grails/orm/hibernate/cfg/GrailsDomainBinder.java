@@ -1780,8 +1780,12 @@ public class GrailsDomainBinder implements MetadataContributor {
 
 
 
-    protected void bindIdentity(HibernatePersistentEntity domainClass, RootClass root, InFlightMetadataCollector mappings,
-                                Mapping gormMapping, String sessionFactoryBeanName) {
+    protected void bindIdentity(
+            HibernatePersistentEntity domainClass,
+            RootClass root,
+            InFlightMetadataCollector mappings,
+            Mapping gormMapping,
+            String sessionFactoryBeanName) {
 
         PersistentProperty identifierProp = domainClass.getIdentity();
         if (gormMapping == null) {
@@ -2541,6 +2545,10 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         // create the id value
         SimpleValue id = new SimpleValue(metadataBuildingContext, entity.getTable());
+        Property idProperty  = new Property();
+        idProperty.setName(identifier.getName());
+        idProperty.setValue(id);
+        entity.setDeclaredIdentifierProperty(idProperty);
         // set identifier on entity
 
         Properties params = new Properties();
