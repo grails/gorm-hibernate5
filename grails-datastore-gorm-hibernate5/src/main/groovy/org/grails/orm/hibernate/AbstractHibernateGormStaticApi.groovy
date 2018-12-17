@@ -31,6 +31,7 @@ import org.springframework.transaction.PlatformTransactionManager
 
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
+import javax.persistence.criteria.Path
 import javax.persistence.criteria.Root
 import java.util.regex.Pattern
 
@@ -179,14 +180,16 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
     @Override
     Integer count() {
         (Integer)hibernateTemplate.execute({ Session session ->
-            def criteria = session.createCriteria(persistentClass)
+            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder()
+            CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(persistentEntity.javaClass)
+            criteriaQuery.select(criteriaBuilder.count(criteriaQuery.from(persistentEntity.javaClass)))
+            Query criteria = session.createQuery(criteriaQuery)
+            HibernateHqlQuery hibernateHqlQuery = new HibernateHqlQuery(
+                    hibernateSession, persistentEntity, criteria)
+
             hibernateTemplate.applySettings(criteria)
-            criteria.setProjection(Projections.rowCount())
-            Number num = 0
-            firePreQueryEvent(session, criteria)
-            def result = criteria.uniqueResult()
-            firePostQueryEvent(session, criteria, num)
-            num = result == null ? 0 : (Number)result
+            def result = hibernateHqlQuery.singleResult()
+            Number num = result == null ? 0 : (Number)result
             return num
         })
     }
@@ -212,15 +215,20 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
     boolean exists(Serializable id) {
         id = convertIdentifier(id)
         hibernateTemplate.execute  { Session session ->
-            Criteria criteria = session.createCriteria(persistentEntity.javaClass)
+            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder()
+            CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(persistentEntity.javaClass)
+            Root queryRoot = criteriaQuery.from(persistentEntity.javaClass)
+            def idProp = queryRoot.get(persistentEntity.identity.name)
+            criteriaQuery = criteriaQuery.where (
+                    criteriaBuilder.equal(idProp, id)
+            )
+            criteriaQuery.select(criteriaBuilder.count(criteriaQuery.from(persistentEntity.javaClass)))
+            Query criteria = session.createQuery(criteriaQuery)
+            HibernateHqlQuery hibernateHqlQuery = new HibernateHqlQuery(
+                    hibernateSession, persistentEntity, criteria)
+
             hibernateTemplate.applySettings(criteria)
-
-            criteria.add(Restrictions.idEq(id))
-                    .setProjection(Projections.rowCount())
-
-            firePreQueryEvent(session, criteria)
-            def result = criteria.uniqueResult()
-            firePostQueryEvent(session, criteria, result)
+            Boolean result = hibernateHqlQuery.singleResult()
             return result
         }
     }
