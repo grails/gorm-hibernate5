@@ -105,7 +105,12 @@ public class HibernateMappingContextConfiguration extends Configuration implemen
         DataSource source = connectionSource.getSource();
         getProperties().put(Environment.DATASOURCE, source);
         getProperties().put(Environment.CURRENT_SESSION_CONTEXT_CLASS, GrailsSessionContext.class.getName());
-        getProperties().put(AvailableSettings.CLASSLOADERS, connectionSource.getClass().getClassLoader());
+        final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        if (contextClassLoader != null && contextClassLoader.getClass().getSimpleName().equalsIgnoreCase("RestartClassLoader")) {
+            getProperties().put(AvailableSettings.CLASSLOADERS, contextClassLoader);
+        } else {
+            getProperties().put(AvailableSettings.CLASSLOADERS, connectionSource.getClass().getClassLoader());
+        }
     }
 
     /**
