@@ -185,8 +185,12 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
             criteriaQuery.select(criteriaBuilder.count(criteriaQuery.from(persistentEntity.javaClass)))
             Query criteria = session.createQuery(criteriaQuery)
             HibernateHqlQuery hibernateHqlQuery = new HibernateHqlQuery(
-                    hibernateSession, persistentEntity, criteria)
-
+                    hibernateSession, persistentEntity, criteria) {
+                @Override
+                protected void flushBeforeQuery() {
+                    // no-op
+                }
+            }
             hibernateTemplate.applySettings(criteria)
             def result = hibernateHqlQuery.singleResult()
             Number num = result == null ? 0 : (Number)result
