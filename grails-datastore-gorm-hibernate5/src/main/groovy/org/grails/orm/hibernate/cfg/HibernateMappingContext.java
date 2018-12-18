@@ -181,6 +181,15 @@ public class HibernateMappingContext extends AbstractMappingContext {
         return embedded;
     }
 
+    @Override
+    public PersistentEntity getPersistentEntity(String name) {
+        final int proxyIndicator = name.indexOf("$HibernateProxy$");
+        if (proxyIndicator > -1) {
+            name = name.substring(0, proxyIndicator);
+        }
+        return super.getPersistentEntity(name);
+    }
+
     static class HibernateEmbeddedPersistentEntity extends EmbeddedPersistentEntity {
         private final ClassMapping<Mapping> classMapping;
         public HibernateEmbeddedPersistentEntity(Class type, MappingContext ctx) {
