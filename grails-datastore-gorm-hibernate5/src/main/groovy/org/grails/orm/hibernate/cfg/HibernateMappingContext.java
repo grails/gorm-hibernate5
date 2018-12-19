@@ -21,17 +21,14 @@ import groovy.lang.Closure;
 import groovy.lang.GroovyObject;
 import org.grails.datastore.gorm.GormEntity;
 import org.grails.datastore.mapping.config.AbstractGormMappingFactory;
-import org.grails.datastore.mapping.config.Settings;
 import org.grails.datastore.mapping.config.Property;
 import org.grails.datastore.mapping.config.groovy.MappingConfigurationBuilder;
 import org.grails.datastore.mapping.model.*;
 import org.grails.datastore.mapping.model.config.GormProperties;
 import org.grails.datastore.mapping.model.config.JpaMappingConfigurationStrategy;
 import org.grails.datastore.mapping.reflect.ClassUtils;
-import org.grails.datastore.mapping.reflect.FieldEntityAccess;
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceSettings;
-import org.grails.orm.hibernate.proxy.SimpleHibernateProxyHandler;
-import org.springframework.core.env.PropertyResolver;
+import org.grails.orm.hibernate.proxy.HibernateProxyHandler;
 import org.springframework.validation.Errors;
 
 import java.lang.annotation.Annotation;
@@ -72,7 +69,7 @@ public class HibernateMappingContext extends AbstractMappingContext {
                 return !Errors.class.isAssignableFrom(propertyType);
             }
         };
-        this.proxyFactory = new SimpleHibernateProxyHandler();
+        this.proxyFactory = new HibernateProxyHandler();
         addPersistentEntities(persistentClasses);
     }
 

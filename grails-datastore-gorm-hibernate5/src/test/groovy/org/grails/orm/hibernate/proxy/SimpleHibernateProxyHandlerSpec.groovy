@@ -9,7 +9,7 @@ class SimpleHibernateProxyHandlerSpec extends Specification {
 
     void "test isInitialized respects PersistentCollections"() {
         given:
-        def ph = new SimpleHibernateProxyHandler()
+        def ph = new HibernateProxyHandler()
 
         when:
         def initialized = Mock(PersistentCollection) {
@@ -26,7 +26,7 @@ class SimpleHibernateProxyHandlerSpec extends Specification {
 
     void "test isInitialized respects HibernateProxy"() {
         given:
-        def ph = new SimpleHibernateProxyHandler()
+        def ph = new HibernateProxyHandler()
 
         when:
         def initialized = Mock(HibernateProxy) {
