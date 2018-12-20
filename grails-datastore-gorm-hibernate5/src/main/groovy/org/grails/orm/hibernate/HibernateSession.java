@@ -33,6 +33,7 @@ import org.grails.datastore.mapping.query.event.PostQueryEvent;
 import org.grails.datastore.mapping.query.event.PreQueryEvent;
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler;
 import org.grails.orm.hibernate.query.HibernateHqlQuery;
+import org.grails.orm.hibernate.query.HibernateJpaCriteriaQuery;
 import org.grails.orm.hibernate.query.HibernateQuery;
 import org.grails.datastore.mapping.model.PersistentEntity;
 import org.grails.datastore.mapping.query.Query;
@@ -183,9 +184,7 @@ public class HibernateSession extends AbstractHibernateSession {
         final PersistentEntity persistentEntity = getMappingContext().getPersistentEntity(type.getName());
         GrailsHibernateTemplate hibernateTemplate = getHibernateTemplate();
         Session currentSession = hibernateTemplate.getSessionFactory().getCurrentSession();
-        final Criteria criteria = alias != null ? currentSession.createCriteria(type, alias) : currentSession.createCriteria(type);
-        hibernateTemplate.applySettings(criteria);
-        return new HibernateQuery(criteria, this, persistentEntity);
+        return new HibernateJpaCriteriaQuery(this, currentSession, persistentEntity);
     }
 
     protected GrailsHibernateTemplate getHibernateTemplate() {
