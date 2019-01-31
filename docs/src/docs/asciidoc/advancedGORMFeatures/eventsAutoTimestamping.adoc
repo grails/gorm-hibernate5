@@ -75,7 +75,9 @@ class Person {
 
    def beforeDelete() {
       ActivityTrace.withNewSession {
-         new ActivityTrace(eventName: "Person Deleted", data: name).save()
+         ActivityTrace.withTransaction {
+            new ActivityTrace(eventName: "Person Deleted", data: name).save()
+         }
       }
    }
 }
@@ -84,6 +86,8 @@ class Person {
 Notice the usage of `withNewSession` method above. Since events are triggered whilst Hibernate is flushing using persistence methods like `save()` and `delete()` won't result in objects being saved unless you run your operations with a new `Session`.
 
 Fortunately the `withNewSession` method lets you share the same transactional JDBC connection even though you're using a different underlying `Session`.
+
+NOTE: If your flush mode is COMMIT (the default in GORM 6) you must either wrap your save in a transaction or call `save(flush: true)` for the session to be flushed.
 
 
 ==== The beforeValidate event
