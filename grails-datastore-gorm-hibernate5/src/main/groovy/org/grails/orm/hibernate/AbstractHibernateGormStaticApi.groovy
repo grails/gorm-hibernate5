@@ -686,6 +686,7 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
         getAllInternal(ids as List)
     }
 
+    @CompileDynamic
     private List getAllInternal(List ids) {
         if (!ids) return []
 
