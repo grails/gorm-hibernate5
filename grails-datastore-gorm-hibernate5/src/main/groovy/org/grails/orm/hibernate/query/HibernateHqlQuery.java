@@ -25,6 +25,11 @@ public class HibernateHqlQuery extends Query {
     }
 
     @Override
+    protected void flushBeforeQuery() {
+        // do nothing, hibernate handles this
+    }
+
+    @Override
     protected List executeQuery(PersistentEntity entity, Junction criteria) {
         Datastore datastore = getSession().getDatastore();
         ApplicationEventPublisher applicationEventPublisher = datastore.getApplicationEventPublisher();
