@@ -75,6 +75,44 @@ class HibernateDirtyCheckingSpec extends Specification {
 
 
     }
+
+    @Rollback
+    void    "test dirty check in gorm works properly with booleans"() {
+        given: 'a new person'
+        def person = new Person(name: 'John', occupation: 'Grails developer').save(flush:true)
+
+        when: 'the name is changed'
+        person.setAccountLocked(true) // should at least work with calling a setter
+
+        then: 'the name field is dirty'
+        person.getPersistentValue('accountLocked') == true
+        person.dirtyPropertyNames.contains 'accountLocked'
+        person.dirtyPropertyNames == ['accountLocked']
+        person.isDirty('accountLocked')
+        !person.isDirty('occupation')
+
+        when:
+        person.save(flush:true)
+
+        then:
+        person.getPersistentValue('accountLocked') == accountLocked
+        person.dirtyPropertyNames == []
+        !person.isDirty('accountLocked')
+        !person.isDirty()
+
+        when:
+        person.setEnabled(true)
+
+        then:
+        person.getPersistentValue('enabled') == true
+        person.dirtyPropertyNames.contains 'enabled'
+        person.dirtyPropertyNames == ['enabled']
+        person.isDirty('enabled')
+        !person.isDirty('occupation')
+
+
+    }
+
 }
 
 
@@ -83,6 +121,8 @@ class Person {
 
     String name
     String occupation
+    boolean accountLocked
+    Boolean enabled = false
 
     Address address
     static embedded = ['address']
