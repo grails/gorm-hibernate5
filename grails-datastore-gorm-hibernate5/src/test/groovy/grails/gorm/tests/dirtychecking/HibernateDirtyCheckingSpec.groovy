@@ -75,9 +75,11 @@ class HibernateDirtyCheckingSpec extends Specification {
     }
 
     @Rollback
-    void "test dirty checking on boolean"() {
+    void "test dirty checking on boolean true -> false"() {
         given: 'a new person'
-        Person person = new Person(name: 'John', occupation: 'Grails developer', employed: true).save(flush: true)
+        new Person(name: 'John', occupation: 'Grails developer', employed: true).save(flush: true)
+        hibernateDatastore.sessionFactory.currentSession.clear()
+        Person person = Person.first()
 
         when:
         person.employed = false
@@ -94,6 +96,30 @@ class HibernateDirtyCheckingSpec extends Specification {
 
         then:
         person.employed == false
+    }
+
+    @Rollback
+    void "test dirty checking on boolean false -> true"() {
+        given: 'a new person'
+        new Person(name: 'John', occupation: 'Grails developer', employed: false).save(flush: true)
+        hibernateDatastore.sessionFactory.currentSession.clear()
+        Person person = Person.first()
+
+        when:
+        person.employed = true
+
+        then:
+        person.getPersistentValue('employed') == false
+        person.dirtyPropertyNames == ['employed']
+        person.isDirty('employed')
+
+        when:
+        person.save(flush:true)
+        hibernateDatastore.sessionFactory.currentSession.clear()
+        person = Person.first()
+
+        then:
+        person.employed == true
     }
 
 }
