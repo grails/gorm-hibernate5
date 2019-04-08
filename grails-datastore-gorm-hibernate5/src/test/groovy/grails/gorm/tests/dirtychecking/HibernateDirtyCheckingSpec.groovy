@@ -72,9 +72,30 @@ class HibernateDirtyCheckingSpec extends Specification {
 
         then:
         person.address.street == "New Town"
-
-
     }
+
+    @Rollback
+    void "test dirty checking on boolean"() {
+        given: 'a new person'
+        Person person = new Person(name: 'John', occupation: 'Grails developer', employed: true).save(flush: true)
+
+        when:
+        person.employed = false
+
+        then:
+        person.getPersistentValue('employed') == true
+        person.dirtyPropertyNames == ['employed']
+        person.isDirty('employed')
+
+        when:
+        person.save(flush:true)
+        hibernateDatastore.sessionFactory.currentSession.clear()
+        person = Person.first()
+
+        then:
+        person.employed == false
+    }
+
 }
 
 
@@ -83,6 +104,7 @@ class Person {
 
     String name
     String occupation
+    boolean employed
 
     Address address
     static embedded = ['address']
