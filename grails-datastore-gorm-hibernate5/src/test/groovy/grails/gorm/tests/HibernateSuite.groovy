@@ -9,7 +9,7 @@ import org.junit.runners.Suite
 @RunWith(Suite)
 
 @Suite.SuiteClasses([
-        GormEnhancerSpec
+        NullValueEqualSpec
 ])
 class HibernateSuite {
 }

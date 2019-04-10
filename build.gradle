@@ -25,7 +25,7 @@ plugins {
 
 
 group "org.grails"
-//version "6.1.10.RELEASE"
+// version "7.0.0.RELEASE"
 version "7.0.0.BUILD-SNAPSHOT"
 logger.info("GORM VERSION = ${project.gormVersion}")
 
