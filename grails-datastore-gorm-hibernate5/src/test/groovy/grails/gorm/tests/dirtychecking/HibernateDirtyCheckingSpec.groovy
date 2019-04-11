@@ -4,7 +4,6 @@ import grails.gorm.annotation.Entity
 import grails.gorm.dirty.checking.DirtyCheck
 import grails.gorm.transactions.Rollback
 import org.grails.orm.hibernate.HibernateDatastore
-import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
 import spock.lang.Issue
 import spock.lang.Shared
@@ -15,7 +14,7 @@ import spock.lang.Specification
  */
 class HibernateDirtyCheckingSpec extends Specification {
 
-    @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(Person)
+    @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(Person, DirtyCheckingDummy)
 
     @Rollback
     @Issue('https://github.com/grails/grails-core/issues/10613')
@@ -75,6 +74,16 @@ class HibernateDirtyCheckingSpec extends Specification {
 
 
     }
+
+    @Rollback
+    void "test dirtyness of new instances"() {
+        when:
+        DirtyCheckingDummy dummy = new DirtyCheckingDummy(name: "dummy").save failOnError: true, flush: true
+
+        then:
+        !dummy.hasChanged()
+        !dummy.dirty
+    }
 }
 
 
@@ -100,4 +109,16 @@ class Person {
 class Address {
     String street
     String zip
+}
+
+@Entity
+class DirtyCheckingDummy {
+
+    String name
+
+    def beforeInsert() {
+        assert hasChanged()
+        assert !dirty
+    }
+
 }
