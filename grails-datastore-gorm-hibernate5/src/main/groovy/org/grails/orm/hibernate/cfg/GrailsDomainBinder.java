@@ -1340,11 +1340,17 @@ public class GrailsDomainBinder implements MetadataContributor {
      */
     protected void bindClass(PersistentEntity domainClass, PersistentClass persistentClass, InFlightMetadataCollector mappings) {
 
+        boolean autoImport = mappings.getMetadataBuildingOptions().getMappingDefaults().isAutoImportEnabled();
+        org.grails.datastore.mapping.config.Entity mappedForm = domainClass.getMapping().getMappedForm();
+        if (mappedForm instanceof Mapping) {
+            autoImport = ((Mapping) mappedForm).isAutoImport();
+        }
+
         // set lazy loading for now
         persistentClass.setLazy(true);
         final String entityName = domainClass.getName();
         persistentClass.setEntityName(entityName);
-        persistentClass.setJpaEntityName(unqualify(entityName));
+        persistentClass.setJpaEntityName(autoImport ? unqualify(entityName) : entityName);
         persistentClass.setProxyInterfaceName(entityName);
         persistentClass.setClassName(entityName);
 
@@ -1357,7 +1363,8 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         // add import to mappings
         String en = persistentClass.getEntityName();
-        if (mappings.getMetadataBuildingOptions().getMappingDefaults().isAutoImportEnabled() && en.indexOf('.') > 0) {
+
+        if (autoImport && en.indexOf('.') > 0) {
             String unqualified = unqualify(en);
             mappings.addImport(unqualified, en);
         }
