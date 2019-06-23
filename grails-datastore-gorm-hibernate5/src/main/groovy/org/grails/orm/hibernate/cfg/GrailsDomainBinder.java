@@ -3460,13 +3460,13 @@ public class GrailsDomainBinder implements MetadataContributor {
         protected final GrailsDomainBinder binder;
         protected final MetadataBuildingContext buildingContext;
 
-        protected static CollectionType SET;
-        protected static CollectionType LIST;
-        protected static CollectionType BAG;
-        protected static CollectionType MAP;
-        protected static boolean initialized;
+        protected CollectionType SET;
+        protected CollectionType LIST;
+        protected CollectionType BAG;
+        protected CollectionType MAP;
+        protected boolean initialized;
 
-        protected static final Map<Class<?>, CollectionType> INSTANCES = new HashMap<>();
+        protected final Map<Class<?>, CollectionType> INSTANCES = new HashMap<>();
 
         public abstract Collection create(ToMany property, PersistentClass owner,
                                           String path, InFlightMetadataCollector mappings, String sessionFactoryBeanName) throws MappingException;
