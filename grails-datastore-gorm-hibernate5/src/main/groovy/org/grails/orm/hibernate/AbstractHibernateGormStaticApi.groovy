@@ -275,7 +275,7 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
         def template = hibernateTemplate
         queryNamedArgs = new HashMap(queryNamedArgs)
         return (D) template.execute { Session session ->
-            Query q = session.createQuery(queryString)
+            Query q = (Query) session.createQuery(queryString)
             template.applySettings(q)
 
             populateQueryArguments(q, queryNamedArgs)
@@ -299,7 +299,7 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
         args = new HashMap(args)
         def template = hibernateTemplate
         return (D) template.execute { Session session ->
-            Query q = session.createQuery(queryString)
+            Query q = (Query) session.createQuery(queryString)
             template.applySettings(q)
 
             params.eachWithIndex { val, int i ->
@@ -328,7 +328,7 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
 
         def template = hibernateTemplate
         return (List<D>) template.execute { Session session ->
-            Query q = session.createQuery(queryString)
+            Query q = (Query) session.createQuery(queryString)
             template.applySettings(q)
 
             populateQueryArguments(q, params)
@@ -522,7 +522,7 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
 
         def template = hibernateTemplate
         return (List<D>) template.execute { Session session ->
-            Query q = session.createQuery(queryString)
+            Query q = (Query) session.createQuery(queryString)
             template.applySettings(q)
 
             params.eachWithIndex { val, int i ->
@@ -611,7 +611,7 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
         }
 
         return (List<D>) template.execute { Session session ->
-            Query q = session.createQuery(query.toString())
+            Query q = (Query) session.createQuery(query.toString())
             template.applySettings(q)
 
             populateQueryArguments(q, params)
@@ -632,7 +632,7 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
         args = new HashMap(args)
 
         return (List<D>) template.execute { Session session ->
-            Query q = session.createQuery(query.toString())
+            Query q = (Query) session.createQuery(query.toString())
             template.applySettings(q)
 
             params.eachWithIndex { val, int i ->
