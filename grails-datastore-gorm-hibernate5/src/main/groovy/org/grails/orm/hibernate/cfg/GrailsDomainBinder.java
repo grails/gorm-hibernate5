@@ -1546,7 +1546,7 @@ public class GrailsDomainBinder implements MetadataContributor {
 
     public void bindUnionSubclass(HibernatePersistentEntity subClass, UnionSubclass unionSubclass,
                                   InFlightMetadataCollector mappings, String sessionFactoryBeanName) throws MappingException {
-
+        bindClass(subClass, unionSubclass, mappings);
 
         Mapping subMapping = getMapping(subClass.getJavaClass());
 
