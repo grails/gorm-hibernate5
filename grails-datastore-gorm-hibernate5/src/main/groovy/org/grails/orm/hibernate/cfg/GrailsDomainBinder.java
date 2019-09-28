@@ -2538,6 +2538,7 @@ public class GrailsDomainBinder implements MetadataContributor {
             prop.setLazy(false);
             val.setNullValue("undefined");
             entity.setVersion(prop);
+            entity.setDeclaredVersion(prop);
             entity.setOptimisticLockStyle(OptimisticLockStyle.VERSION);
             entity.addProperty(prop);
         }
