@@ -10,7 +10,7 @@ cache:
     - $HOME/.gradle/wrapper/
 jdk:
 - openjdk11
-- oraclejdk8
+- openjdk8
 env:
   global:
   - TERM=dumb
