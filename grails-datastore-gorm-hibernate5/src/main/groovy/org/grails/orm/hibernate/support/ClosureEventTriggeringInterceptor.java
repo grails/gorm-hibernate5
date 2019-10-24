@@ -202,8 +202,16 @@ public class ClosureEventTriggeringInterceptor extends AbstractClosureEventTrigg
 
         Object[] oldState = hibernateEvent.getOldState();
         Object[] state = hibernateEvent.getState();
+
+        Object entity = hibernateEvent.getEntity();
+        Class type = Hibernate.getClass(entity);
+        MappingContext mappingContext = datastore.getMappingContext();
+        PersistentEntity persistentEntity = mappingContext.getPersistentEntity(type.getName());
+
+        boolean autoTimestamp = persistentEntity.getMapping().getMappedForm().isAutoTimestamp();
+
         // Only for "dateCreated" property, "lastUpdated" is handled correctly
-        if (dateCreatedIdx != null && oldState != null && oldState[dateCreatedIdx] != null && !oldState[dateCreatedIdx].equals(state[dateCreatedIdx])) {
+        if (autoTimestamp && dateCreatedIdx != null && oldState != null && oldState[dateCreatedIdx] != null && !oldState[dateCreatedIdx].equals(state[dateCreatedIdx])) {
             modifiedProperties.put(AutoTimestampEventListener.DATE_CREATED_PROPERTY, oldState[dateCreatedIdx]);
         }
 
