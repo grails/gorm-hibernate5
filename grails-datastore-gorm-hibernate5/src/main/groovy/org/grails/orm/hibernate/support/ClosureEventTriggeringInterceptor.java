@@ -184,8 +184,12 @@ public class ClosureEventTriggeringInterceptor extends AbstractClosureEventTrigg
         }
     }
 
-    private void synchronizeHibernateState(PreUpdateEvent hibernateEvent, ModificationTrackingEntityAccess entityAccess) {
-        Map<String, Object> modifiedProperties = getModifiedPropertiesWithAutotimestamp(hibernateEvent, entityAccess);
+    private void synchronizeHibernateState(PreUpdateEvent hibernateEvent, ModificationTrackingEntityAccess entityAccess, boolean autoTimestamp) {
+        Map<String, Object> modifiedProperties = entityAccess.getModifiedProperties();
+
+        if (autoTimestamp) {
+            updateModifiedPropertiesWithAutoTimestamp(modifiedProperties, hibernateEvent);
+        }
 
         if (!modifiedProperties.isEmpty()) {
             Object[] state = hibernateEvent.getState();
@@ -194,8 +198,7 @@ public class ClosureEventTriggeringInterceptor extends AbstractClosureEventTrigg
         }
     }
 
-    private Map<String, Object> getModifiedPropertiesWithAutotimestamp(PreUpdateEvent hibernateEvent, ModificationTrackingEntityAccess entityAccess) {
-        Map<String, Object> modifiedProperties = entityAccess.getModifiedProperties();
+    private void updateModifiedPropertiesWithAutoTimestamp(Map<String, Object> modifiedProperties, PreUpdateEvent hibernateEvent) {
 
         EntityMetamodel entityMetamodel = hibernateEvent.getPersister().getEntityMetamodel();
         Integer dateCreatedIdx = entityMetamodel.getPropertyIndexOrNull(AutoTimestampEventListener.DATE_CREATED_PROPERTY);
@@ -203,19 +206,10 @@ public class ClosureEventTriggeringInterceptor extends AbstractClosureEventTrigg
         Object[] oldState = hibernateEvent.getOldState();
         Object[] state = hibernateEvent.getState();
 
-        Object entity = hibernateEvent.getEntity();
-        Class type = Hibernate.getClass(entity);
-        MappingContext mappingContext = datastore.getMappingContext();
-        PersistentEntity persistentEntity = mappingContext.getPersistentEntity(type.getName());
-
-        boolean autoTimestamp = persistentEntity.getMapping().getMappedForm().isAutoTimestamp();
-
         // Only for "dateCreated" property, "lastUpdated" is handled correctly
-        if (autoTimestamp && dateCreatedIdx != null && oldState != null && oldState[dateCreatedIdx] != null && !oldState[dateCreatedIdx].equals(state[dateCreatedIdx])) {
+        if (dateCreatedIdx != null && oldState != null && oldState[dateCreatedIdx] != null && !oldState[dateCreatedIdx].equals(state[dateCreatedIdx])) {
             modifiedProperties.put(AutoTimestampEventListener.DATE_CREATED_PROPERTY, oldState[dateCreatedIdx]);
         }
-
-        return modifiedProperties;
     }
 
     private void synchronizeHibernateState(EntityPersister persister, Object[] state, Map<String, Object> modifiedProperties) {
@@ -254,7 +248,8 @@ public class ClosureEventTriggeringInterceptor extends AbstractClosureEventTrigg
         publishEvent(hibernateEvent, grailsEvent);
         boolean cancelled = grailsEvent.isCancelled();
         if(!cancelled && entityAccess != null) {
-            synchronizeHibernateState(hibernateEvent, entityAccess);
+            boolean autoTimestamp = persistentEntity.getMapping().getMappedForm().isAutoTimestamp();
+            synchronizeHibernateState(hibernateEvent, entityAccess, autoTimestamp);
         }
         return cancelled;
 
