@@ -8,6 +8,8 @@ import org.grails.orm.hibernate.cfg.Settings
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.springframework.boot.env.PropertySourceLoader
+import org.springframework.core.env.MapPropertySource
+import org.springframework.core.env.MutablePropertySources
 import org.springframework.core.env.PropertyResolver
 import org.springframework.core.env.PropertySource
 import org.springframework.core.io.DefaultResourceLoader
