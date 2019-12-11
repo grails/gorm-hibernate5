@@ -7,4 +7,4 @@ dataSource:
 ---
 grails:
   gorm:
-    failOnError: false # Default, just for testing override in HibernateSpecSpec
+    failOnError: false # Default, just for testing override in HibernateSpecOverrideSpec
