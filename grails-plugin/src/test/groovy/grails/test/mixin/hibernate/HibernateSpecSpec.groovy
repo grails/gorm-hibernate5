@@ -39,6 +39,13 @@ class HibernateSpecSpec extends HibernateSpec {
         new Player(sport:"Football", name: "Cantona", age:50).validate()
     }
 
+    void "Configuration defaults are correct"() {
+        expect: "Default from application.yml"
+        hibernateDatastore.failOnError == false
+        and: "Default"
+        hibernateDatastore.defaultFlushModeName == "COMMIT"
+    }
+
     List<Class> getDomainClasses() { [Person, Player, Book] }
 }
 

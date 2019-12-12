@@ -8,6 +8,8 @@ import org.grails.orm.hibernate.cfg.Settings
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.springframework.boot.env.PropertySourceLoader
+import org.springframework.core.env.MapPropertySource
+import org.springframework.core.env.MutablePropertySources
 import org.springframework.core.env.PropertyResolver
 import org.springframework.core.env.PropertySource
 import org.springframework.core.io.DefaultResourceLoader
@@ -37,24 +39,21 @@ abstract class HibernateSpec extends Specification {
 
         List<PropertySourceLoader> propertySourceLoaders = SpringFactoriesLoader.loadFactories(PropertySourceLoader.class, getClass().getClassLoader())
         ResourceLoader resourceLoader = new DefaultResourceLoader()
-
-        List<PropertySource> propertySources = []
-
+        MutablePropertySources propertySources = new MutablePropertySources()
         PropertySourceLoader ymlLoader = propertySourceLoaders.find { it.getFileExtensions().toList().contains("yml") }
         if (ymlLoader) {
-            propertySources.addAll(load(resourceLoader, ymlLoader, "application.yml"))
+            load(resourceLoader, ymlLoader, "application.yml").each {
+                propertySources.addLast(it)
+            }
         }
         PropertySourceLoader groovyLoader = propertySourceLoaders.find { it.getFileExtensions().toList().contains("groovy") }
         if (groovyLoader) {
-            propertySources.addAll(load(resourceLoader, groovyLoader, "application.groovy"))
+            load(resourceLoader, groovyLoader, "application.groovy").each {
+                propertySources.addLast(it)
+            }
         }
-
-        Map<String, Object> mapPropertySource = getConfiguration() as Map<String, Object>
-        mapPropertySource += propertySources
-            .findAll { it.getSource() }
-            .collectEntries { it.getSource() as Map }
-
-        Config config = new PropertySourcesConfig(mapPropertySource)
+        propertySources.addFirst(new MapPropertySource("defaults", getConfiguration()))
+        Config config = new PropertySourcesConfig(propertySources)
         List<Class> domainClasses = getDomainClasses()
         String packageName = getPackageToScan(config)
 
