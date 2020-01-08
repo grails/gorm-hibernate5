@@ -1731,6 +1731,7 @@ public class GrailsDomainBinder implements MetadataContributor {
             CacheConfig cc = m.getCache();
             if (cc != null && cc.getEnabled()) {
                 root.setCacheConcurrencyStrategy(cc.getUsage());
+                root.setCached(true);
                 if ("read-only".equals(cc.getUsage())) {
                     root.setMutable(false);
                 }
