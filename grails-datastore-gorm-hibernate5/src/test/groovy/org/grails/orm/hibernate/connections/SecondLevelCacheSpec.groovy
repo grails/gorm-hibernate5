@@ -35,20 +35,19 @@ class SecondLevelCacheSpec extends Specification {
             CachingEntity.first().id
         }
 
+        String[] regionNames = datastore.sessionFactory.getStatistics().getSecondLevelCacheRegionNames()
+
         then:
-        datastore.sessionFactory.getStatistics().getSecondLevelCacheRegionNames().size() == 1
-        datastore.sessionFactory.getStatistics().getEntityLoadCount() == 0
-        datastore.sessionFactory.getStatistics().getEntityFetchCount() == 0
+        regionNames.size() == 1
+        datastore.sessionFactory.getStatistics().getCacheRegionStatistics(regionNames[0]).getMissCount() == 0
+        datastore.sessionFactory.getStatistics().getCacheRegionStatistics(regionNames[0]).getHitCount() == 0
 
         when:
         CachingEntity entity1 = CachingEntity.withNewTransaction {
             CachingEntity.get(id)
         }
 
-        String[] regionNames = datastore.sessionFactory.getStatistics().getSecondLevelCacheRegionNames()
-
         then:
-        regionNames.size() == 1
         datastore.sessionFactory.getStatistics().getCacheRegionStatistics(regionNames[0]).getMissCount() == 1
         datastore.sessionFactory.getStatistics().getCacheRegionStatistics(regionNames[0]).getHitCount() == 0
         entity1 != null
