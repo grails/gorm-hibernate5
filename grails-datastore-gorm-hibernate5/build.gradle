@@ -106,13 +106,12 @@ test.doFirst {
     }
     copy {
         from tckClassesDir
-        into sourceSets.test.output.classesDirs.find { it.path.contains('classes/groovy') }
+        into sourceSets.test.output.classesDirs.find { it.path.contains('classes' + File.separator + 'groovy') }
         include "**/*.class"
         exclude { details ->
             // Do not copy across any TCK class (or nested classes of that class)
             // If there is a corresponding source file in the particular modules
             // test source tree. Allows a module to override a test/helper.
-
             if (!details.file.isFile()) {
                 return false
             }
