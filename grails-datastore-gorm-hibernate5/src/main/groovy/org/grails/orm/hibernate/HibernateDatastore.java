@@ -132,39 +132,26 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
 
         if(!(connectionSources instanceof SingletonConnectionSources)) {
 
+            final HibernateDatastore parent = this;
             Iterable<ConnectionSource<SessionFactory, HibernateConnectionSourceSettings>> allConnectionSources = connectionSources.getAllConnectionSources();
             for (ConnectionSource<SessionFactory, HibernateConnectionSourceSettings> connectionSource : allConnectionSources) {
                 SingletonConnectionSources<SessionFactory, HibernateConnectionSourceSettings> singletonConnectionSources = new SingletonConnectionSources<>(connectionSource, connectionSources.getBaseConfiguration());
                 HibernateDatastore childDatastore;
 
-                if(ConnectionSource.DEFAULT.equals(connectionSource.getName())) {
+                if (ConnectionSource.DEFAULT.equals(connectionSource.getName())) {
                     childDatastore = this;
-                }
-                else {
-                    childDatastore = new HibernateDatastore(singletonConnectionSources, mappingContext, eventPublisher) {
-                        @Override
-                        protected HibernateGormEnhancer initialize() {
-                            return null;
-                        }
-                    };
+                } else {
+                    childDatastore = createChildDatastore(mappingContext, eventPublisher, parent, singletonConnectionSources);
                 }
                 datastoresByConnectionSource.put(connectionSource.getName(), childDatastore);
             }
 
             // register a listener to update the datastore each time a connection source is added at runtime
-            connectionSources.addListener(new ConnectionSourcesListener<SessionFactory, HibernateConnectionSourceSettings>() {
-                @Override
-                public void newConnectionSource(ConnectionSource<SessionFactory, HibernateConnectionSourceSettings> connectionSource) {
-                    SingletonConnectionSources<SessionFactory, HibernateConnectionSourceSettings> singletonConnectionSources = new SingletonConnectionSources<>(connectionSource, connectionSources.getBaseConfiguration());
-                    HibernateDatastore childDatastore = new HibernateDatastore(singletonConnectionSources, mappingContext, eventPublisher) {
-                            @Override
-                            protected HibernateGormEnhancer initialize() {
-                                return null;
-                            }
-                        };
-                    datastoresByConnectionSource.put(connectionSource.getName(), childDatastore);
-                    registerAllEntitiesWithEnhancer();
-                }
+            connectionSources.addListener(connectionSource -> {
+                SingletonConnectionSources<SessionFactory, HibernateConnectionSourceSettings> singletonConnectionSources = new SingletonConnectionSources<>(connectionSource, connectionSources.getBaseConfiguration());
+                HibernateDatastore childDatastore = createChildDatastore(mappingContext, eventPublisher, parent, singletonConnectionSources);
+                datastoresByConnectionSource.put(connectionSource.getName(), childDatastore);
+                registerAllEntitiesWithEnhancer();
             });
 
             if(multiTenantMode == MultiTenancySettings.MultiTenancyMode.SCHEMA) {
@@ -187,6 +174,31 @@ public class HibernateDatastore extends AbstractHibernateDatastore implements Me
 
 
         this.gormEnhancer = initialize();
+    }
+
+    private HibernateDatastore createChildDatastore(HibernateMappingContext mappingContext,
+                                                    ConfigurableApplicationEventPublisher eventPublisher,
+                                                    HibernateDatastore parent,
+                                                    SingletonConnectionSources<SessionFactory, HibernateConnectionSourceSettings> singletonConnectionSources) {
+        return new HibernateDatastore(singletonConnectionSources, mappingContext, eventPublisher) {
+            @Override
+            protected HibernateGormEnhancer initialize() {
+                return null;
+            }
+
+            @Override
+            public HibernateDatastore getDatastoreForConnection(String connectionName) {
+                if (connectionName.equals(Settings.SETTING_DATASOURCE) || connectionName.equals(ConnectionSource.DEFAULT)) {
+                    return parent;
+                } else {
+                    HibernateDatastore hibernateDatastore = parent.datastoresByConnectionSource.get(connectionName);
+                    if (hibernateDatastore == null) {
+                        throw new ConfigurationException("DataSource not found for name [" + connectionName + "] in configuration. Please check your multiple data sources configuration and try again.");
+                    }
+                    return hibernateDatastore;
+                }
+            }
+        };
     }
 
     /**

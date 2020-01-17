@@ -1,7 +1,8 @@
 package org.grails.orm.hibernate.connections
 
-import grails.gorm.transactions.Rollback
+import grails.gorm.services.Service
 import grails.gorm.annotation.Entity
+import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.orm.hibernate.HibernateDatastore
 import org.hibernate.Session
@@ -92,6 +93,16 @@ class MultipleDataSourceConnectionsSpec extends Specification {
             return true
         }
     }
+
+    void "test @Transactional with connection property to non-default database"() {
+
+        when:
+        TestService testService = datastore.getDatastoreForConnection("books").getService(TestService)
+        testService.doSomething()
+
+        then:
+        noExceptionThrown()
+    }
 }
 
 @Entity
@@ -123,5 +134,13 @@ class Author {
         name blank:false
     }
 }
+
+@Service
+@Transactional(connection = "books")
+class TestService {
+
+    def doSomething() {}
+}
+
 
 
