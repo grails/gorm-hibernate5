@@ -18,7 +18,7 @@ import spock.lang.Specification
  *  so we are covered.
  *
  */
-class UniqueConstraintSpec extends Specification {
+class UniqueConstraintHibernateSpec extends Specification {
 
     @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(UniqueGroup, GroupWithin, Driver, License)
     @Shared PlatformTransactionManager transactionManager = hibernateDatastore.getTransactionManager()
