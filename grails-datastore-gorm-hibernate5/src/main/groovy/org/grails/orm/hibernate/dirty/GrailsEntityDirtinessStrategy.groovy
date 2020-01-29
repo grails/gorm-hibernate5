@@ -30,6 +30,8 @@ import org.hibernate.Session
 import org.hibernate.engine.spi.SessionImplementor
 import org.hibernate.engine.spi.Status
 import org.hibernate.persister.entity.EntityPersister
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * A class to customize Hibernate dirtiness based on Grails {@link DirtyCheckable} interface
@@ -41,6 +43,8 @@ import org.hibernate.persister.entity.EntityPersister
  */
 @CompileStatic
 class GrailsEntityDirtinessStrategy implements CustomEntityDirtinessStrategy {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(GrailsEntityDirtinessStrategy.class)
 
     @Override
     boolean canDirtyCheck(Object entity, EntityPersister persister, Session session) {
@@ -56,6 +60,30 @@ class GrailsEntityDirtinessStrategy implements CustomEntityDirtinessStrategy {
     void resetDirty(Object entity, EntityPersister persister, Session session) {
         if (canDirtyCheck(entity, persister, session)) {
             cast(entity).trackChanges()
+            try {
+                PersistentEntity persistentEntity = GormEnhancer.findEntity(Hibernate.getClass(entity))
+                if (persistentEntity != null) {
+                    resetDirtyEmbeddedObjects(persistentEntity, entity, persister, session)
+                }
+            } catch (IllegalStateException e) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(e.message, e)
+                }
+            }
+        }
+    }
+
+    private void resetDirtyEmbeddedObjects(PersistentEntity persistentEntity,
+                                           Object entity,
+                                           EntityPersister persister,
+                                           Session session) {
+
+        if (DirtyCheckingSupport.areEmbeddedDirty(persistentEntity, entity)) {
+            final associations = persistentEntity.getEmbedded()
+            for (Embedded a in associations) {
+                final value = a.reader.read(entity)
+                resetDirty(value, persister, session)
+            }
         }
     }
 
