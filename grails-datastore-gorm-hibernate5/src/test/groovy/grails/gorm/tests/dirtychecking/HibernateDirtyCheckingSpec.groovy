@@ -4,7 +4,6 @@ import grails.gorm.annotation.Entity
 import grails.gorm.dirty.checking.DirtyCheck
 import grails.gorm.transactions.Rollback
 import org.grails.orm.hibernate.HibernateDatastore
-import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
 import spock.lang.Issue
 import spock.lang.Shared
@@ -67,6 +66,12 @@ class HibernateDirtyCheckingSpec extends Specification {
 
         when:
         person.save(flush:true)
+
+        then:
+        !person.address.hasChanged()
+        person.address.listDirtyPropertyNames().isEmpty()
+
+        when:
         hibernateDatastore.sessionFactory.currentSession.clear()
         person = Person.first()
 
