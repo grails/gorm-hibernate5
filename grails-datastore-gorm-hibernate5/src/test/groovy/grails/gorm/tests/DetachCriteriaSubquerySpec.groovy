@@ -31,14 +31,16 @@ class DetachCriteriaSubquerySpec extends GormDatastoreSpec {
             def u = User
             exists(
                     GroupAssignment.where {
+                        def ga0 = GroupAssignment
                         user.id == u.id && group.supervisor.email == supervisorEmail
                     }.id()
             )
         }
-        criteria.list()
+        List<User> result = criteria.list()
 
         then:
         noExceptionThrown()
+        result.size() == 1
     }
 
     private User createUser(String email) {
