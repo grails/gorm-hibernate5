@@ -16,6 +16,7 @@ package org.grails.orm.hibernate.query;
 
 import org.grails.datastore.gorm.query.criteria.DetachedAssociationCriteria;
 import org.grails.datastore.mapping.model.PersistentEntity;
+import org.grails.datastore.mapping.model.types.Association;
 import org.grails.datastore.mapping.query.AssociationQuery;
 import org.grails.datastore.mapping.query.Query;
 import org.grails.datastore.mapping.query.api.QueryableCriteria;
@@ -172,11 +173,16 @@ public abstract class AbstractHibernateCriterionAdapter {
             @Override
             public Criterion toHibernateCriterion(AbstractHibernateQuery hibernateQuery, Query.Criterion criterion, String alias) {
                 DetachedAssociationCriteria<?> existing = (DetachedAssociationCriteria<?>) criterion;
-                if(alias == null) alias = existing.getAlias();
-                alias = hibernateQuery.handleAssociationQuery(existing.getAssociation(), existing.getCriteria(), alias);
+                alias = hibernateQuery.handleAssociationQuery(existing.getAssociation(), existing.getCriteria());
+                Association association = existing.getAssociation();
+                hibernateQuery.associationStack.add(association);
                 Junction conjunction = Restrictions.conjunction();
-                applySubCriteriaToJunction(existing.getAssociation().getAssociatedEntity(), hibernateQuery, existing.getCriteria(), conjunction, alias);
-                return conjunction;
+                try {
+                    applySubCriteriaToJunction(association.getAssociatedEntity(), hibernateQuery, existing.getCriteria(), conjunction, alias);
+                    return conjunction;
+                } finally {
+                    hibernateQuery.associationStack.removeLast();
+                }
             }
         });
         criterionAdaptors.put(AssociationQuery.class, new CriterionAdaptor() {
