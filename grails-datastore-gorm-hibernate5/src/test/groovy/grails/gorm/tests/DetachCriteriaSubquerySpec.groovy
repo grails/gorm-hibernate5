@@ -43,6 +43,36 @@ class DetachCriteriaSubquerySpec extends GormDatastoreSpec {
         result.size() == 1
     }
 
+    void "test that detached criteria subquery should create implicit alias instead of using this_"() {
+
+        setup:
+        User supVisor = createUser('supervisor@company.com')
+        User user1 = createUser('user1@company.com')
+        User user2 = createUser('user2@company.com')
+
+        Group group1 = createGroup('Group 1', supVisor)
+        Group group2 = createGroup('Group 2', supVisor)
+
+        assignGroup(user1, group1)
+        assignGroup(user1, group2)
+
+        when:
+        String supervisorEmail = 'supervisor@company.com'
+        DetachedCriteria<User> criteria = User.where {
+            def u = User
+            exists(
+                    GroupAssignment.where {
+                        user.id == u.id && group.supervisor.email == supervisorEmail
+                    }.id()
+            )
+        }
+        List<User> result = criteria.list()
+
+        then:
+        noExceptionThrown()
+        result.size() == 1
+    }
+
     private User createUser(String email) {
         User user = new User()
         user.email = email
