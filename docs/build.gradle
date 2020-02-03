@@ -36,8 +36,8 @@ dependencies {
 
 asciidoctor {
     resources {
-        from("${project.projectDir}/src/docs/images")
-        into "${project.projectDir}/images"
+        from("${project.projectDir}/src/docs/asciidoc/images")
+        into "./images"
     }
 
     attributes  'experimental'  : 'true',
