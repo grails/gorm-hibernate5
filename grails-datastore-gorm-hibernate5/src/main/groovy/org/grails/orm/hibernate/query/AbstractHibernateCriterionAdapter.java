@@ -36,6 +36,7 @@ import java.util.Map;
 public abstract class AbstractHibernateCriterionAdapter {
     protected static final Map<Class<?>, CriterionAdaptor<?>> criterionAdaptors = new HashMap<Class<?>, CriterionAdaptor<?>>();
     protected static boolean initialized;
+    protected static final String ALIAS = "_alias";
 
     public AbstractHibernateCriterionAdapter() {
         initialize();
@@ -154,7 +155,12 @@ public abstract class AbstractHibernateCriterionAdapter {
         criterionAdaptors.put(Query.Exists.class, new CriterionAdaptor<Query.Exists>() {
             @Override
             public Criterion toHibernateCriterion(AbstractHibernateQuery hibernateQuery, Query.Exists criterion, String alias) {
-                DetachedCriteria detachedCriteria = toHibernateDetachedCriteria(hibernateQuery,criterion.getSubquery());
+                final QueryableCriteria subquery = criterion.getSubquery();
+                String subqueryAlias = subquery.getAlias();
+                if (subquery.getAlias() == null) {
+                    subqueryAlias = criterion.getSubquery().getPersistentEntity().getJavaClass().getSimpleName() + ALIAS;
+                }
+                DetachedCriteria detachedCriteria = toHibernateDetachedCriteria(hibernateQuery,subquery, subqueryAlias);
                 return Subqueries.exists(detachedCriteria);
             }
         });
@@ -536,6 +542,10 @@ public abstract class AbstractHibernateCriterionAdapter {
 
 
     protected abstract org.hibernate.criterion.DetachedCriteria toHibernateDetachedCriteria(AbstractHibernateQuery query, QueryableCriteria<?> queryableCriteria);
+
+    protected org.hibernate.criterion.DetachedCriteria toHibernateDetachedCriteria(AbstractHibernateQuery query, QueryableCriteria<?> queryableCriteria, String alias) {
+        return toHibernateDetachedCriteria(query, queryableCriteria);
+    }
 
     public static abstract class CriterionAdaptor<T extends Query.Criterion> {
         public abstract org.hibernate.criterion.Criterion toHibernateCriterion(AbstractHibernateQuery hibernateQuery, T criterion, String alias);
