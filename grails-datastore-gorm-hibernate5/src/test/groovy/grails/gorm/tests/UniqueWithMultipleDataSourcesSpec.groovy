@@ -2,13 +2,13 @@ package grails.gorm.tests
 
 import grails.gorm.annotation.Entity
 import grails.gorm.transactions.Rollback
-import groovy.transform.NotYetImplemented
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.datastore.mapping.core.connections.ConnectionSource
 import org.grails.orm.hibernate.HibernateDatastore
 import org.hibernate.dialect.H2Dialect
 import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
+import spock.lang.Ignore
 import spock.lang.Issue
 import spock.lang.Shared
 import spock.lang.Specification
@@ -34,7 +34,7 @@ class UniqueWithMultipleDataSourcesSpec extends Specification {
     @Shared PlatformTransactionManager transactionManager = hibernateDatastore.transactionManager
 
     @Rollback
-    @NotYetImplemented
+    @Ignore
     @Issue('https://github.com/grails/grails-core/issues/10481')
     void "test multiple data sources and unique constraint"() {
         when:

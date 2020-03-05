@@ -2,7 +2,6 @@ package grails.gorm.tests
 
 import grails.gorm.annotation.Entity
 import grails.gorm.transactions.Rollback
-import groovy.transform.NotYetImplemented
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
@@ -24,7 +23,6 @@ class SubclassMultipleListCollectionSpec extends Specification {
     @Shared PlatformTransactionManager transactionManager = hibernateDatastore.getTransactionManager()
 
     @Rollback
-    @NotYetImplemented
     @Issue('https://github.com/grails/grails-data-mapping/issues/882')
     void "test inheritance with multiple list collections"() {
         when:

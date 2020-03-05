@@ -1,17 +1,14 @@
 package grails.gorm.tests
 
 import grails.gorm.annotation.Entity
-import groovy.transform.NotYetImplemented
 import org.grails.orm.hibernate.GormSpec
 import spock.lang.Issue
-import spock.lang.Specification
 
 /**
  * Created by graemerocher on 20/04/16.
  */
 class CountByWithEmbeddedSpec extends GormSpec {
 
-//    @NotYetImplemented
     @Issue('https://github.com/grails/grails-core/issues/9846')
     void "Test countBy query with embedded entity"() {
         given:
