@@ -33,9 +33,13 @@ dependencies {
     runtime "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
     runtime "org.grails.plugins:fields:$fieldsVersion"
     runtime "org.grails.plugins:scaffolding:$scaffoldingVersion"
-    
-    testCompile "org.grails:grails-gorm-testing-support:$testingSupportVersion"
-    testCompile "org.grails:grails-web-testing-support:$testingSupportVersion"
+
+    testCompile("org.grails:grails-gorm-testing-support:$testingSupportVersion") {
+        exclude group: "org.spockframework", module: "spock-core"
+    }
+    testCompile("org.grails:grails-web-testing-support:$testingSupportVersion") {
+        exclude group: "org.spockframework", module: "spock-core"
+    }
 
     testCompile("org.grails.plugins:geb") {
         exclude group: 'org.gebish', module: 'geb-spock'

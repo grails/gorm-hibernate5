@@ -22,7 +22,9 @@ dependencies {
     compileOnly("org.grails:grails-bootstrap:$grails3Version")
     compileOnly("org.grails:grails-core:$grails3Version")
     compileOnly "org.spockframework:spock-core:$spockVersion", {
-        exclude module:'groovy-all'
+        exclude group: "junit", module: "junit-dep"
+        exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
 
     compile "org.springframework.boot:spring-boot:$springBootVersion"

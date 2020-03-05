@@ -40,7 +40,7 @@ dependencies {
         exclude group:'xml-apis', module:'xml-apis'
     }
 
-    testCompile "org.codehaus.groovy:groovy-test:$groovyVersion"
+    testCompile "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
     testCompile "org.codehaus.groovy:groovy-sql:$groovyVersion"
     testCompile "org.codehaus.groovy:groovy-json:$groovyVersion"
     testCompile "org.grails:grails-datastore-gorm-tck:$gormVersion"
