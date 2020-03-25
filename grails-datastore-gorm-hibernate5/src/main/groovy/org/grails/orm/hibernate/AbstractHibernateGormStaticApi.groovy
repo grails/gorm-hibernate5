@@ -41,7 +41,8 @@ import java.util.regex.Pattern
  * @author Graeme Rocher
  * @since 4.0
  */
-@CompileStatic
+//TODO: Re-enable once the Groovy bug is fixed.
+//@CompileStatic
 abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
 
     protected ProxyHandler proxyHandler

@@ -1,7 +1,6 @@
 package grails.gorm.tests
 
 import grails.gorm.DetachedCriteria
-import groovy.transform.NotYetImplemented
 import org.grails.datastore.gorm.finders.DynamicFinder
 import org.grails.orm.hibernate.GormSpec
 import org.grails.orm.hibernate.query.HibernateQuery

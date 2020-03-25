@@ -1,6 +1,5 @@
 package grails.gorm.tests
 
-import groovy.transform.NotYetImplemented
 import org.grails.orm.hibernate.GormSpec
 import spock.lang.Issue
 
@@ -13,7 +12,6 @@ class CascadeToBidirectionalAsssociationSpec extends GormSpec {
     /**
      * This test currently fails because the association between Contract and Player is left unassigned
      */
-//    @NotYetImplemented
     void "test cascades work correctly with a bidirectional association"() {
         when:
         Club c = new Club(name: "Padres").save()

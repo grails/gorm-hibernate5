@@ -1,4 +1,5 @@
 tasks.withType(Test) {
+    useJUnitPlatform()
     reports.html.enabled = !System.getenv("TRAVIS")
     reports.junitXml.enabled = !System.getenv("TRAVIS")
     afterTest { desc, result ->
