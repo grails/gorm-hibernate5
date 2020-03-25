@@ -4,24 +4,26 @@ import grails.gorm.annotation.Entity
 import grails.gorm.transactions.Rollback
 import org.grails.orm.hibernate.HibernateDatastore
 import org.springframework.transaction.PlatformTransactionManager
-import spock.lang.AutoCleanup
-import spock.lang.Ignore
-import spock.lang.Issue
-import spock.lang.Shared
-import spock.lang.Specification
+import spock.lang.*
 
 /**
  * Created by graemerocher on 01/03/2017.
  */
-@Ignore // not yet implemented
+@Ignore
 class SubclassMultipleListCollectionSpec extends Specification {
 
-    @AutoCleanup @Shared HibernateDatastore hibernateDatastore = new HibernateDatastore(
-        SuperProduct, Product, Iteration
-    )
+    @AutoCleanup @Shared HibernateDatastore hibernateDatastore
+    @Shared PlatformTransactionManager transactionManager
 
-    @Shared PlatformTransactionManager transactionManager = hibernateDatastore.getTransactionManager()
 
+    void setupSpec() {
+        hibernateDatastore = new HibernateDatastore(
+                SuperProduct, Product, Iteration
+        )
+        transactionManager = hibernateDatastore.getTransactionManager()
+    }
+
+    @Ignore // not yet implemented
     @Rollback
     @Issue('https://github.com/grails/grails-data-mapping/issues/882')
     void "test inheritance with multiple list collections"() {
