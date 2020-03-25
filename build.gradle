@@ -105,6 +105,8 @@ subprojects { project ->
             testCompile "org.junit.platform:junit-platform-runner:1.6.0"
             testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.0"
         }
+
+        apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
         return
     }
 
@@ -214,6 +216,8 @@ subprojects { project ->
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.0"
         documentation "info.picocli:picocli:$picocliVersion"
     }
+
+    apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
 
     groovydoc.classpath += configurations.documentation
 

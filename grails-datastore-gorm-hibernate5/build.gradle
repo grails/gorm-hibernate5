@@ -126,5 +126,3 @@ test.doFirst {
         }
     }
 }
-
-apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"

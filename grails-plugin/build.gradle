@@ -52,4 +52,3 @@ dependencies {
 }
 
 groovydoc.classpath += configurations.documentation
-apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"

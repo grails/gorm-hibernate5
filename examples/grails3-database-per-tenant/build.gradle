@@ -63,5 +63,3 @@ tasks.withType(Test) {
     systemProperty "geb.env", System.getProperty('geb.env')
     systemProperty "geb.build.reportsDir", reporting.file("geb/integrationTest")
 }
-
-apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
