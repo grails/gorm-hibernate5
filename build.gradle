@@ -49,7 +49,6 @@ allprojects { project ->
 subprojects { project ->
 
     repositories {
-        mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
         if(groovyVersion && groovyVersion.endsWith('-SNAPSHOT')) {
             maven {
