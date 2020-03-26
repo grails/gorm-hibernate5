@@ -18,6 +18,7 @@ dependencies {
     documentation ("org.grails:grails-core:$grails3Version")
     documentation ("org.grails:grails-bootstrap:$grails3Version")
     documentation ("org.grails:grails-spring:$grails3Version")
+    documentation ("com.github.javaparser:javaparser-core:$javaParserCoreVersion")
 
     compileOnly("org.grails:grails-bootstrap:$grails3Version")
     compileOnly("org.grails:grails-core:$grails3Version")
