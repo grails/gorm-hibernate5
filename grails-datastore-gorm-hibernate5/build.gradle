@@ -61,6 +61,8 @@ dependencies {
 }
 
 test {
+    //TODO: Remove this once https://github.com/grails/grails-data-mapping/issues/1288 is fixed
+    exclude '**/BuiltinUniqueConstraintWorksWithTargetProxiesConstraintsSpec.class'
     if (isTravisBuild) {
         maxParallelForks = 1
         forkEvery = 10
