@@ -94,15 +94,8 @@ subprojects { project ->
 
         dependencies {
             testCompile "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
-            testCompile "org.spockframework:spock-core:$spockVersion", {
-                exclude group: 'junit', module: 'junit-dep'
-                exclude group: 'org.codehaus.groovy', module: 'groovy-all'
-                exclude group: 'org.hamcrest', module: 'hamcrest-core'
-                transitive = false
-            }
+            testCompile("org.spockframework:spock-core:$spockVersion") { transitive = false}
             testCompile "org.junit.jupiter:junit-jupiter-api:5.6.0"
-            testCompile "org.junit.platform:junit-platform-runner:1.6.0"
-            testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.0"
         }
 
         apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
@@ -154,14 +147,15 @@ subprojects { project ->
 
     configurations {
         documentation
+    }
 
-        all {
+    // Uncomment below code to force refresh dependencies
+    /*configurations.all {
             resolutionStrategy {
                 cacheDynamicVersionsFor 0, 'hours'
                 cacheChangingModulesFor 0, 'hours'
             }
-        }        
-    }
+    }*/
 
     if(isPluginProject) {
         group "org.grails.plugins"
@@ -204,15 +198,8 @@ subprojects { project ->
         documentation 'info.picocli:picocli:3.8.2'
 
         testCompile "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
-        testCompile "org.spockframework:spock-core:$spockVersion", {
-            exclude group: 'junit', module: 'junit-dep'
-            exclude group: 'org.codehaus.groovy', module: 'groovy-all'
-            exclude group: 'org.hamcrest', module: 'hamcrest-core'
-            transitive = false
-        }
+        testCompile("org.spockframework:spock-core:$spockVersion") { transitive = false}
         testCompile "org.junit.jupiter:junit-jupiter-api:5.6.0"
-        testCompile "org.junit.platform:junit-platform-runner:1.6.0"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.0"
         documentation "info.picocli:picocli:$picocliVersion"
     }
 
