@@ -1,4 +1,4 @@
-package grails.test.hibernate
+grails.test.hibernate
 
 import grails.config.Config
 import groovy.transform.CompileStatic
@@ -8,8 +8,6 @@ import org.grails.orm.hibernate.cfg.Settings
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.springframework.boot.env.PropertySourceLoader
-import org.springframework.core.env.MapPropertySource
-import org.springframework.core.env.MutablePropertySources
 import org.springframework.core.env.PropertyResolver
 import org.springframework.core.env.PropertySource
 import org.springframework.core.io.DefaultResourceLoader
@@ -39,21 +37,24 @@ abstract class HibernateSpec extends Specification {
 
         List<PropertySourceLoader> propertySourceLoaders = SpringFactoriesLoader.loadFactories(PropertySourceLoader.class, getClass().getClassLoader())
         ResourceLoader resourceLoader = new DefaultResourceLoader()
-        MutablePropertySources propertySources = new MutablePropertySources()
+
+        List<PropertySource> propertySources = []
+
         PropertySourceLoader ymlLoader = propertySourceLoaders.find { it.getFileExtensions().toList().contains("yml") }
         if (ymlLoader) {
-            load(resourceLoader, ymlLoader, "application.yml").each {
-                propertySources.addLast(it)
-            }
+            propertySources.addAll(load(resourceLoader, ymlLoader, "application.yml"))
         }
         PropertySourceLoader groovyLoader = propertySourceLoaders.find { it.getFileExtensions().toList().contains("groovy") }
         if (groovyLoader) {
-            load(resourceLoader, groovyLoader, "application.groovy").each {
-                propertySources.addLast(it)
-            }
+            propertySources.addAll(load(resourceLoader, groovyLoader, "application.groovy"))
         }
-        propertySources.addFirst(new MapPropertySource("defaults", getConfiguration()))
-        Config config = new PropertySourcesConfig(propertySources)
+
+        Map<String, Object> mapPropertySource = (propertySources
+                .findAll { it.getSource() }
+                .collectEntries { it.getSource() as Map } as Map<String, Object>)
+        mapPropertySource += (getConfiguration() as Map<String, Object>)
+
+        Config config = new PropertySourcesConfig(mapPropertySource)
         List<Class> domainClasses = getDomainClasses()
         String packageName = getPackageToScan(config)
 
@@ -137,8 +138,8 @@ abstract class HibernateSpec extends Specification {
 
     private boolean canLoadFileExtension(PropertySourceLoader loader, String name) {
         return Arrays
-            .stream(loader.fileExtensions)
-            .map { String extension -> extension.toLowerCase() }
-            .anyMatch { String extension -> name.toLowerCase().endsWith(extension) }
+                .stream(loader.fileExtensions)
+                .map { String extension -> extension.toLowerCase() }
+                .anyMatch { String extension -> name.toLowerCase().endsWith(extension) }
     }
 }
