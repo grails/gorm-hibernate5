@@ -14,13 +14,10 @@ import org.grails.orm.hibernate.support.HibernateRuntimeUtils
 import org.grails.datastore.gorm.GormStaticApi
 import org.grails.datastore.gorm.finders.DynamicFinder
 import org.grails.datastore.gorm.finders.FinderMethod
-import org.grails.datastore.mapping.core.Datastore
-import org.grails.orm.hibernate.support.HibernateVersionSupport
 import org.hibernate.Criteria
 import org.hibernate.FlushMode
 import org.hibernate.Session
 import org.hibernate.criterion.Example
-import org.hibernate.criterion.Projections
 import org.hibernate.criterion.Restrictions
 import org.hibernate.jpa.QueryHints
 import org.hibernate.query.NativeQuery
@@ -31,9 +28,8 @@ import org.springframework.transaction.PlatformTransactionManager
 
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
-import javax.persistence.criteria.Path
+import javax.persistence.criteria.Expression
 import javax.persistence.criteria.Root
-import java.util.regex.Pattern
 
 /**
  * Abstract implementation of the Hibernate static API for GORM, providing String-based method implementations
@@ -41,8 +37,7 @@ import java.util.regex.Pattern
  * @author Graeme Rocher
  * @since 4.0
  */
-//TODO: Re-enable once the Groovy bug is fixed.
-//@CompileStatic
+@CompileStatic
 abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
 
     protected ProxyHandler proxyHandler
@@ -110,7 +105,8 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
                 CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(persistentEntity.javaClass)
                 Root queryRoot = criteriaQuery.from(persistentEntity.javaClass)
                 criteriaQuery = criteriaQuery.where (
-                        criteriaBuilder.equal(queryRoot.get(persistentEntity.identity.name), id)
+                        //TODO: Remove explicit type cast once GROOVY-9460
+                        criteriaBuilder.equal((Expression<?>) queryRoot.get(persistentEntity.identity.name), id)
                 )
                 Query criteria = session.createQuery(criteriaQuery)
                 HibernateHqlQuery hibernateHqlQuery = new HibernateHqlQuery(
@@ -144,7 +140,8 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
 
             Root queryRoot = criteriaQuery.from(persistentEntity.javaClass)
             criteriaQuery = criteriaQuery.where (
-                    criteriaBuilder.equal(queryRoot.get(persistentEntity.identity.name), id)
+                    //TODO: Remove explicit type cast once GROOVY-9460
+                    criteriaBuilder.equal((Expression<?>)  queryRoot.get(persistentEntity.identity.name), id)
             )
             Query criteria = session.createQuery(criteriaQuery)
                                     .setHint(QueryHints.HINT_READONLY, true)
@@ -225,7 +222,8 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
             Root queryRoot = criteriaQuery.from(persistentEntity.javaClass)
             def idProp = queryRoot.get(persistentEntity.identity.name)
             criteriaQuery = criteriaQuery.where (
-                    criteriaBuilder.equal(idProp, id)
+                    //TODO: Remove explicit type cast once GROOVY-9460
+                    criteriaBuilder.equal((Expression<?>) idProp, id)
             )
             criteriaQuery.select(criteriaBuilder.count(criteriaQuery.from(persistentEntity.javaClass)))
             Query criteria = session.createQuery(criteriaQuery)
