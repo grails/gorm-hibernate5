@@ -1,3 +1,7 @@
+==== GORM 7.1
+
+GORM 7.1 brings support for Groovy 3
+
 ==== GORM 7.0
 
 GORM 7.0 brings support for the latest versions of key dependencies including:
