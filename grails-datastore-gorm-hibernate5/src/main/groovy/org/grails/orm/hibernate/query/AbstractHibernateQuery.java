@@ -164,10 +164,10 @@ public abstract class AbstractHibernateQuery extends Query {
             Object value = pc.getValue();
             if (value instanceof QueryableCriteria) {
                 setDetachedCriteriaValue((QueryableCriteria) value, pc);
-            }
-            // ignore Size related constraints
-            else {
-                doTypeConversionIfNeccessary(getEntity(), pc);
+            } else {
+                if (!(value instanceof DetachedCriteria)) {
+                    doTypeConversionIfNeccessary(getEntity(), pc);
+                }
             }
         }
         if (criterion instanceof DetachedAssociationCriteria) {
@@ -266,6 +266,7 @@ public abstract class AbstractHibernateQuery extends Query {
 
     @SuppressWarnings("unchecked")
     static void doTypeConversionIfNeccessary(PersistentEntity entity, PropertyCriterion pc) {
+        // ignore Size related constraints
         if (pc.getClass().getSimpleName().startsWith(SIZE_CONSTRAINT_PREFIX)) {
             return;
         }
