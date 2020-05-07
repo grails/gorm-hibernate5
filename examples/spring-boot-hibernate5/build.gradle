@@ -32,7 +32,7 @@ dependencies {
     compile "org.hibernate:hibernate-core:$hibernate5Version"
     compile "org.hibernate:hibernate-ehcache:$hibernate5Version"
 
-    runtime "com.h2database:h2:1.4.192"
+    runtime "com.h2database:h2:1.4.200"
     runtime "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
     runtime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
     runtime "org.slf4j:slf4j-api:$slf4jVersion"
