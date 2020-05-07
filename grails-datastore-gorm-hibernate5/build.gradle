@@ -23,7 +23,7 @@ dependencies {
     runtime "javax.xml.bind:jaxb-api:$jaxbVersion"
     runtime "com.sun.xml.bind:jaxb-impl:$jaxbVersion"
 
-    compileOnly ("net.sf.ehcache:ehcache-core:2.4.8") {
+    compileOnly ("net.sf.ehcache:ehcache-core:2.6.11") {
         exclude group: 'commons-logging', module:'commons-logging'
     }
 
@@ -46,7 +46,7 @@ dependencies {
     testCompile "org.grails:grails-datastore-gorm-tck:$gormVersion"
     testCompile "com.h2database:h2:1.3.164"
 
-    testCompile "net.sf.ehcache:ehcache-core:2.4.6"
+    testCompile "net.sf.ehcache:ehcache-core:2.6.11"
     testCompile "org.hibernate:hibernate-ehcache:$hibernate5Version"
     
     testCompile "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
