@@ -17,9 +17,9 @@ package grails.orm.bootstrap
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
-import org.grails.datastore.gorm.bootstrap.support.ServiceRegistryFactoryBean
 import org.grails.datastore.gorm.jdbc.connections.CachedDataSourceConnectionSourceFactory
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
+import org.grails.datastore.mapping.config.DatastoreServiceMethodInvokingFactoryBean
 import org.grails.datastore.mapping.core.connections.AbstractConnectionSources
 import org.grails.datastore.mapping.core.connections.ConnectionSource
 import org.grails.datastore.mapping.core.grailsversion.GrailsVersion
@@ -30,9 +30,7 @@ import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
 import org.grails.orm.hibernate.support.HibernateDatastoreConnectionSourcesRegistrar
-import org.grails.spring.beans.factory.InstanceFactoryBean
 import org.springframework.beans.factory.BeanFactory
-import org.springframework.beans.factory.config.MethodInvokingFactoryBean
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationEventPublisher
@@ -162,7 +160,6 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             sessionFactory(hibernateDatastore:'getSessionFactory')
             transactionManager(hibernateDatastore:"getTransactionManager")
             autoTimestampEventListener(hibernateDatastore:"getAutoTimestampEventListener")
-            "hibernateDatastoreServiceRegistry"(ServiceRegistryFactoryBean, ref("hibernateDatastore"))
             getBeanDefinition("transactionManager").beanClass = PlatformTransactionManager
             hibernateDatastoreConnectionSourcesRegistrar(HibernateDatastoreConnectionSourcesRegistrar, dataSources)
             // domain model mapping context, used for configuration
@@ -171,6 +168,15 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                     validatorRegistry = new BeanFactoryValidatorRegistry((BeanFactory)beanDefinitionRegistry)
                 }
             }
+
+            loadDataServices(null)
+                    .each {serviceName, serviceClass->
+                        "$serviceName"(DatastoreServiceMethodInvokingFactoryBean) {
+                            targetObject = ref("hibernateDatastore")
+                            targetMethod = 'getService'
+                            arguments = [serviceClass]
+                        }
+                    }
 
             if(isGrailsPresent) {
                 if(ClassUtils.isPresent("org.grails.orm.hibernate5.support.AggregatePersistenceContextInterceptor")) {
