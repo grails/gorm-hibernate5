@@ -16,22 +16,20 @@ package grails.orm.bootstrap
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import org.codehaus.groovy.transform.trait.Traits
 import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
 import org.grails.datastore.gorm.bootstrap.support.ServiceRegistryFactoryBean
 import org.grails.datastore.gorm.jdbc.connections.CachedDataSourceConnectionSourceFactory
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
 import org.grails.datastore.mapping.core.connections.AbstractConnectionSources
 import org.grails.datastore.mapping.core.connections.ConnectionSource
-import org.grails.datastore.mapping.core.grailsversion.GrailsVersion
 import org.grails.datastore.mapping.reflect.ClassUtils
-import org.grails.datastore.mapping.validation.BeanFactoryValidatorRegistry
+import org.grails.datastore.mapping.services.Service
 import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
 import org.grails.orm.hibernate.support.HibernateDatastoreConnectionSourcesRegistrar
-import org.grails.spring.beans.factory.InstanceFactoryBean
-import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
@@ -42,6 +40,8 @@ import org.springframework.core.env.PropertyResolver
 import org.springframework.transaction.PlatformTransactionManager
 
 import javax.sql.DataSource
+import java.beans.Introspector
+import java.lang.reflect.Modifier
 
 /**
  * Class that handles the details of initializing GORM for Hibernate
@@ -165,6 +165,33 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             hibernateDatastoreConnectionSourcesRegistrar(HibernateDatastoreConnectionSourcesRegistrar, dataSources)
             // domain model mapping context, used for configuration
             grailsDomainClassMappingContext(hibernateDatastore:"getMappingContext")
+
+            final Iterator<Service> serviceIterator = ServiceLoader.load(Service).iterator()
+            while(serviceIterator.hasNext()) {
+                final Service service = serviceIterator.next()
+                if( service.getClass().simpleName.startsWith('$') ) {
+                    final Class<?> superclass = service.getClass().superclass
+                    if (superclass != null && superclass != Object.class && Modifier.isAbstract(superclass.modifiers)) {
+                        final String decapitalizedServiceName = Introspector.decapitalize(superclass.simpleName)
+                        "$decapitalizedServiceName"(MethodInvokingFactoryBean) {
+                            targetObject = ref('hibernateDatastore')
+                            targetMethod = 'getService'
+                            arguments = [superclass]
+                        }
+                    }
+                    Class[] allInterfaces = org.springframework.util.ClassUtils.getAllInterfaces(service)
+                    for(Class i in allInterfaces) {
+                        if(i != Service && i != GroovyObject && !i.name.endsWith(Traits.FIELD_HELPER) ) {
+                            final String decapitalizedServiceName = Introspector.decapitalize(i.simpleName)
+                            "$decapitalizedServiceName"(MethodInvokingFactoryBean) {
+                                targetObject = ref('hibernateDatastore')
+                                targetMethod = 'getService'
+                                arguments = [i]
+                            }
+                        }
+                    }
+                }
+            }
 
             if(isGrailsPresent) {
                 if(ClassUtils.isPresent("org.grails.plugin.hibernate.support.AggregatePersistenceContextInterceptor")) {
