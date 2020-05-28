@@ -21,15 +21,19 @@ import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
 import org.grails.datastore.gorm.bootstrap.support.ServiceRegistryFactoryBean
 import org.grails.datastore.gorm.jdbc.connections.CachedDataSourceConnectionSourceFactory
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
+import org.grails.datastore.mapping.config.GormMethodInvokingFactoryBean
 import org.grails.datastore.mapping.core.connections.AbstractConnectionSources
 import org.grails.datastore.mapping.core.connections.ConnectionSource
 import org.grails.datastore.mapping.reflect.ClassUtils
 import org.grails.datastore.mapping.services.Service
+import org.grails.datastore.mapping.services.ServiceDefinition
+import org.grails.datastore.mapping.services.SoftServiceLoader
 import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
 import org.grails.orm.hibernate.support.HibernateDatastoreConnectionSourcesRegistrar
+import org.springframework.beans.factory.config.MethodInvokingBean
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
@@ -160,33 +164,30 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             sessionFactory(hibernateDatastore:'getSessionFactory')
             transactionManager(hibernateDatastore:"getTransactionManager")
             autoTimestampEventListener(hibernateDatastore:"getAutoTimestampEventListener")
-            "hibernateDatastoreServiceRegistry"(ServiceRegistryFactoryBean, ref("hibernateDatastore"))
             getBeanDefinition("transactionManager").beanClass = PlatformTransactionManager
             hibernateDatastoreConnectionSourcesRegistrar(HibernateDatastoreConnectionSourcesRegistrar, dataSources)
             // domain model mapping context, used for configuration
             grailsDomainClassMappingContext(hibernateDatastore:"getMappingContext")
 
-            final Iterator<Service> serviceIterator = ServiceLoader.load(Service).iterator()
-            while(serviceIterator.hasNext()) {
-                final Service service = serviceIterator.next()
-                if( service.getClass().simpleName.startsWith('$') ) {
-                    final Class<?> superclass = service.getClass().superclass
-                    if (superclass != null && superclass != Object.class && Modifier.isAbstract(superclass.modifiers)) {
-                        final String decapitalizedServiceName = Introspector.decapitalize(superclass.simpleName)
-                        "$decapitalizedServiceName"(MethodInvokingFactoryBean) {
-                            targetObject = ref('hibernateDatastore')
-                            targetMethod = 'getService'
-                            arguments = [superclass]
+            final SoftServiceLoader<Service> services = SoftServiceLoader.load(Service)
+            for (ServiceDefinition<Service> serviceDefinition: services) {
+                if (serviceDefinition.isPresent()) {
+                    final Class<Service> clazz = serviceDefinition.getType()
+                    if (clazz.simpleName.startsWith('$')) {
+                        String serviceClassName = clazz.name - '$' - 'Implementation'
+                        final ClassLoader cl = ClassUtils.classLoader
+                        final Class<?> serviceClass = cl.loadClass(serviceClassName)
+
+                        final grails.gorm.services.Service ann = clazz.getAnnotation(grails.gorm.services.Service)
+                        String serviceName = ann?.name()
+                        if(serviceName == null) {
+                            serviceName = Introspector.decapitalize(serviceClass.simpleName)
                         }
-                    }
-                    Class[] allInterfaces = org.springframework.util.ClassUtils.getAllInterfaces(service)
-                    for(Class i in allInterfaces) {
-                        if(i != Service && i != GroovyObject && !i.name.endsWith(Traits.FIELD_HELPER) ) {
-                            final String decapitalizedServiceName = Introspector.decapitalize(i.simpleName)
-                            "$decapitalizedServiceName"(MethodInvokingFactoryBean) {
+                        if (serviceClass != null && serviceClass != Object.class) {
+                            "$serviceName"(GormMethodInvokingFactoryBean) {
                                 targetObject = ref('hibernateDatastore')
                                 targetMethod = 'getService'
-                                arguments = [i]
+                                arguments = [serviceClass]
                             }
                         }
                     }
