@@ -2,12 +2,14 @@ package example
 
 import grails.events.EventPublisher
 import grails.plugin.springsecurity.rest.RestAuthenticationSuccessHandler
+import groovy.transform.CompileStatic
 import org.springframework.security.core.Authentication
 
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
+@CompileStatic
 class LoginAuthenticationSucessHandler extends RestAuthenticationSuccessHandler implements EventPublisher {
 
     TestService testService
