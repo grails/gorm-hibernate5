@@ -16,12 +16,10 @@ package grails.orm.bootstrap
 
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.codehaus.groovy.transform.trait.Traits
 import org.grails.datastore.gorm.bootstrap.AbstractDatastoreInitializer
-import org.grails.datastore.gorm.bootstrap.support.ServiceRegistryFactoryBean
 import org.grails.datastore.gorm.jdbc.connections.CachedDataSourceConnectionSourceFactory
 import org.grails.datastore.gorm.support.AbstractDatastorePersistenceContextInterceptor
-import org.grails.datastore.mapping.config.GormMethodInvokingFactoryBean
+import org.grails.datastore.mapping.config.DatastoreServiceMethodInvokingFactoryBean
 import org.grails.datastore.mapping.core.connections.AbstractConnectionSources
 import org.grails.datastore.mapping.core.connections.ConnectionSource
 import org.grails.datastore.mapping.reflect.ClassUtils
@@ -33,8 +31,6 @@ import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
 import org.grails.orm.hibernate.proxy.HibernateProxyHandler
 import org.grails.orm.hibernate.support.HibernateDatastoreConnectionSourcesRegistrar
-import org.springframework.beans.factory.config.MethodInvokingBean
-import org.springframework.beans.factory.config.MethodInvokingFactoryBean
 import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationEventPublisher
@@ -45,7 +41,6 @@ import org.springframework.transaction.PlatformTransactionManager
 
 import javax.sql.DataSource
 import java.beans.Introspector
-import java.lang.reflect.Modifier
 
 /**
  * Class that handles the details of initializing GORM for Hibernate
@@ -173,7 +168,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             for (ServiceDefinition<Service> serviceDefinition: services) {
                 if (serviceDefinition.isPresent()) {
                     final Class<Service> clazz = serviceDefinition.getType()
-                    if (clazz.simpleName.startsWith('$')) {
+                    if (clazz.simpleName.startsWith('$') && clazz.simpleName.endsWith('Implementation')) {
                         String serviceClassName = clazz.name - '$' - 'Implementation'
                         final ClassLoader cl = ClassUtils.classLoader
                         final Class<?> serviceClass = cl.loadClass(serviceClassName)
@@ -184,7 +179,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                             serviceName = Introspector.decapitalize(serviceClass.simpleName)
                         }
                         if (serviceClass != null && serviceClass != Object.class) {
-                            "$serviceName"(GormMethodInvokingFactoryBean) {
+                            "$serviceName"(DatastoreServiceMethodInvokingFactoryBean) {
                                 targetObject = ref('hibernateDatastore')
                                 targetMethod = 'getService'
                                 arguments = [serviceClass]
