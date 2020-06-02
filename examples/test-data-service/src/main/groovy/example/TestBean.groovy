@@ -10,7 +10,7 @@ class TestBean {
 
     @Autowired
     @Qualifier("bookService")
-    BookService bookService
+    def bookService
 
     void doSomething() {
         assert bookRepo != null
