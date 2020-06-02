@@ -23,9 +23,6 @@ import org.grails.datastore.mapping.config.DatastoreServiceMethodInvokingFactory
 import org.grails.datastore.mapping.core.connections.AbstractConnectionSources
 import org.grails.datastore.mapping.core.connections.ConnectionSource
 import org.grails.datastore.mapping.reflect.ClassUtils
-import org.grails.datastore.mapping.services.Service
-import org.grails.datastore.mapping.services.ServiceDefinition
-import org.grails.datastore.mapping.services.SoftServiceLoader
 import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.cfg.Settings
 import org.grails.orm.hibernate.connections.HibernateConnectionSourceFactory
@@ -40,7 +37,6 @@ import org.springframework.core.env.PropertyResolver
 import org.springframework.transaction.PlatformTransactionManager
 
 import javax.sql.DataSource
-import java.beans.Introspector
 
 /**
  * Class that handles the details of initializing GORM for Hibernate
@@ -164,30 +160,14 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             // domain model mapping context, used for configuration
             grailsDomainClassMappingContext(hibernateDatastore:"getMappingContext")
 
-            final SoftServiceLoader<Service> services = SoftServiceLoader.load(Service)
-            for (ServiceDefinition<Service> serviceDefinition: services) {
-                if (serviceDefinition.isPresent()) {
-                    final Class<Service> clazz = serviceDefinition.getType()
-                    if (clazz.simpleName.startsWith('$') && clazz.simpleName.endsWith('Implementation')) {
-                        String serviceClassName = clazz.name - '$' - 'Implementation'
-                        final ClassLoader cl = ClassUtils.classLoader
-                        final Class<?> serviceClass = cl.loadClass(serviceClassName)
-
-                        final grails.gorm.services.Service ann = clazz.getAnnotation(grails.gorm.services.Service)
-                        String serviceName = ann?.name()
-                        if(serviceName == null) {
-                            serviceName = Introspector.decapitalize(serviceClass.simpleName)
-                        }
-                        if (serviceClass != null && serviceClass != Object.class) {
-                            "$serviceName"(DatastoreServiceMethodInvokingFactoryBean) {
-                                targetObject = ref('hibernateDatastore')
-                                targetMethod = 'getService'
-                                arguments = [serviceClass]
-                            }
+            loadDataServices(null)
+                    .each {serviceName, serviceClass->
+                        "$serviceName"(DatastoreServiceMethodInvokingFactoryBean) {
+                            targetObject = ref("hibernateDatastore")
+                            targetMethod = 'getService'
+                            arguments = [serviceClass]
                         }
                     }
-                }
-            }
 
             if(isGrailsPresent) {
                 if(ClassUtils.isPresent("org.grails.plugin.hibernate.support.AggregatePersistenceContextInterceptor")) {
