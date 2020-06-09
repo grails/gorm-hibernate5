@@ -29,5 +29,9 @@ project(":examples-standalone-hibernate5").projectDir = new File(settingsDir, "e
 include "examples-spring-boot-hibernate5"
 project(":examples-spring-boot-hibernate5").projectDir = new File(settingsDir, "examples/spring-boot-hibernate5")
 
+include "examples-test-data-service"
+project(":examples-test-data-service").projectDir = new File(settingsDir, "examples/test-data-service")
+
+
 findProject(':boot-plugin').name = 'gorm-hibernate5-spring-boot'
 

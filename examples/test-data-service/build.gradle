@@ -1,0 +1,41 @@
+group "examples"
+
+apply plugin:"org.grails.grails-web"
+apply plugin:"org.grails.plugins.views-json"
+
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if(details.requested.group == 'org.grails' &&
+                details.requested.name.startsWith('grails-datastore') &&
+                details.requested.name != 'grails-datastore-gorm-hibernate5') {
+            details.useVersion(gormVersion)
+        }
+    }
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-logging"
+    compile "org.springframework.boot:spring-boot-autoconfigure"
+    compile "org.grails:grails-core"
+    compile "org.springframework.boot:spring-boot-starter-actuator"
+    compile "org.springframework.boot:spring-boot-starter-tomcat"
+    compile "org.grails:grails-dependencies"
+    compile "org.grails:grails-plugin-codecs"
+    compile "org.grails:grails-plugin-services"
+    compile "org.grails:grails-plugin-datasource"
+    compile "org.grails:grails-web-boot"
+    compile "org.grails:grails-logging"
+    compile "org.grails.plugins:cache"
+    compile "org.grails.plugins:events"
+    compile project(":grails-plugin")
+    compile "org.hibernate:hibernate-core:$hibernate5Version"
+    compile "org.grails.plugins:views-json"
+    compile "org.grails.plugins:views-json-templates"
+    compile 'org.grails.plugins:spring-security-rest:3.0.1'
+    profile "org.grails.profiles:rest-api"
+    runtime "org.glassfish.web:el-impl:2.1.2-b03"
+    runtime "org.apache.tomcat:tomcat-jdbc"
+    runtime "javax.xml.bind:jaxb-api:2.3.0"
+    testCompile "org.grails:grails-gorm-testing-support"
+    testCompile "org.grails:grails-web-testing-support"
+}
