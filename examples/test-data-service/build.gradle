@@ -33,7 +33,7 @@ dependencies {
     compile "org.grails.plugins:views-json-templates"
     compile 'org.grails.plugins:spring-security-rest:3.0.1'
     profile "org.grails.profiles:rest-api"
-    runtime "org.glassfish.web:el-impl:2.1.2-b03"
+    runtime "org.glassfish.web:el-impl:2.2.1"
     runtime "org.apache.tomcat:tomcat-jdbc"
     runtime "javax.xml.bind:jaxb-api:2.3.1"
     testCompile "org.grails:grails-gorm-testing-support"
