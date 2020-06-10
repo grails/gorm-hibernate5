@@ -186,10 +186,6 @@ subprojects { project ->
 
     apply plugin: 'maven-publish'
     apply plugin: 'com.jfrog.bintray'
-    if(!isGrails3PluginProject) {
-        apply plugin: "io.github.groovylang.groovydoc"
-        groovydoc.jvmArgs "-Xmx512M"
-    }
 
     sourceCompatibility = "1.8"
     targetCompatibility = "1.8"
