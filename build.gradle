@@ -19,9 +19,9 @@ buildscript {
     }
 }
 
-plugins {
+/*plugins {
     id 'com.gradle.build-scan' version '1.16'
-}
+}*/
 
 
 group "org.grails"
@@ -37,14 +37,14 @@ ext {
     nexusPassword = System.getenv("SONATYPE_PASSWORD") ?: project.hasProperty("sonatypeOssPassword") ? project.sonatypeOssPassword : ''
 }
 
-allprojects { project ->
+/*allprojects { project ->
     buildScan {
         termsOfServiceUrl = 'https://gradle.com/terms-of-service'
         termsOfServiceAgree = 'yes'
 
         publishAlways()
     }
-}
+}*/
 
 subprojects { project ->
 
