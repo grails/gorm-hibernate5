@@ -28,12 +28,12 @@ dependencies {
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
 
-    compile "org.springframework.boot:spring-boot:$springBootVersion"
-    compile "org.springframework:spring-orm:$springVersion"
-    compile "org.hibernate:hibernate-core:${hibernate5Version}"
-    compile "org.grails:grails-datastore-web:$gormVersion"
-    compile "org.grails:grails-datastore-gorm-support:$gormVersion"
-    compile project(":grails-datastore-gorm-hibernate5"), {
+    api "org.springframework.boot:spring-boot:$springBootVersion"
+    api "org.springframework:spring-orm:$springVersion"
+    api "org.hibernate:hibernate-core:${hibernate5Version}"
+    api "org.grails:grails-datastore-web:$gormVersion"
+    api "org.grails:grails-datastore-gorm-support:$gormVersion"
+    api project(":grails-datastore-gorm-hibernate5"), {
         exclude group:'org.springframework', module:'spring-context'
         exclude group:'org.springframework', module:'spring-core'
         exclude group:'org.springframework', module:'spring-beans'
@@ -43,13 +43,13 @@ dependencies {
         exclude group:'org.grails', module:'grails-core'
         exclude group:'javax.transaction', module:'jta'
     }
-    testRuntime "org.yaml:snakeyaml:$snakeyamlVersion"
-    testCompile "org.grails:grails-gorm-testing-support:$testingSupportVersion"
-    testRuntime "com.h2database:h2:1.4.192"
-    testRuntime "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
-    testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
-    testRuntime "org.springframework:spring-aop:$springVersion"
-    testRuntime "org.springframework:spring-expression:$springVersion"
+    testRuntimeOnly "org.yaml:snakeyaml:$snakeyamlVersion"
+    testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
+    testRuntimeOnly "com.h2database:h2:1.4.192"
+    testRuntimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
+    testRuntimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
+    testRuntimeOnly "org.springframework:spring-aop:$springVersion"
+    testRuntimeOnly "org.springframework:spring-expression:$springVersion"
 }
 
 groovydoc.classpath += configurations.documentation

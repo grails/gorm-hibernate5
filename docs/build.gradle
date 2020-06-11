@@ -1,5 +1,3 @@
-import org.groovy.lang.groovydoc.tasks.GroovydocTask
-
 ext {
     githubBranch = "master"
     checkOutDir = "build/checkout"
@@ -82,11 +80,9 @@ task copyDocs(type:Copy, dependsOn:asciidoctor) {
     into "${project.buildDir}/docs/manual"
 }
 
-task groovydoc(type:GroovydocTask, dependsOn:fetchSource) {
+task groovydoc(type:Groovydoc, dependsOn:fetchSource) {
     docTitle = "GORM for Hibernate 5 - ${project.version}"
     destinationDir = project.file("build/docs/api")
-    notimestamp = true
-    noversionstamp = true
 
     def files
     for(p in coreProjects) {
@@ -106,7 +102,6 @@ task groovydoc(type:GroovydocTask, dependsOn:fetchSource) {
     }
     source = files
     classpath = configurations.documentation
-    jvmArgs "-Xmx1024m"
 }
 
 task copyResources(type:Copy) {
