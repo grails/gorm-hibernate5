@@ -1,4 +1,5 @@
 tasks.withType(Test) {
+    systemProperty("hibernate5.gorm.suite", System.getProperty("hibernate5.gorm.suite") ?: true)
     useJUnitPlatform()
     reports.html.enabled = !System.getenv("TRAVIS")
     reports.junitXml.enabled = !System.getenv("TRAVIS")
