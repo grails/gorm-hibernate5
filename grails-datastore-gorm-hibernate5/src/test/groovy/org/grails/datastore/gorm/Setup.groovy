@@ -71,6 +71,7 @@ class Setup {
     }
 
     static Session setup(List<Class> classes, ConfigObject grailsConfig = new ConfigObject(), boolean isTransactional = true) {
+        System.setProperty("hibernate5.gorm.suite", "true")
         grailsApplication = new DefaultGrailsApplication(classes as Class[], new GroovyClassLoader(Setup.getClassLoader()))
         if(grailsConfig) {
             grailsApplication.config.putAll(grailsConfig)
