@@ -30,9 +30,10 @@ configurations.all {
 }
 
 dependencies {
-    documentation "org.grails:grails-core:$grails3Version"
-    documentation "org.grails:grails-bootstrap:$grails3Version"
-    documentation "org.grails:grails-spring:$grails3Version"
+    documentation "org.grails:grails-core:$grailsVersion"
+    documentation "org.grails:grails-bootstrap:$grailsVersion"
+    documentation "org.grails:grails-spring:$grailsVersion"
+    documentation "info.picocli:picocli:$picocliVersion"
     documentation "org.fusesource.jansi:jansi:$jansiVersion"
     documentation "org.codehaus.groovy:groovy-dateutil:$groovyVersion"
     documentation "com.github.javaparser:javaparser-core:$javaParserCoreVersion"
@@ -40,7 +41,6 @@ dependencies {
     documentation "org.fusesource.jansi:jansi:$jansiVersion"
     for(p in coreProjects) {
         documentation "org.grails:grails-datastore-$p:$gormVersion"
-        documentation "info.picocli:picocli:$picocliVersion"
     }
     project.rootProject.subprojects.each { subproject ->
         if(subproject.name != "docs" && !subproject.name.startsWith('examples')) {
