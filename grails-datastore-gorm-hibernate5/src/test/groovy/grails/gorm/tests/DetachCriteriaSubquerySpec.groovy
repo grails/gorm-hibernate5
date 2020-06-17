@@ -9,7 +9,7 @@ class DetachCriteriaSubquerySpec extends GormDatastoreSpec {
 
     @Override
     List getDomainClasses() {
-        return [User, Group, GroupAssignment]
+        return [User, Group, GroupAssignment, Organisation]
     }
 
     void "test detached associated criteria in subquery"() {
@@ -43,6 +43,30 @@ class DetachCriteriaSubquerySpec extends GormDatastoreSpec {
         result.size() == 1
     }
 
+    void "test executing detached criteria in sub-query multiple times"() {
+
+        setup:
+        Organisation orgA = new Organisation(name: "A")
+        orgA.addToUsers(email: 'user1@a')
+        orgA.addToUsers(email: 'user2@a')
+        orgA.addToUsers(email: 'user3@a')
+        orgA.save(flush: true)
+        Organisation orgB = new Organisation(name: "B")
+        orgB.addToUsers(email: 'user1@b')
+        orgB.addToUsers(email: 'user2@b')
+        orgB.save(flush: true)
+
+        when:
+        DetachedCriteria<User> criteria = User.where {
+            inList('organisation', Organisation.where { name == 'A' || name == 'B' }.id())
+        }
+        List<User> result = criteria.list()
+        result = criteria.list()
+
+        then:
+        result.size() == 5
+    }
+
     void "test that detached criteria subquery should create implicit alias instead of using this_"() {
 
         setup:
@@ -74,9 +98,11 @@ class DetachCriteriaSubquerySpec extends GormDatastoreSpec {
     }
 
     private User createUser(String email) {
-        User user = new User()
-        user.email = email
-        user.save(flush: true)
+        User user = new User(email: email)
+        Organisation defaultOrg = Organisation.findOrCreateByName("default")
+        defaultOrg.addToUsers(user)
+        defaultOrg.save(flush: true)
+        user
     }
 
     private Group createGroup(String name, User supervisor) {
@@ -99,6 +125,7 @@ class DetachCriteriaSubquerySpec extends GormDatastoreSpec {
 @Entity
 class User implements HibernateEntity<User> {
     String email
+    static belongsTo = [organisation: Organisation]
     static mapping = {
         table 'T_USER'
     }
@@ -120,4 +147,10 @@ class GroupAssignment implements HibernateEntity<GroupAssignment> {
     static mapping = {
         table 'T_GROUP_ASSIGNMENT'
     }
+}
+
+@Entity
+class Organisation implements HibernateEntity<Organisation> {
+    String name
+    static hasMany = [users: User]
 }
