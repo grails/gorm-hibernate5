@@ -2,16 +2,16 @@ package grails.test.mixin.hibernate
 
 import grails.gorm.annotation.Entity
 import grails.test.hibernate.HibernateSpec
-import grails.testing.spock.OnceBefore
 
 /**
  * Created by graemerocher on 15/07/2016.
  */
 class HibernateSpecSpec extends HibernateSpec {
 
-    @OnceBefore
-    void addBook() {
-        new Book(title: "The Stand").save(flush:true)
+    void setup() {
+        if (!Book.countByTitle("The Stand")) {
+            new Book(title: "The Stand").save(flush:true)
+        }
     }
 
     void "test hibernate spec"() {
