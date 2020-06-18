@@ -1,10 +1,10 @@
 dependencies {
-    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    api "org.slf4j:slf4j-api:$slf4jVersion"
 
-    compile "org.codehaus.groovy:groovy:$groovyVersion"
-    compile("org.grails:grails-datastore-gorm:$gormVersion")
-    compile "org.springframework:spring-orm:$springVersion"
-    compile("org.hibernate:hibernate-core:$hibernate5Version") {
+    api "org.codehaus.groovy:groovy:$groovyVersion"
+    api("org.grails:grails-datastore-gorm:$gormVersion")
+    api "org.springframework:spring-orm:$springVersion"
+    api("org.hibernate:hibernate-core:$hibernate5Version") {
         exclude group:'commons-logging', module:'commons-logging'
         exclude group:'com.h2database', module:'h2'
         exclude group:'commons-collections', module:'commons-collections'
@@ -13,15 +13,15 @@ dependencies {
         exclude group:'org.slf4j', module:'slf4j-log4j12'
         exclude group:'xml-apis', module:'xml-apis'
     }
-    compile("org.hibernate:hibernate-validator:$hibernateValidatorVersion") {
+    api("org.hibernate:hibernate-validator:$hibernateValidatorVersion") {
         exclude group:'commons-logging', module:'commons-logging'
         exclude group:'commons-collections', module:'commons-collections'
         exclude group:'org.slf4j', module:'slf4j-api'
     }
-    compile 'javax.validation:validation-api:2.0.1.Final'
-    runtime('javax.el:javax.el-api:3.0.1-b06')
-    runtime "javax.xml.bind:jaxb-api:$jaxbVersion"
-    runtime "com.sun.xml.bind:jaxb-impl:$jaxbVersion"
+    api 'javax.validation:validation-api:2.0.1.Final'
+    runtimeOnly('javax.el:javax.el-api:3.0.1-b06')
+    runtimeOnly "javax.xml.bind:jaxb-api:$jaxbVersion"
+    runtimeOnly "com.sun.xml.bind:jaxb-impl:$jaxbVersion"
 
     compileOnly ("net.sf.ehcache:ehcache-core:2.4.8") {
         exclude group: 'commons-logging', module:'commons-logging'
@@ -40,16 +40,16 @@ dependencies {
         exclude group:'xml-apis', module:'xml-apis'
     }
 
-    testCompile "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
-    testCompile "org.codehaus.groovy:groovy-sql:$groovyVersion"
-    testCompile "org.codehaus.groovy:groovy-json:$groovyVersion"
-    testCompile "org.grails:grails-datastore-gorm-tck:$gormVersion"
-    testCompile "com.h2database:h2:1.3.164"
+    testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
+    testImplementation "org.codehaus.groovy:groovy-sql:$groovyVersion"
+    testImplementation "org.codehaus.groovy:groovy-json:$groovyVersion"
+    testImplementation "org.grails:grails-datastore-gorm-tck:$gormVersion"
+    testImplementation "com.h2database:h2:1.3.164"
 
-    testCompile "net.sf.ehcache:ehcache-core:2.4.6"
-    testCompile "org.hibernate:hibernate-ehcache:$hibernate5Version"
+    testImplementation "net.sf.ehcache:ehcache-core:2.4.6"
+    testImplementation "org.hibernate:hibernate-ehcache:$hibernate5Version"
     
-    testCompile "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
+    testImplementation "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
     testRuntime "org.springframework:spring-aop:$springVersion"
     testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatVersion"
 
@@ -57,7 +57,6 @@ dependencies {
     testRuntime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
     // The groovydoc task needs the Hibernate 4.x jars in the classpath
     documentation("org.hibernate:hibernate-core:${hibernate5Version}")
-
 }
 
 test {
@@ -92,7 +91,7 @@ test.doFirst {
     }    
     def tckClassesFile = project
                             .configurations
-                            .testCompile
+                            .testCompileClasspath
                             .resolvedConfiguration
                             .getResolvedArtifacts()
                             .find { resolved ->
