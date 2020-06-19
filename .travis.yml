@@ -9,6 +9,7 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 jdk:
+- openjdk14
 - openjdk11
 - openjdk8
 env:

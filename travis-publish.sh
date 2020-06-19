@@ -4,9 +4,10 @@ echo "Publishing..."
 
 EXIT_STATUS=0
 
-if [ "${TRAVIS_JDK_VERSION}" == "openjdk11" ] ; then
+if [[ "${TRAVIS_JDK_VERSION}" == "openjdk11" || "${TRAVIS_JDK_VERSION}" == "openjdk14" ]]; then
   exit $EXIT_STATUS
 fi
+
 
 echo "Publishing for branch $TRAVIS_BRANCH JDK: $TRAVIS_JDK_VERSION"
 
