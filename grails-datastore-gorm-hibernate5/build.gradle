@@ -50,11 +50,11 @@ dependencies {
     testImplementation "org.hibernate:hibernate-ehcache:$hibernate5Version"
     
     testImplementation "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
-    testRuntime "org.springframework:spring-aop:$springVersion"
-    testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatVersion"
+    testRuntimeOnly "org.springframework:spring-aop:$springVersion"
+    testRuntimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatVersion"
 
-    testRuntime "org.slf4j:slf4j-simple:$slf4jVersion"
-    testRuntime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+    testRuntimeOnly "org.slf4j:slf4j-simple:$slf4jVersion"
+    testRuntimeOnly "org.slf4j:jcl-over-slf4j:$slf4jVersion"
     // The groovydoc task needs the Hibernate 4.x jars in the classpath
     documentation("org.hibernate:hibernate-core:${hibernate5Version}")
 }
