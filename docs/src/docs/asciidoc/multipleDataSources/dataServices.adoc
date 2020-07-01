@@ -1,0 +1,19 @@
+
+GORM Data Services can operate on multiple data sources.
+
+The `@Transactional` annotation can specify the `DataSource` where `ZipCode` domains exists.
+
+When no annotation is used, then the service goes to the default `DataSource`, as in `deleteByCode(String code)`.
+
+[source,groovy]
+----
+@CompileStatic
+@Service(ZipCode)
+interface ZipCodeService {
+
+    @Transactional('lookup')
+    ZipCode findByCode(String code)
+
+    void deleteByCode(String code)
+}
+----

@@ -1,0 +1,23 @@
+
+Queries can be written for mulitiple data sources with a dynamic finder, where query, or criteria query as well.
+
+Where Query:
+
+[source,groovy]
+----
+ZipCode.where {}.withConnection('lookup').list()
+----
+
+Dynamic Finder:
+
+[source,groovy]
+----
+ZipCode.lookup.findAll()
+----
+
+Criteria:
+
+[source,groovy]
+----
+ZipCode.lookup.createCriteria.list {}
+----
