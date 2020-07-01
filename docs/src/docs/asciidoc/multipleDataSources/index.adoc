@@ -30,3 +30,11 @@ for(ConnectionSource<SessionFactory, HibernateConnectionSourceSettings> connecti
 	SessionFactory sessionFactory = connectionSource.source
 }
 ----
+
+=== Data Services with Multiple Data Sources
+
+include::dataServices.adoc[]
+
+=== Queries with Multiple Data Sources
+
+include::queries.adoc[]
