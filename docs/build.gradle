@@ -51,8 +51,8 @@ dependencies {
 
 asciidoctor {
     resources {
-        from("${project.projectDir}/src/docs/images")
-        into "${project.projectDir}/images"
+        from("${project.projectDir}/src/docs/asciidoc/images")
+        into "./images"
     }
 
     attributes  'experimental'  : 'true',
@@ -60,7 +60,7 @@ asciidoctor {
                 'icons'         : 'font',
                 'reproducible'  : '',
                 'version'       : project.version,
-                'pluginVersion' : project.version - '.RELEASE', 
+                'pluginVersion' : project.version - '.RELEASE',
                 'sourcedir'     : "${project.projectDir}/src/main/groovy"
 }
 
