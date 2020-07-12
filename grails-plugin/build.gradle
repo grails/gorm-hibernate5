@@ -44,7 +44,7 @@ dependencies {
     testCompile "org.grails:grails-gorm-testing-support:$testingSupportVersion"
     testRuntime "com.h2database:h2:1.4.192"
     testRuntime "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
-    testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
+    testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.2"
     testRuntime "org.springframework:spring-aop:$springVersion"
     testRuntime "org.springframework:spring-expression:$springVersion"
 }
