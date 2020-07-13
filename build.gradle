@@ -4,22 +4,22 @@ import static groovyx.net.http.ContentType.JSON
 
 buildscript {
     repositories {
-        mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
     }
     dependencies {
-        classpath "org.codehaus.groovy.modules.http-builder:http-builder:0.7.1"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
+        classpath "org.codehaus.groovy.modules.http-builder:http-builder:0.7.2"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5"
         classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
         // classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.9.2'
+        classpath "org.grails.plugins:views-gradle:2.0.2"
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.6.1'
         classpath "gradle.plugin.com.energizedwork.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
     }
 }
 
 /*plugins {
-    id 'com.gradle.build-scan' version '1.16'
+    id 'com.gradle.build-scan' version '3.3.4'
 }*/
 
 

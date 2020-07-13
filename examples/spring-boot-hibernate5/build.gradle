@@ -34,7 +34,7 @@ dependencies {
 
     runtimeOnly "com.h2database:h2:1.4.192"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
-    runtimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
+    runtimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.2"
     runtimeOnly "org.slf4j:slf4j-api:$slf4jVersion"
 
     testImplementation "org.spockframework:spock-core:$spockVersion"
