@@ -27,15 +27,15 @@ class SingleTenantSpec extends Specification {
         Map config = [
                 "grails.gorm.multiTenancy.mode":"DATABASE",
                 "grails.gorm.multiTenancy.tenantResolverClass":SystemPropertyTenantResolver,
-                'dataSource.url':"jdbc:h2:mem:grailsDB;MVCC=TRUE;LOCK_TIMEOUT=10000",
+                'dataSource.url':"jdbc:h2:mem:grailsDB;LOCK_TIMEOUT=10000",
                 'dataSource.dbCreate': 'update',
                 'dataSource.dialect': H2Dialect.name,
                 'dataSource.formatSql': 'true',
                 'hibernate.flush.mode': 'COMMIT',
                 'hibernate.cache.queries': 'true',
                 'hibernate.hbm2ddl.auto': 'create',
-                'dataSources.books':[url:"jdbc:h2:mem:books;MVCC=TRUE;LOCK_TIMEOUT=10000"],
-                'dataSources.moreBooks':[url:"jdbc:h2:mem:moreBooks;MVCC=TRUE;LOCK_TIMEOUT=10000"]
+                'dataSources.books':[url:"jdbc:h2:mem:books;LOCK_TIMEOUT=10000"],
+                'dataSources.moreBooks':[url:"jdbc:h2:mem:moreBooks;LOCK_TIMEOUT=10000"]
         ]
 
         HibernateDatastore datastore = new HibernateDatastore(DatastoreUtils.createPropertyResolver(config),Book, SingleTenantAuthor )

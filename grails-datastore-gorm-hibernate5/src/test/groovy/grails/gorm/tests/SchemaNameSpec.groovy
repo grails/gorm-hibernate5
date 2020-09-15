@@ -15,7 +15,7 @@ import spock.lang.Specification
  */
 class SchemaNameSpec extends Specification {
 
-    @Shared @AutoCleanup HibernateDatastore datastore = new HibernateDatastore(['dataSource.url':'jdbc:h2:mem:grailsDB;MVCC=TRUE;LOCK_TIMEOUT=10000;INIT=create schema if not exists myschema', (Settings.SETTING_DB_CREATE):'create-drop'],CustomSchema)
+    @Shared @AutoCleanup HibernateDatastore datastore = new HibernateDatastore(['dataSource.url':'jdbc:h2:mem:grailsDB;LOCK_TIMEOUT=10000;INIT=create schema if not exists myschema', (Settings.SETTING_DB_CREATE):'create-drop'],CustomSchema)
     @Shared PlatformTransactionManager transactionManager = datastore.getTransactionManager()
 
     @Rollback
