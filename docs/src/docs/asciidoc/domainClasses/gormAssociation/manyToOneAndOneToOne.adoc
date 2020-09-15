@@ -208,7 +208,7 @@ class Review {
 }
 ----
 
-The cascade behaviour takes cares of deleting every orphan `Review`. Thus, invoking `.clear()` suffices to remove the book' previous reviews.
+The cascade behaviour takes cares of deleting every orphan `Review`. Thus, invoking `.clear()` suffices to remove the book's previous reviews.
 
 [source,groovy]
 ----
