@@ -24,8 +24,8 @@ buildscript {
 
 
 group "org.grails"
-version "7.1.0.M2"
-//version "7.1.0.BUILD-SNAPSHOT"
+//version "7.1.0.M3"
+version "7.1.0.BUILD-SNAPSHOT"
 logger.info("GORM VERSION = ${project.gormVersion}")
 
 ext {
