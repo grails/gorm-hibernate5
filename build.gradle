@@ -66,6 +66,7 @@ subprojects { project ->
     if(project.name.startsWith("examples-")) {
         apply plugin: "groovy"
 
+        ext['h2.version'] = h2Version
         if(project.name.startsWith("examples-grails")) {
             apply plugin:"org.grails.grails-web"
             apply plugin:"org.grails.grails-gsp"

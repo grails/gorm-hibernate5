@@ -45,7 +45,7 @@ dependencies {
     }
     testRuntimeOnly "org.yaml:snakeyaml:$snakeyamlVersion"
     testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
-    testRuntimeOnly "com.h2database:h2:1.4.192"
+    testRuntimeOnly "com.h2database:h2:$h2Version"
     testRuntimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
     testRuntimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.2"
     testRuntimeOnly "org.springframework:spring-aop:$springVersion"
