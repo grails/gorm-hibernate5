@@ -16,4 +16,10 @@ class StudentServiceSpec extends Specification {
         studentService.testServiceBean.libraryService != null
 
     }
+
+    void "test TenantService and TransactionService are not null"() {
+        expect:
+        studentService.transactionService != null
+        studentService.tenantService != null
+    }
 }
