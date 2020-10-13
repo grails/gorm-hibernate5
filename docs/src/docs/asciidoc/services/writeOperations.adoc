@@ -44,7 +44,7 @@ You can also implement update operations using JPA-QL:
 
 [source,groovy]
 ----
-@Query("update ${Book book} set ${book.title} = $newTitle where book.title = $oldTitle")
+@Query("update ${Book book} set ${book.title} = $newTitle where $book.title = $oldTitle")
 Number updateTitle(String newTitle, String oldTitle)
 ----
 
