@@ -43,7 +43,7 @@ class Child implements Serializable {
     static belongsTo= [parent: Parent]
 
     static mapping = MappingBuilder.define {
-        id(composite: ['parent', 'name'])
+        composite('parent', 'name')
     }
 }
 
@@ -56,7 +56,7 @@ class Parent implements Serializable {
     static hasMany= [children: Child]
 
     static mapping= MappingBuilder.define {
-        id(composite: ['grandParent', 'name'])
+        composite('grandParent', 'name')
     }
 }
 
@@ -69,6 +69,6 @@ class GrandParent implements Serializable {
     static hasMany= [parents: Parent]
 
     static mapping= MappingBuilder.define {
-        id(composite: ['name', 'luckyNumber'])
+        composite('name', 'luckyNumber')
     }
 }
