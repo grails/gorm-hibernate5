@@ -1828,6 +1828,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         Component id = new Component(metadataBuildingContext, root);
         id.setNullValue("undefined");
         root.setIdentifier(id);
+        root.setIdentifierMapper(id);
         root.setEmbeddedIdentifier(true);
         id.setComponentClassName(domainClass.getName());
         id.setKey(true);
