@@ -18,10 +18,6 @@ buildscript {
     }
 }
 
-/*plugins {
-    id 'com.gradle.build-scan' version '3.3.4'
-}*/
-
 
 group "org.grails"
 //version "7.1.0.M3"
@@ -35,15 +31,6 @@ ext {
     nexusUsername = System.getenv("SONATYPE_USERNAME") ?: project.hasProperty("sonatypeOssUsername") ? project.sonatypeOssUsername : ''
     nexusPassword = System.getenv("SONATYPE_PASSWORD") ?: project.hasProperty("sonatypeOssPassword") ? project.sonatypeOssPassword : ''
 }
-
-/*allprojects { project ->
-    buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
-
-        publishAlways()
-    }
-}*/
 
 subprojects { project ->
 
@@ -85,6 +72,11 @@ subprojects { project ->
                 if (details.requested.group == "org.grails" && details.requested.name.contains("testing-support")) {
                     details.useVersion(testingSupportVersion)
                 }
+                if(details.requested.group == 'org.grails' &&
+                        details.requested.name.startsWith('grails-datastore') &&
+                        details.requested.name != 'grails-datastore-gorm-hibernate5') {
+                    details.useVersion(gormVersion)
+                }
             }
         }
         boolean usesGeb = project.name.contains('examples-grails') 
@@ -93,11 +85,14 @@ subprojects { project ->
         }
 
         dependencies {
+            //TODO: Remove spring-boot-starter-webflux, and reactor-test once update to Spring Boot 2.4.1
+            implementation 'org.springframework.boot:spring-boot-starter-webflux'
+            testImplementation "io.projectreactor:reactor-test:3.4.0"
             testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
             testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
-            testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.2"
-            testImplementation "org.junit.platform:junit-platform-runner:1.6.2"
-            testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.2"
+            testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"
+            testImplementation "org.junit.platform:junit-platform-runner:1.7.0"
+            testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.0"
         }
 
         apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
@@ -200,9 +195,9 @@ subprojects { project ->
         implementation "org.codehaus.groovy:groovy:$groovyVersion"
         testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
         testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
-        testImplementation "org.junit.jupiter:junit-jupiter-api:5.6.2"
-        testImplementation "org.junit.platform:junit-platform-runner:1.6.2"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.2"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"
+        testImplementation "org.junit.platform:junit-platform-runner:1.7.0"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.0"
     }
 
     apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"

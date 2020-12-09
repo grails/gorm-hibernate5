@@ -2,11 +2,6 @@ group "examples"
 
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        if(details.requested.group == 'org.grails' &&
-                details.requested.name.startsWith('grails-datastore') &&
-                details.requested.name != 'grails-datastore-gorm-hibernate5') {
-            details.useVersion(gormVersion)
-        }
         if (details.requested.group == "org.springframework.boot") {
             details.useVersion(springBootVersion)
         }

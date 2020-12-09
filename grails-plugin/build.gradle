@@ -15,13 +15,13 @@ configurations.all {
 }
 
 dependencies {
-    documentation ("org.grails:grails-core:$grails3Version")
-    documentation ("org.grails:grails-bootstrap:$grails3Version")
-    documentation ("org.grails:grails-spring:$grails3Version")
+    documentation ("org.grails:grails-core:$pluginGrailsVersion")
+    documentation ("org.grails:grails-bootstrap:$pluginGrailsVersion")
+    documentation ("org.grails:grails-spring:$pluginGrailsVersion")
     documentation ("com.github.javaparser:javaparser-core:$javaParserCoreVersion")
 
-    compileOnly("org.grails:grails-bootstrap:$grails3Version")
-    compileOnly("org.grails:grails-core:$grails3Version")
+    compileOnly("org.grails:grails-bootstrap:$pluginGrailsVersion")
+    compileOnly("org.grails:grails-core:$pluginGrailsVersion")
     compileOnly "org.spockframework:spock-core:$spockVersion", {
         exclude group: "junit", module: "junit-dep"
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'

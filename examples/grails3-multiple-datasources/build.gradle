@@ -1,16 +1,5 @@
 group "examples"
 
-
-configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        if(details.requested.group == 'org.grails' &&
-                details.requested.name.startsWith('grails-datastore') &&
-                details.requested.name != 'grails-datastore-gorm-hibernate5') {
-            details.useVersion(gormVersion)
-        }
-    }
-}
-
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-logging"
     implementation "org.springframework.boot:spring-boot-autoconfigure"
