@@ -36,6 +36,11 @@ jobs:
         run: ./gradlew -Dgeb.env=chromeHeadless check --no-daemon -x gorm-hibernate5-spring-boot:test
       - name: Run Spring Boot Tests
         run: ./gradlew gorm-hibernate5-spring-boot:test --no-daemon
+      - name: Publish Test Report
+        uses: scacap/action-surefire-report@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          report_paths: '**/build/test-results/test/TEST-*.xml'
       - name: Publish to repo.grails.org
         if: success() && github.event_name == 'push' && matrix.java == '8'
         env:
