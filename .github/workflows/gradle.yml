@@ -34,12 +34,8 @@ jobs:
           [ -f ./setup.sh ] && ./setup.sh || true
       - name: Run all tests (chromeHeadless) except spring-boot
         run: ./gradlew -Dgeb.env=chromeHeadless check --no-daemon -x gorm-hibernate5-spring-boot:test
-        env:
-          TESTCONTAINERS_RYUK_DISABLED: true
       - name: Run Spring Boot Tests
         run: ./gradlew gorm-hibernate5-spring-boot:test --no-daemon
-        env:
-          TESTCONTAINERS_RYUK_DISABLED: true
       - name: Publish Test Report
         uses: scacap/action-surefire-report@v1
         with:
@@ -48,9 +44,12 @@ jobs:
       - name: Publish to repo.grails.org
         if: success() && github.event_name == 'push' && matrix.java == '8'
         env:
+          SECRING_FILE: ${{ secrets.SECRING_FILE }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
-        run: -Psigning.keyId="$SIGNING_KEY" -Psigning.password="$SIGNING_PASSPHRASE" -Psigning.secretKeyRingFile="${WORKSPACE}/secring.gpg" publish
+        run: |
+          echo $SECRING_FILE | base64 -d > secring.gpg
+          ./gradlew -Dorg.gradle.internal.publish.checksums.insecure=true -Psigning.keyId="$SIGNING_KEY" -Psigning.password="$SIGNING_PASSPHRASE" -Psigning.secretKeyRingFile="secring.gpg" publish
       - name: Publish to Github Pages
         if: success() && github.event_name == 'push' && matrix.java == '8'
         uses: micronaut-projects/github-pages-deploy-action@master
