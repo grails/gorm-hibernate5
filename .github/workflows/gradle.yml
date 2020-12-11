@@ -52,7 +52,7 @@ jobs:
         run: |
           echo $SECRING_FILE | base64 -d > secring.gpg
           ./gradlew -Dorg.gradle.internal.publish.checksums.insecure=true -Psigning.keyId="$SIGNING_KEY" -Psigning.password="$SIGNING_PASSPHRASE" -Psigning.secretKeyRingFile="secring.gpg" publish
-          ./gradlew docs
+          ./gradlew docs:docs
       - name: Publish to Github Pages
         if: success() && github.event_name == 'push' && matrix.java == '8'
         uses: micronaut-projects/github-pages-deploy-action@master
@@ -60,6 +60,6 @@ jobs:
           TARGET_REPOSITORY: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           BRANCH: gh-pages
-          FOLDER: build/docs
+          FOLDER: docs/build/docs
           COMMIT_EMAIL: behlp@objectcomputing.com
           COMMIT_NAME: Puneet Behl
