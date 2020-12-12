@@ -53,13 +53,22 @@ jobs:
           echo $SECRING_FILE | base64 -d > secring.gpg
           ./gradlew -Dorg.gradle.internal.publish.checksums.insecure=true -Psigning.keyId="$SIGNING_KEY" -Psigning.password="$SIGNING_PASSPHRASE" -Psigning.secretKeyRingFile="secring.gpg" publish
           ./gradlew docs:docs
+      - name: Determine docs target repository
+        uses: haya14busa/action-cond@v1
+        id: docs_target
+        with:
+          cond: ${{ github.repository == 'grails/gorm-hibernate5' }}
+          if_true: "grails/grails-data-mapping"
+          if_false: ${{ github.repository }}
       - name: Publish to Github Pages
         if: success() && github.event_name == 'push' && matrix.java == '8'
-        uses: micronaut-projects/github-pages-deploy-action@master
+        uses: puneetbehl/github-pages-deploy-action@grails
         env:
           TARGET_REPOSITORY: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           BRANCH: gh-pages
           FOLDER: docs/build/docs
+          DOC_SUB_FOLDER: hibernate
+          DOC_FOLDER: gh-pages
           COMMIT_EMAIL: behlp@objectcomputing.com
           COMMIT_NAME: Puneet Behl
