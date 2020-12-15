@@ -9,7 +9,10 @@ on:
       - master
       - '[7-9]+.[1-9]+.x'
   workflow_dispatch:
-
+    inputs:
+      message:
+        description: 'Snapshot information (e.g. New Core Snapshot Tue Dec 15 00:07:18 UTC 2020 f212f54)'
+        required: true
 jobs:
   build:
     runs-on: ubuntu-latest
