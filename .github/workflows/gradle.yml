@@ -23,6 +23,11 @@ jobs:
       WORKSPACE: ${{ github.workspace }}
       GRADLE_OPTS: -Xmx1500m -Dfile.encoding=UTF-8
     steps:
+      - name: Print Dispatch Information
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          DISPATCH_INFORMATION: ${{ github.event.inputs.message }}
+        run: echo $DISPATCH_INFORMATION
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
@@ -59,6 +64,7 @@ jobs:
           ./gradlew -Dorg.gradle.internal.publish.checksums.insecure=true -Psigning.keyId="$SIGNING_KEY" -Psigning.password="$SIGNING_PASSPHRASE" -Psigning.secretKeyRingFile="secring.gpg" publish
           ./gradlew docs:docs
       - name: Determine docs target repository
+        if: success() && github.event_name == 'push' && matrix.java == '8'
         uses: haya14busa/action-cond@v1
         id: docs_target
         with:
