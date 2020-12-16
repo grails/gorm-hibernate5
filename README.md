@@ -7,7 +7,7 @@ For more information see the following links:
 * [Documentation](http://gorm.grails.org/latest/hibernate/manual)
 * [API](http://gorm.grails.org/latest/hibernate/api)
 * [Grails Plugin](https://grails.org/plugins.html#plugin/hibernate)
-* [![Build Status](https://travis-ci.org/grails/gorm-hibernate5.svg?branch=master)](https://travis-ci.org/grails/gorm-hibernate5)
+* ![Java CI](https://github.com/grails/gorm-hibernate5/workflows/Java%20CI/badge.svg)
 
 For the current development version see the following links:
 
