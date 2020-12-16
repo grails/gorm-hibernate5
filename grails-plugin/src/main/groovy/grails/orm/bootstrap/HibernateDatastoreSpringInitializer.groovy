@@ -151,7 +151,9 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
                 bean.autowire = true
                 dataSourceConnectionSourceFactory = ref('dataSourceConnectionSourceFactory')
             }
-            hibernateDatastore(HibernateDatastore, config, hibernateConnectionSourceFactory, eventPublisher)
+            hibernateDatastore(HibernateDatastore, config, hibernateConnectionSourceFactory, eventPublisher) { bean->
+                bean.primary = true
+            }
             sessionFactory(hibernateDatastore:'getSessionFactory')
             transactionManager(hibernateDatastore:"getTransactionManager")
             autoTimestampEventListener(hibernateDatastore:"getAutoTimestampEventListener")
