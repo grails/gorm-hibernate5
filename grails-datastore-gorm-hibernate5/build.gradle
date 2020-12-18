@@ -51,7 +51,7 @@ dependencies {
     
     testImplementation "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
     testRuntimeOnly "org.springframework:spring-aop:$springVersion"
-    testRuntimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatVersion"
+    testRuntimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatLog4jVersion"
 
     testRuntimeOnly "org.slf4j:slf4j-simple:$slf4jVersion"
     testRuntimeOnly "org.slf4j:jcl-over-slf4j:$slf4jVersion"
