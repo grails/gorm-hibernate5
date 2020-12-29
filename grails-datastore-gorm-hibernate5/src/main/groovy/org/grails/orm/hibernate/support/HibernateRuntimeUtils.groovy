@@ -2,20 +2,16 @@ package org.grails.orm.hibernate.support
 
 import groovy.transform.CompileStatic
 import org.grails.datastore.gorm.GormValidateable
-import org.grails.datastore.mapping.model.MappingContext
 import org.grails.datastore.mapping.model.config.GormProperties
 import org.grails.datastore.mapping.proxy.ProxyHandler
-import org.grails.datastore.mapping.reflect.EntityReflector
 import org.grails.datastore.mapping.validation.ValidationErrors
-import org.grails.orm.hibernate.proxy.SimpleHibernateProxyHandler
+import org.grails.orm.hibernate.proxy.HibernateProxyHandler
 import org.codehaus.groovy.runtime.StringGroovyMethods
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.types.Association
 import org.grails.datastore.mapping.model.types.OneToOne
 import org.hibernate.Session
 import org.hibernate.SessionFactory
-import org.springframework.beans.BeanWrapper
-import org.springframework.beans.BeanWrapperImpl
 import org.springframework.core.convert.ConversionService
 import org.springframework.validation.Errors
 import org.springframework.validation.FieldError
@@ -28,7 +24,7 @@ import org.springframework.validation.FieldError
  */
 @CompileStatic
 class HibernateRuntimeUtils {
-    private static ProxyHandler proxyHandler = new SimpleHibernateProxyHandler();
+    private static ProxyHandler proxyHandler = new HibernateProxyHandler();
 
     private static final String DYNAMIC_FILTER_ENABLER = "dynamicFilterEnabler";
 

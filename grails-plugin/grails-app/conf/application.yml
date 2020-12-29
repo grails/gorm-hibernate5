@@ -3,5 +3,8 @@ grails:
     profile: plugin
 ---
 dataSource:
-  dbCreate: none
   logSql: true
+---
+grails:
+  gorm:
+    failOnError: false # Default, just for testing override in HibernateSpecOverrideSpec

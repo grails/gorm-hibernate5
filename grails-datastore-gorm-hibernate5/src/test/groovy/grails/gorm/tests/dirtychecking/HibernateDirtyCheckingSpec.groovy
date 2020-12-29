@@ -4,7 +4,6 @@ import grails.gorm.annotation.Entity
 import grails.gorm.dirty.checking.DirtyCheck
 import grails.gorm.transactions.Rollback
 import org.grails.orm.hibernate.HibernateDatastore
-import org.springframework.transaction.PlatformTransactionManager
 import spock.lang.AutoCleanup
 import spock.lang.Issue
 import spock.lang.Shared
@@ -67,14 +66,67 @@ class HibernateDirtyCheckingSpec extends Specification {
 
         when:
         person.save(flush:true)
+
+        then:
+        !person.address.hasChanged()
+        person.address.listDirtyPropertyNames().isEmpty()
+
+        when:
         hibernateDatastore.sessionFactory.currentSession.clear()
         person = Person.first()
 
         then:
         person.address.street == "New Town"
-
-
     }
+
+    @Rollback
+    void "test dirty checking on boolean true -> false"() {
+        given: 'a new person'
+        new Person(name: 'John', occupation: 'Grails developer', employed: true).save(flush: true)
+        hibernateDatastore.sessionFactory.currentSession.clear()
+        Person person = Person.first()
+
+        when:
+        person.employed = false
+
+        then:
+        person.getPersistentValue('employed') == true
+        person.dirtyPropertyNames == ['employed']
+        person.isDirty('employed')
+
+        when:
+        person.save(flush:true)
+        hibernateDatastore.sessionFactory.currentSession.clear()
+        person = Person.first()
+
+        then:
+        person.employed == false
+    }
+
+    @Rollback
+    void "test dirty checking on boolean false -> true"() {
+        given: 'a new person'
+        new Person(name: 'John', occupation: 'Grails developer', employed: false).save(flush: true)
+        hibernateDatastore.sessionFactory.currentSession.clear()
+        Person person = Person.first()
+
+        when:
+        person.employed = true
+
+        then:
+        person.getPersistentValue('employed') == false
+        person.dirtyPropertyNames == ['employed']
+        person.isDirty('employed')
+
+        when:
+        person.save(flush:true)
+        hibernateDatastore.sessionFactory.currentSession.clear()
+        person = Person.first()
+
+        then:
+        person.employed == true
+    }
+
 }
 
 
@@ -83,6 +135,7 @@ class Person {
 
     String name
     String occupation
+    boolean employed
 
     Address address
     static embedded = ['address']

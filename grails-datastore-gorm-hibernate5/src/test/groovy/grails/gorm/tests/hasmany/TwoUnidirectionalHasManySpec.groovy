@@ -19,9 +19,9 @@ import grails.gorm.annotation.Entity
 import grails.gorm.annotation.JpaEntity
 import grails.gorm.hibernate.mapping.MappingBuilder
 import grails.gorm.transactions.Rollback
-import groovy.transform.NotYetImplemented
 import org.grails.orm.hibernate.HibernateDatastore
 import spock.lang.AutoCleanup
+import spock.lang.Ignore
 import spock.lang.Issue
 import spock.lang.Shared
 import spock.lang.Specification
@@ -42,7 +42,7 @@ class TwoUnidirectionalHasManySpec extends Specification {
 
     @Rollback
     @Issue('https://github.com/grails/grails-core/issues/10811')
-    @NotYetImplemented
+    @Ignore
     void "test two undirectional one to many references"() {
         when:
         new EcmMask(name: "test")
@@ -61,7 +61,7 @@ class TwoUnidirectionalHasManySpec extends Specification {
 
     @Rollback
     @Issue('https://github.com/grails/grails-core/issues/10811')
-    @NotYetImplemented
+    @Ignore
     void "test two JPA undirectional one to many references"() {
 
         when:

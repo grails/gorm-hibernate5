@@ -429,7 +429,7 @@ class HibernateMappingBuilder implements MappingConfigurationBuilder<Mapping, Pr
     /**
      * A closure used by methodMissing to create column definitions
      */
-    private handleMethodMissing = { String name, args ->
+    private Closure handleMethodMissing = { String name, Object args ->
         if (args && ((args[0] instanceof Map) || (args[0] instanceof Closure))) {
             Map namedArgs = args[0] instanceof Map ? args[0] : [:]
 
@@ -627,8 +627,8 @@ class HibernateMappingBuilder implements MappingConfigurationBuilder<Mapping, Pr
     void columns(Closure callable) {
         callable.resolveStrategy = Closure.DELEGATE_ONLY
         callable.delegate = new Object() {
-            def invokeMethod(String methodName, args) {
-                handleMethodMissing(methodName, args)
+            def invokeMethod(String methodName, Object args) {
+                handleMethodMissing.call(methodName, args)
             }
         }
         callable.call()

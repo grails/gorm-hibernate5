@@ -16,12 +16,9 @@
 package grails.gorm.tests.txs
 
 import grails.gorm.annotation.Entity
-import grails.gorm.tests.services.Attribute
-import grails.gorm.tests.services.Product
 import grails.gorm.transactions.ReadOnly
 import grails.gorm.transactions.Transactional
 import org.grails.orm.hibernate.HibernateDatastore
-import org.springframework.transaction.TransactionStatus
 import org.springframework.transaction.annotation.Propagation
 import spock.lang.AutoCleanup
 import spock.lang.Issue

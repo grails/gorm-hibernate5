@@ -14,7 +14,7 @@ class DeepValidationSpec extends GormDatastoreSpec {
 
     @Override
     List getDomainClasses() {
-        return [City, Market, Address]
+        return [AnotherCity, Market, Address]
     }
 
     @Rollback
@@ -37,27 +37,27 @@ class DeepValidationSpec extends GormDatastoreSpec {
 
         when: "nested validation fails"
         address = new Address(streetName: "1B, Main St.", landmark: "V2", postalCode: "11").save(validate: false)
-        new City(name: "Faridabad").addToMarkets(name: "NIT 1", address: address).save(deepValidate: false)
+        new AnotherCity(name: "Faridabad").addToMarkets(name: "NIT 1", address: address).save(deepValidate: false)
 
         then: "market is saved, no validation error"
-        City.count() == 1
+        AnotherCity.count() == 1
         Market.count() == 2
         Address.count() == 2
 
         when: "invalid embedded object"
-        new City(name: "St. Louis", country: new Country()).save(deepValidate: false)
+        new AnotherCity(name: "St. Louis", country: new AnotherCountry()).save(deepValidate: false)
 
         then: "should save the city"
-        City.count() == 2
-        Country.count() == 0
+        AnotherCity.count() == 2
+        AnotherCountry.count() == 0
     }
 }
 
 @Entity
-class City {
+class AnotherCity {
 
     String name
-    Country country
+    AnotherCountry country
 
     static hasMany = [markets: Market]
     static embedded = ['country']
@@ -93,6 +93,6 @@ class Address {
 }
 
 @Entity
-class Country {
+class AnotherCountry {
     String name
 }

@@ -16,6 +16,7 @@ package org.grails.orm.hibernate.query;
 
 import org.grails.datastore.gorm.query.criteria.DetachedAssociationCriteria;
 import org.grails.datastore.mapping.model.PersistentEntity;
+import org.grails.datastore.mapping.model.types.Association;
 import org.grails.datastore.mapping.query.AssociationQuery;
 import org.grails.datastore.mapping.query.Query;
 import org.grails.datastore.mapping.query.api.QueryableCriteria;
@@ -35,6 +36,7 @@ import java.util.Map;
 public abstract class AbstractHibernateCriterionAdapter {
     protected static final Map<Class<?>, CriterionAdaptor<?>> criterionAdaptors = new HashMap<Class<?>, CriterionAdaptor<?>>();
     protected static boolean initialized;
+    protected static final String ALIAS = "_alias";
 
     public AbstractHibernateCriterionAdapter() {
         initialize();
@@ -153,7 +155,12 @@ public abstract class AbstractHibernateCriterionAdapter {
         criterionAdaptors.put(Query.Exists.class, new CriterionAdaptor<Query.Exists>() {
             @Override
             public Criterion toHibernateCriterion(AbstractHibernateQuery hibernateQuery, Query.Exists criterion, String alias) {
-                DetachedCriteria detachedCriteria = toHibernateDetachedCriteria(hibernateQuery,criterion.getSubquery());
+                final QueryableCriteria subquery = criterion.getSubquery();
+                String subqueryAlias = subquery.getAlias();
+                if (subquery.getAlias() == null) {
+                    subqueryAlias = criterion.getSubquery().getPersistentEntity().getJavaClass().getSimpleName() + ALIAS;
+                }
+                DetachedCriteria detachedCriteria = toHibernateDetachedCriteria(hibernateQuery,subquery, subqueryAlias);
                 return Subqueries.exists(detachedCriteria);
             }
         });
@@ -172,11 +179,16 @@ public abstract class AbstractHibernateCriterionAdapter {
             @Override
             public Criterion toHibernateCriterion(AbstractHibernateQuery hibernateQuery, Query.Criterion criterion, String alias) {
                 DetachedAssociationCriteria<?> existing = (DetachedAssociationCriteria<?>) criterion;
-                if(alias == null) alias = existing.getAlias();
-                alias = hibernateQuery.handleAssociationQuery(existing.getAssociation(), existing.getCriteria(), alias);
+                alias = hibernateQuery.handleAssociationQuery(existing.getAssociation(), existing.getCriteria());
+                Association association = existing.getAssociation();
+                hibernateQuery.associationStack.add(association);
                 Junction conjunction = Restrictions.conjunction();
-                applySubCriteriaToJunction(existing.getAssociation().getAssociatedEntity(), hibernateQuery, existing.getCriteria(), conjunction, alias);
-                return conjunction;
+                try {
+                    applySubCriteriaToJunction(association.getAssociatedEntity(), hibernateQuery, existing.getCriteria(), conjunction, alias);
+                    return conjunction;
+                } finally {
+                    hibernateQuery.associationStack.removeLast();
+                }
             }
         });
         criterionAdaptors.put(AssociationQuery.class, new CriterionAdaptor() {
@@ -228,7 +240,7 @@ public abstract class AbstractHibernateCriterionAdapter {
             @Override
             public Criterion toHibernateCriterion(AbstractHibernateQuery hibernateQuery, Query.Criterion criterion, String alias) {
                 Query.Between btwCriterion = (Query.Between) criterion;
-                return Restrictions.between(calculatePropertyName(calculatePropertyName(btwCriterion.getProperty(), alias), alias), btwCriterion.getFrom(), btwCriterion.getTo());
+                return Restrictions.between(calculatePropertyName(btwCriterion.getProperty(), alias), btwCriterion.getFrom(), btwCriterion.getTo());
             }
         });
 
@@ -530,6 +542,10 @@ public abstract class AbstractHibernateCriterionAdapter {
 
 
     protected abstract org.hibernate.criterion.DetachedCriteria toHibernateDetachedCriteria(AbstractHibernateQuery query, QueryableCriteria<?> queryableCriteria);
+
+    protected org.hibernate.criterion.DetachedCriteria toHibernateDetachedCriteria(AbstractHibernateQuery query, QueryableCriteria<?> queryableCriteria, String alias) {
+        return toHibernateDetachedCriteria(query, queryableCriteria);
+    }
 
     public static abstract class CriterionAdaptor<T extends Query.Criterion> {
         public abstract org.hibernate.criterion.Criterion toHibernateCriterion(AbstractHibernateQuery hibernateQuery, T criterion, String alias);

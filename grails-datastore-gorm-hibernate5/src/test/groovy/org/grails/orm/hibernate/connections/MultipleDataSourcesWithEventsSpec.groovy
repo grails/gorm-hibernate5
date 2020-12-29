@@ -17,7 +17,7 @@ class MultipleDataSourcesWithEventsSpec extends Specification {
     void "Test multiple data sources register the correct events"() {
         given:"A configuration for multiple data sources"
         Map config = [
-                'dataSource.url':"jdbc:h2:mem:grailsDB;MVCC=TRUE;LOCK_TIMEOUT=10000",
+                'dataSource.url':"jdbc:h2:mem:grailsDB;LOCK_TIMEOUT=10000",
                 'dataSource.dbCreate': 'update',
                 'dataSource.dialect': H2Dialect.name,
                 'dataSource.formatSql': 'true',
@@ -25,7 +25,7 @@ class MultipleDataSourcesWithEventsSpec extends Specification {
                 'hibernate.cache.queries': 'true',
                 'hibernate.cache':['use_second_level_cache':true,'region.factory_class':'org.hibernate.cache.ehcache.EhCacheRegionFactory'],
                 'hibernate.hbm2ddl.auto': 'create',
-                'dataSources.books':[url:"jdbc:h2:mem:books;MVCC=TRUE;LOCK_TIMEOUT=10000"]
+                'dataSources.books':[url:"jdbc:h2:mem:books;LOCK_TIMEOUT=10000"]
         ]
 
         when:"A entity is saved with the default connection"

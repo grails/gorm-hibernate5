@@ -10,7 +10,6 @@ import grails.gorm.services.Service
 @CurrentTenant
 interface BookService {
 
-
     Book find(Serializable id)
 
     List<Book> findBooks(Map args)

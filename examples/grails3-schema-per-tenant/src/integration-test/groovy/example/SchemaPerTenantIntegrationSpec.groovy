@@ -1,5 +1,6 @@
 package example
 
+import datasources.Application
 import grails.gorm.transactions.Rollback
 import grails.testing.mixin.integration.Integration
 import grails.util.GrailsWebMockUtil
@@ -11,7 +12,7 @@ import org.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.web.context.request.RequestContextHolder
 import spock.lang.Specification
 
-@Integration
+@Integration(applicationClass = Application)
 @Slf4j
 @Rollback
 class SchemaPerTenantIntegrationSpec extends Specification {
@@ -19,10 +20,10 @@ class SchemaPerTenantIntegrationSpec extends Specification {
     AnotherBookService anotherBookService
     GrailsWebRequest webRequest
     HibernateDatastore hibernateDatastore
+
     def setup() {
         hibernateDatastore.addTenantForSchema("moreBooks")
         hibernateDatastore.addTenantForSchema("evenMoreBooks")
-
         webRequest = GrailsWebMockUtil.bindMockWebRequest()
     }
 
@@ -40,7 +41,6 @@ class SchemaPerTenantIntegrationSpec extends Specification {
         println book
         log.info("${book}")
 
-
         then:
         bookService.countBooks() == 1
         book?.id
@@ -56,12 +56,10 @@ class SchemaPerTenantIntegrationSpec extends Specification {
         println book
         log.info("${book}")
 
-
         then:
         anotherBookService.countBooks() == 1
         book?.id
     }
-
 
     void 'Test database per tenant'() {
         when:"When there is no tenant"
@@ -72,7 +70,6 @@ class SchemaPerTenantIntegrationSpec extends Specification {
 
         when:"But look you can add a new Schema at runtime!"
         webRequest.session.setAttribute(SessionTenantResolver.ATTRIBUTE, "moreBooks")
-
 
         then:
         anotherBookService.countBooks() == 0
@@ -95,7 +92,6 @@ class SchemaPerTenantIntegrationSpec extends Specification {
         then:
         anotherBookService.countBooks() == 2
         bookService.countBooks()== 2
-
     }
 }
 

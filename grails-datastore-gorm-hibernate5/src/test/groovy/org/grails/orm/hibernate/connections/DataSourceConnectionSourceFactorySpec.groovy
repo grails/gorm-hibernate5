@@ -14,14 +14,9 @@ class DataSourceConnectionSourceFactorySpec extends Specification {
 
     void "test datasource connection source factory"() {
         when:
-        // there might other tests use same 'grailsDB' database and have created more schemas under that
-        // like 'MySchema'. Generate unique database name for this test.
-        Random generateRandomName = new Random()
-        String overTestsUniqueDatabaseName = "grailsDB_${generateRandomName.nextInt()}"
-
         DataSourceConnectionSourceFactory factory = new DataSourceConnectionSourceFactory()
         Map config = [
-                'dataSource.url':"jdbc:h2:mem:${overTestsUniqueDatabaseName};MVCC=TRUE;LOCK_TIMEOUT=10000",
+                'dataSource.url':"jdbc:h2:mem:grailsDB;LOCK_TIMEOUT=10000",
                 'dataSource.dbCreate': 'update',
                 'dataSource.dialect': Oracle8iDialect.name,
                 'dataSource.properties.dbProperties': [useSSL: false]

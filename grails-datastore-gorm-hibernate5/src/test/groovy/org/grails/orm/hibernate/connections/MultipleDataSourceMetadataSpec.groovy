@@ -12,8 +12,8 @@ class MultipleDataSourceMetadataSpec extends Specification {
 
     @Shared
     Map config = [
-            "dataSources.apples.url": "jdbc:h2:mem:apples;MVCC=TRUE;LOCK_TIMEOUT=10000",
-            "dataSources.oranges.url": "jdbc:h2:mem:oranges;MVCC=TRUE;LOCK_TIMEOUT=10000"
+            "dataSources.apples.url": "jdbc:h2:mem:apples;LOCK_TIMEOUT=10000",
+            "dataSources.oranges.url": "jdbc:h2:mem:oranges;LOCK_TIMEOUT=10000"
     ]
 
     @AutoCleanup

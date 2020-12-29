@@ -152,7 +152,7 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
         def template = hibernateTemplate
         SessionFactory sessionFactory = this.sessionFactory
         return (Integer) template.execute { Session session ->
-            Query q = session.createQuery(query.toString())
+            Query q = (Query) session.createQuery(query.toString())
             template.applySettings(q)
             def sessionHolder = (SessionHolder) TransactionSynchronizationManager.getResource( sessionFactory )
             if (sessionHolder && sessionHolder.hasTimeout()) {
@@ -179,7 +179,7 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
         SessionFactory sessionFactory = this.sessionFactory
 
         return (Integer) template.execute { Session session ->
-            Query q = session.createQuery(query.toString())
+            Query q = (Query) session.createQuery(query.toString())
             template.applySettings(q)
             def sessionHolder = (SessionHolder) TransactionSynchronizationManager.getResource( sessionFactory )
             if (sessionHolder && sessionHolder.hasTimeout()) {

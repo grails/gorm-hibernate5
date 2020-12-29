@@ -4,11 +4,9 @@ import grails.gorm.DetachedCriteria
 import grails.gorm.annotation.Entity
 import grails.gorm.services.Service
 import grails.gorm.transactions.Rollback
-import groovy.transform.NotYetImplemented
 import org.grails.orm.hibernate.HibernateDatastore
 import spock.lang.AutoCleanup
 import spock.lang.Ignore
-import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Shared
 import spock.lang.Specification
@@ -23,7 +21,7 @@ class HasManyWithInQuerySpec extends Specification {
     @Shared BookService bookService = datastore.getService(BookService)
 
 
-    @NotYetImplemented
+    @Ignore
     void "test 'in' criteria"() {
         setupData()
 

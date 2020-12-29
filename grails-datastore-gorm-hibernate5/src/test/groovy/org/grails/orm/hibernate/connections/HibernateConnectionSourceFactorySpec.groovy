@@ -19,7 +19,7 @@ class HibernateConnectionSourceFactorySpec extends Specification {
 
         HibernateConnectionSourceFactory factory = new HibernateConnectionSourceFactory(Foo)
         Map config = [
-                'dataSource.url':"jdbc:h2:mem:grailsDB;MVCC=TRUE;LOCK_TIMEOUT=10000",
+                'dataSource.url':"jdbc:h2:mem:grailsDB;LOCK_TIMEOUT=10000",
                 'dataSource.dbCreate': 'update',
                 'dataSource.dialect': H2Dialect.name,
                 'dataSource.formatSql': 'true',

@@ -6,7 +6,7 @@ import spock.lang.Specification
 /**
  * Created by graemerocher on 04/05/2017.
  */
-@Integration
+@Integration(applicationClass = Application)
 class CascadeValidationSpec extends Specification {
 
     void "validation cascades correctly"() {

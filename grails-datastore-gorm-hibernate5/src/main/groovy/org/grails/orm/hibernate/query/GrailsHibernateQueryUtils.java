@@ -272,6 +272,9 @@ public class GrailsHibernateQueryUtils {
                                                String sort,
                                                String order,
                                                boolean ignoreCase) {
+        if (ignoreCase && entity.getPropertyByName(sort).getType() != String.class) {
+            ignoreCase = false;
+        }
         int firstDotPos = sort.indexOf(".");
         if (firstDotPos == -1) {
             addOrder(entity, query, queryRoot, criteriaBuilder, sort, order, ignoreCase);

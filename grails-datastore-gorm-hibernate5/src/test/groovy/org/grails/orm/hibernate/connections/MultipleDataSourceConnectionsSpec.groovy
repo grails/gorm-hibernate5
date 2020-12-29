@@ -1,7 +1,8 @@
 package org.grails.orm.hibernate.connections
 
-import grails.gorm.transactions.Rollback
+import grails.gorm.services.Service
 import grails.gorm.annotation.Entity
+import grails.gorm.transactions.Transactional
 import org.grails.datastore.mapping.core.DatastoreUtils
 import org.grails.orm.hibernate.HibernateDatastore
 import org.hibernate.Session
@@ -15,15 +16,15 @@ import spock.lang.Specification
  */
 class MultipleDataSourceConnectionsSpec extends Specification {
     @Shared  Map config = [
-            'dataSource.url':"jdbc:h2:mem:grailsDB;MVCC=TRUE;LOCK_TIMEOUT=10000",
+            'dataSource.url':"jdbc:h2:mem:grailsDB;LOCK_TIMEOUT=10000",
             'dataSource.dbCreate': 'create-drop',
             'dataSource.dialect': H2Dialect.name,
             'dataSource.formatSql': 'true',
             'hibernate.flush.mode': 'COMMIT',
             'hibernate.cache.queries': 'true',
             'hibernate.hbm2ddl.auto': 'create-drop',
-            'dataSources.books':[url:"jdbc:h2:mem:books;MVCC=TRUE;LOCK_TIMEOUT=10000"],
-            'dataSources.moreBooks.url':"jdbc:h2:mem:moreBooks;MVCC=TRUE;LOCK_TIMEOUT=10000",
+            'dataSources.books':[url:"jdbc:h2:mem:books;LOCK_TIMEOUT=10000"],
+            'dataSources.moreBooks.url':"jdbc:h2:mem:moreBooks;LOCK_TIMEOUT=10000",
             'dataSources.moreBooks.hibernate.default_schema':"schema2"
     ]
 
@@ -82,7 +83,7 @@ class MultipleDataSourceConnectionsSpec extends Specification {
                                                                        dbCreate       : "create-drop",
                                                                        logSql         : false,
                                                                        formatSql      : true,
-                                                                       url            : "jdbc:h2:mem:yetAnotherDB;MVCC=TRUE;LOCK_TIMEOUT=10000"])
+                                                                       url            : "jdbc:h2:mem:yetAnotherDB;LOCK_TIMEOUT=10000"])
 
         then:"The other data sources have not been touched"
         Author.withTransaction { Author.count() } == 1
@@ -91,6 +92,16 @@ class MultipleDataSourceConnectionsSpec extends Specification {
             assert s.connection().metaData.getURL() == "jdbc:h2:mem:yetAnotherDB"
             return true
         }
+    }
+
+    void "test @Transactional with connection property to non-default database"() {
+
+        when:
+        TestService testService = datastore.getDatastoreForConnection("books").getService(TestService)
+        testService.doSomething()
+
+        then:
+        noExceptionThrown()
     }
 }
 
@@ -123,5 +134,13 @@ class Author {
         name blank:false
     }
 }
+
+@Service
+@Transactional(connection = "books")
+class TestService {
+
+    def doSomething() {}
+}
+
 
 

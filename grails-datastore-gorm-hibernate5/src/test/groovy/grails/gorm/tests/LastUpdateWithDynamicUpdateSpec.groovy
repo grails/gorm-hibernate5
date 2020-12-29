@@ -1,8 +1,6 @@
 package grails.gorm.tests
 
 import grails.gorm.annotation.Entity
-import groovy.transform.NotYetImplemented
-import spock.lang.Specification
 
 /**
  * Created by graemerocher on 27/06/16.

@@ -1,44 +1,44 @@
 group "examples"
 
 
-configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        if(details.requested.group == 'org.grails' &&
-                details.requested.name.startsWith('grails-datastore') &&
-                details.requested.name != 'grails-datastore-gorm-hibernate5') {
-            details.useVersion(gormVersion)
-        }
-    }
-}
-
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
-    compile "javax.servlet:javax.servlet-api:$servletApiVersion"
-    compile "org.grails:grails-core:$grailsVersion"
-    compile "org.grails:grails-dependencies:$grailsVersion", {
+
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-tomcat"
+    implementation "javax.servlet:javax.servlet-api:$servletApiVersion"
+    implementation "org.grails:grails-core:$grailsVersion"
+    implementation "org.grails:grails-dependencies:$grailsVersion", {
         exclude module:'grails-datastore-simple'
     }
-    compile "org.grails:grails-web-boot:$grailsVersion"
-    compile project(":grails-plugin")
+    implementation "org.grails:grails-web-boot:$grailsVersion"
+    implementation project(":grails-plugin")
 
-    compile "org.hibernate:hibernate-core:$hibernate5Version"
+    implementation "org.hibernate:hibernate-core:$hibernate5Version"
 
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
-    runtime "com.h2database:h2"
-    runtime 'org.yaml:snakeyaml:1.23'
-    runtime 'org.apache.tomcat:tomcat-jdbc:9.0.13'
-    runtime 'org.grails.plugins:fields:2.1.3'
-    runtime "org.grails.plugins:scaffolding:4.0.0.BUILD-SNAPSHOT"
+    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
+    runtimeOnly "com.h2database:h2"
+    runtimeOnly "org.yaml:snakeyaml:$snakeyamlVersion"
+    runtimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
+    runtimeOnly "org.grails.plugins:fields:$fieldsVersion"
+    runtimeOnly "org.grails.plugins:scaffolding:$scaffoldingVersion"
 
-    testCompile "org.grails:grails-gorm-testing-support:$testingSupportVersion"
-    testCompile "org.grails.plugins:geb:1.0.2"
+    testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
+    testImplementation "org.grails.plugins:geb"
+    testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+    testRuntimeOnly "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+    testRuntimeOnly "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
 
-    testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
-    testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+    testImplementation "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 }
-
-
-// compileGroovy.groovyOptions.forkOptions.jvmArgs = ['-Xdebug','-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005']
+webdriverBinaries {
+    chromedriver "$chromeDriverVersion"
+    geckodriver "$geckodriverVersion"
+}
+tasks.withType(Test) {
+    systemProperty "geb.env", System.getProperty('geb.env')
+    systemProperty "geb.build.reportsDir", reporting.file("geb/integrationTest")
+}

@@ -3,13 +3,12 @@ package functional.tests
 import another.Item
 import grails.testing.mixin.integration.Integration
 import grails.gorm.transactions.Rollback
-import groovy.transform.NotYetImplemented
 import spock.lang.Specification
 
 /**
  * Created by graemerocher on 02/01/2017.
  */
-@Integration
+@Integration(applicationClass = Application)
 class ProductSpec extends Specification {
 
     @Rollback
@@ -34,7 +33,6 @@ class ProductSpec extends Specification {
     }
 
     @Rollback
-    @NotYetImplemented // this fails because Grails is overriding the validator
     void "test that JPA entities can use javax.validation"() {
         when:"A basic entity is persisted and validated"
         Product c = new Product(price: "Bad", name: "iMac")

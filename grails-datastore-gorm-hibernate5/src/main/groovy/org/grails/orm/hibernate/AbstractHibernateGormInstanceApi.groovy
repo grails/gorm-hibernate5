@@ -47,16 +47,16 @@ import org.springframework.validation.Validator
  * Abstract extension of the {@link GormInstanceApi} class that provides common logic shared by Hibernate 3 and Hibernate 4
  *
  * @author Graeme Rocher
- * @param < D >
+ * @param <D>
  */
 @CompileStatic
 abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
-    private static final String ARGUMENT_VALIDATE = "validate";
-    private static final String ARGUMENT_DEEP_VALIDATE = "deepValidate";
-    private static final String ARGUMENT_FLUSH = "flush";
-    private static final String ARGUMENT_INSERT = "insert";
-    private static final String ARGUMENT_MERGE = "merge";
-    private static final String ARGUMENT_FAIL_ON_ERROR = "failOnError";
+    private static final String ARGUMENT_VALIDATE = "validate"
+    private static final String ARGUMENT_DEEP_VALIDATE = "deepValidate"
+    private static final String ARGUMENT_FLUSH = "flush"
+    private static final String ARGUMENT_INSERT = "insert"
+    private static final String ARGUMENT_MERGE = "merge"
+    private static final String ARGUMENT_FAIL_ON_ERROR = "failOnError"
     private static final Class DEFERRED_BINDING
 
     static {
@@ -97,8 +97,6 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
         this.markDirty = datastore.markDirty
     }
 
-
-
     @Override
     D save(D target, Map arguments) {
 
@@ -131,14 +129,14 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
                 }
 
                 if (errors.hasErrors()) {
-                    handleValidationError(domainClass,target,errors);
+                    handleValidationError(domainClass,target,errors)
                     if (shouldFail(arguments)) {
                         throw validationException.newInstance("Validation Error(s) occurred during save()", errors)
                     }
                     return null
                 }
 
-                setObjectToReadWrite(target);
+                setObjectToReadWrite(target)
             }
         }
 
@@ -151,8 +149,6 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
         GormValidateable validateable = (GormValidateable) target
         boolean shouldSkipValidation = !shouldValidate || shouldFlush
         validateable.skipValidation(shouldSkipValidation)
-
-
 
         try {
             if (shouldInsert(arguments)) {
@@ -260,7 +256,7 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
     protected D performMerge(final D target, final boolean flush) {
         hibernateTemplate.execute { Session session ->
             Object merged = session.merge(target)
-            session.lock(merged, LockMode.NONE);
+            session.lock(merged, LockMode.NONE)
             if (flush) {
                 flushSession session
             }
@@ -417,7 +413,7 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
      * @param target The target object
      * @param sessionFactory The SessionFactory instance
      */
-    public void setObjectToReadOnly(Object target) {
+    void setObjectToReadOnly(Object target) {
         hibernateTemplate.execute { Session session ->
             if (session.contains(target) && proxyHandler.isInitialized(target)) {
                 target = proxyHandler.unwrap(target)
@@ -434,7 +430,7 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
      * @param target The target object
      * @param sessionFactory The SessionFactory instance
      */
-    public abstract void setObjectToReadWrite(Object target)
+    abstract void setObjectToReadWrite(Object target)
 
     /**
      * Associates the Errors object on the instance
@@ -459,7 +455,7 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
      *
      * @see org.hibernate.event.def.AbstractSaveEventListener#getAssumedUnsaved()
      */
-    public static Boolean getAssumedUnsaved() {
+    static Boolean getAssumedUnsaved() {
         return insertActiveThreadLocal.get();
     }
 
@@ -467,14 +463,14 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
      * Called by org.grails.orm.hibernate.metaclass.SavePersistentMethod's performInsert
      * to set a ThreadLocal variable that determines the value for getAssumedUnsaved().
      */
-    public static void markInsertActive() {
+    static void markInsertActive() {
         insertActiveThreadLocal.set(Boolean.TRUE);
     }
 
     /**
      * Clears the ThreadLocal variable set by markInsertActive().
      */
-    public static void resetInsertActive() {
+    static void resetInsertActive() {
         insertActiveThreadLocal.remove();
     }
 
@@ -493,6 +489,6 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
     }
 
     SessionFactory getSessionFactory() {
-        return this.sessionFactory;
+        return this.sessionFactory
     }
 }

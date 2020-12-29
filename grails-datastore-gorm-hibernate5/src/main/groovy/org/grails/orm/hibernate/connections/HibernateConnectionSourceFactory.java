@@ -103,7 +103,7 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
                 throw new ConfigurationException("The configClass setting must be a subclass for [HibernateMappingContextConfiguration]");
             }
             else {
-                configuration = (HibernateMappingContextConfiguration) BeanUtils.instantiate(configClass);
+                configuration = (HibernateMappingContextConfiguration) BeanUtils.instantiateClass(configClass);
             }
         }
         else {
@@ -219,7 +219,7 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
             eventTriggeringInterceptor = new ClosureEventTriggeringInterceptor();
         }
         else {
-            eventTriggeringInterceptor = BeanUtils.instantiate(closureEventTriggeringInterceptorClass);
+            eventTriggeringInterceptor = BeanUtils.instantiateClass(closureEventTriggeringInterceptorClass);
         }
 
         hibernateSettings.setEventTriggeringInterceptor(eventTriggeringInterceptor);

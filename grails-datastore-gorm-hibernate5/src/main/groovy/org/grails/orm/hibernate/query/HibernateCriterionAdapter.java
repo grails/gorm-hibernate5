@@ -37,4 +37,12 @@ public class HibernateCriterionAdapter extends AbstractHibernateCriterionAdapter
     protected DetachedCriteria toHibernateDetachedCriteria(AbstractHibernateQuery hibernateQuery, QueryableCriteria<?> queryableCriteria) {
         return HibernateCriteriaBuilder.getHibernateDetachedCriteria(hibernateQuery, queryableCriteria);
     }
+
+    @Override
+    protected DetachedCriteria toHibernateDetachedCriteria(AbstractHibernateQuery hibernateQuery, QueryableCriteria<?> queryableCriteria, String alias) {
+        if (alias == null) {
+            return toHibernateDetachedCriteria(hibernateQuery, queryableCriteria);
+        }
+        return HibernateCriteriaBuilder.getHibernateDetachedCriteria(hibernateQuery, queryableCriteria, alias);
+    }
 }

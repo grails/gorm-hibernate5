@@ -75,10 +75,10 @@ dataSources:
       jmxExport: true
       driverClassName: org.h2.Driver
       dbCreate: create-drop
-      url: jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+      url: jdbc:h2:mem:devDb;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
     secondary:
         pooled: true
         jmxExport: true
         driverClassName: org.h2.Driver
         dbCreate: create-drop
-        url: jdbc:h2:mem:devDb2;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+        url: jdbc:h2:mem:devDb2;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE

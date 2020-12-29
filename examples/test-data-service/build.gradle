@@ -1,0 +1,31 @@
+group "examples"
+
+apply plugin:"org.grails.grails-web"
+apply plugin:"org.grails.plugins.views-json"
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.grails:grails-core"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-tomcat"
+    implementation "org.grails:grails-dependencies"
+    implementation "org.grails:grails-plugin-codecs"
+    implementation "org.grails:grails-plugin-services"
+    implementation "org.grails:grails-plugin-datasource"
+    implementation "org.grails:grails-web-boot"
+    implementation "org.grails:grails-logging"
+    implementation "org.grails.plugins:cache"
+    implementation "org.grails.plugins:events"
+    implementation project(":grails-plugin")
+    implementation "org.hibernate:hibernate-core:$hibernate5Version"
+    implementation "org.grails.plugins:views-json"
+    implementation "org.grails.plugins:views-json-templates"
+    implementation 'org.grails.plugins:spring-security-rest:3.0.1'
+    profile "org.grails.profiles:rest-api"
+    runtimeOnly "org.glassfish.web:el-impl:2.1.2-b03"
+    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
+    runtimeOnly "javax.xml.bind:jaxb-api:2.3.1"
+    testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
+    testImplementation "org.grails:grails-web-testing-support:$testingSupportVersion"
+}

@@ -1340,11 +1340,17 @@ public class GrailsDomainBinder implements MetadataContributor {
      */
     protected void bindClass(PersistentEntity domainClass, PersistentClass persistentClass, InFlightMetadataCollector mappings) {
 
+        boolean autoImport = mappings.getMetadataBuildingOptions().getMappingDefaults().isAutoImportEnabled();
+        org.grails.datastore.mapping.config.Entity mappedForm = domainClass.getMapping().getMappedForm();
+        if (mappedForm instanceof Mapping) {
+            autoImport = ((Mapping) mappedForm).isAutoImport();
+        }
+
         // set lazy loading for now
         persistentClass.setLazy(true);
         final String entityName = domainClass.getName();
         persistentClass.setEntityName(entityName);
-        persistentClass.setJpaEntityName(unqualify(entityName));
+        persistentClass.setJpaEntityName(autoImport ? unqualify(entityName) : entityName);
         persistentClass.setProxyInterfaceName(entityName);
         persistentClass.setClassName(entityName);
 
@@ -1357,7 +1363,8 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         // add import to mappings
         String en = persistentClass.getEntityName();
-        if (mappings.getMetadataBuildingOptions().getMappingDefaults().isAutoImportEnabled() && en.indexOf('.') > 0) {
+
+        if (autoImport && en.indexOf('.') > 0) {
             String unqualified = unqualify(en);
             mappings.addImport(unqualified, en);
         }
@@ -1539,7 +1546,7 @@ public class GrailsDomainBinder implements MetadataContributor {
 
     public void bindUnionSubclass(HibernatePersistentEntity subClass, UnionSubclass unionSubclass,
                                   InFlightMetadataCollector mappings, String sessionFactoryBeanName) throws MappingException {
-
+        bindClass(subClass, unionSubclass, mappings);
 
         Mapping subMapping = getMapping(subClass.getJavaClass());
 
@@ -1724,6 +1731,7 @@ public class GrailsDomainBinder implements MetadataContributor {
             CacheConfig cc = m.getCache();
             if (cc != null && cc.getEnabled()) {
                 root.setCacheConcurrencyStrategy(cc.getUsage());
+                root.setCached(true);
                 if ("read-only".equals(cc.getUsage())) {
                     root.setMutable(false);
                 }
@@ -1780,8 +1788,12 @@ public class GrailsDomainBinder implements MetadataContributor {
 
 
 
-    protected void bindIdentity(HibernatePersistentEntity domainClass, RootClass root, InFlightMetadataCollector mappings,
-                                Mapping gormMapping, String sessionFactoryBeanName) {
+    protected void bindIdentity(
+            HibernatePersistentEntity domainClass,
+            RootClass root,
+            InFlightMetadataCollector mappings,
+            Mapping gormMapping,
+            String sessionFactoryBeanName) {
 
         PersistentProperty identifierProp = domainClass.getIdentity();
         if (gormMapping == null) {
@@ -2527,6 +2539,7 @@ public class GrailsDomainBinder implements MetadataContributor {
             prop.setLazy(false);
             val.setNullValue("undefined");
             entity.setVersion(prop);
+            entity.setDeclaredVersion(prop);
             entity.setOptimisticLockStyle(OptimisticLockStyle.VERSION);
             entity.addProperty(prop);
         }
@@ -2541,6 +2554,10 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         // create the id value
         SimpleValue id = new SimpleValue(metadataBuildingContext, entity.getTable());
+        Property idProperty  = new Property();
+        idProperty.setName(identifier.getName());
+        idProperty.setValue(id);
+        entity.setDeclaredIdentifierProperty(idProperty);
         // set identifier on entity
 
         Properties params = new Properties();
@@ -3445,13 +3462,13 @@ public class GrailsDomainBinder implements MetadataContributor {
         protected final GrailsDomainBinder binder;
         protected final MetadataBuildingContext buildingContext;
 
-        protected static CollectionType SET;
-        protected static CollectionType LIST;
-        protected static CollectionType BAG;
-        protected static CollectionType MAP;
-        protected static boolean initialized;
+        protected CollectionType SET;
+        protected CollectionType LIST;
+        protected CollectionType BAG;
+        protected CollectionType MAP;
+        protected boolean initialized;
 
-        protected static final Map<Class<?>, CollectionType> INSTANCES = new HashMap<>();
+        protected final Map<Class<?>, CollectionType> INSTANCES = new HashMap<>();
 
         public abstract Collection create(ToMany property, PersistentClass owner,
                                           String path, InFlightMetadataCollector mappings, String sessionFactoryBeanName) throws MappingException;

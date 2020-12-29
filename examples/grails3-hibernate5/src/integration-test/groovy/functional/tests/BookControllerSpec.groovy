@@ -1,19 +1,10 @@
 package functional.tests
 
 import grails.testing.mixin.integration.Integration
-import geb.spock.*
+import geb.spock.GebSpec
 
-/**
- * See the API for {@link grails.test.mixin.support.GrailsUnitTestMixin} for usage instructions
- */
-@Integration
+@Integration(applicationClass = Application)
 class BookControllerSpec extends GebSpec {
-
-    def setup() {
-    }
-
-    def cleanup() {
-    }
 
     void "Test list books"() {
         when:"The home page is visited"
@@ -32,6 +23,5 @@ class BookControllerSpec extends GebSpec {
         then:"The book is correct"
         title == "Show Book"
         $('li.fieldcontain div').text() == 'The Stand'
-
     }
 }

@@ -15,14 +15,14 @@ class HibernateDatastoreSpringInitializerSpec extends Specification{
     void "Test configure multiple data sources"() {
         given:"An initializer instance"
         Map config = [
-                'dataSource.url':"jdbc:h2:mem:people;MVCC=TRUE;LOCK_TIMEOUT=10000",
+                'dataSource.url':"jdbc:h2:mem:people;LOCK_TIMEOUT=10000",
                 'dataSource.dialect': H2Dialect.name,
                 'dataSource.formatSql': 'true',
                 'hibernate.flush.mode': 'COMMIT',
                 'hibernate.cache.queries': 'true',
                 'hibernate.hbm2ddl.auto': 'create',
-                'dataSources.books.url':"jdbc:h2:mem:books;MVCC=TRUE;LOCK_TIMEOUT=10000",
-                'dataSources.moreBooks.url':"jdbc:h2:mem:moreBooks;MVCC=TRUE;LOCK_TIMEOUT=10000"
+                'dataSources.books.url':"jdbc:h2:mem:books;LOCK_TIMEOUT=10000",
+                'dataSources.moreBooks.url':"jdbc:h2:mem:moreBooks;LOCK_TIMEOUT=10000"
         ]
         def datastoreInitializer = new HibernateDatastoreSpringInitializer(config, Person, Book, Author)
 
