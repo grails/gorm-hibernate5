@@ -141,8 +141,12 @@ subprojects { project ->
         }
     }
 
-    configurations {
-        documentation
+    apply plugin: 'groovy'
+
+    configurations.create('documentation') {
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+        }
     }
 
     // Uncomment below code to force refresh dependencies
