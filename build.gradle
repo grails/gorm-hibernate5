@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
     }
     dependencies {
@@ -35,7 +34,6 @@ ext {
 subprojects { project ->
 
     repositories {
-        mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
     }
 
