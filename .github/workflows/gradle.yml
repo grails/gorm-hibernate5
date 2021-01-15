@@ -44,8 +44,6 @@ jobs:
           [ -f ./setup.sh ] && ./setup.sh || true
       - name: Run all tests (chromeHeadless) except spring-boot
         run: ./gradlew -Dgeb.env=chromeHeadless check --no-daemon -x gorm-hibernate5-spring-boot:test -x :examples/standalone-hibernate52:check -x :examples/spring-boot-hibernate5:check
-      - name: Run Spring Boot Tests
-        run: ./gradlew gorm-hibernate5-spring-boot:test --no-daemon
       - name: Run all tests (compatiable with Java8) except spring-boot
         if: matrix.java == '8'
         run: ./gradlew :examples/standalone-hibernate52:check :examples/spring-boot-hibernate5:check -Dgeb.env=chromeHeadless check --no-daemon
