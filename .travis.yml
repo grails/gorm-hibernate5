@@ -3,6 +3,9 @@ cache:
   directories:
   - "$HOME/.gradle"
   - "$HOME/.m2/repository"
+branches:
+  only:
+    - 6.0.x
 jdk:
 - openjdk8
 env:
