@@ -47,10 +47,10 @@ jobs:
       - name: Run Spring Boot Tests
         run: ./gradlew gorm-hibernate5-spring-boot:test --no-daemon
       - name: Run all tests (compatiable with Java8) except spring-boot
-        run: ./gradlew :examples/standalone-hibernate52:check :examples/spring-boot-hibernate5:check -Dgeb.env=chromeHeadless check --no-daemon
         if: matrix.java == '8'
-          - name: Run Spring Boot Tests
-            run: ./gradlew gorm-hibernate5-spring-boot:test --no-daemon
+        run: ./gradlew :examples/standalone-hibernate52:check :examples/spring-boot-hibernate5:check -Dgeb.env=chromeHeadless check --no-daemon
+      - name: Run Spring Boot Tests
+        run: ./gradlew gorm-hibernate5-spring-boot:test --no-daemon
       - name: Publish Test Report
         uses: scacap/action-surefire-report@v1
         with:
