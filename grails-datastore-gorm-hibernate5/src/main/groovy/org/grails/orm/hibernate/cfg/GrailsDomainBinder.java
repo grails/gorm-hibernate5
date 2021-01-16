@@ -1485,9 +1485,19 @@ public class GrailsDomainBinder implements MetadataContributor {
         final String fullName = sub.getName();
         if (tablePerSubclass) {
             subClass = new JoinedSubclass( parent, this.metadataBuildingContext);
+
+            Mapping subMapping = getMapping(sub);
+            if (subMapping != null) {
+                configureDerivedProperties(sub, subMapping);
+            }
         }
         else if(tablePerConcreteClass) {
             subClass = new UnionSubclass(parent, this.metadataBuildingContext);
+
+            Mapping subMapping = getMapping(sub);
+            if (subMapping != null) {
+                configureDerivedProperties(sub, subMapping);
+            }
         }
         else {
             subClass = new SingleTableSubclass(parent, this.metadataBuildingContext);
