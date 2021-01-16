@@ -9,12 +9,12 @@ import org.hibernate.proxy.LazyInitializer;
  * @author Graeme Rocher
  * @since 6.1.2
  */
-class HibernateGroovyObjectMethodHandler extends EntityProxyMethodHandler {
+public class HibernateGroovyObjectMethodHandler extends EntityProxyMethodHandler {
     private Object target;
     private final Object originalSelf;
     private final LazyInitializer lazyInitializer;
 
-    HibernateGroovyObjectMethodHandler(Class<?> proxyClass, Object originalSelf, LazyInitializer lazyInitializer) {
+    public HibernateGroovyObjectMethodHandler(Class<?> proxyClass, Object originalSelf, LazyInitializer lazyInitializer) {
         super(proxyClass);
         this.originalSelf = originalSelf;
         this.lazyInitializer = lazyInitializer;

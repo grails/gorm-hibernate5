@@ -35,6 +35,7 @@ class ProxyFactorySupport {
             // first make the lazy initializer
             String initializerName = "${ProxyFactorySupport.package.name}.GroovyAwareJavassistLazyInitializer"
             CtClass initializerSuperClass = getClassFromPool(pool, BasicLazyInitializer.name)
+            pool.getOrNull(initializerName)?.defrost()
             CtClass initializerClass = pool.makeClass(initializerName, initializerSuperClass)
             initializerClass.addInterface(getClassFromPool(pool, MethodHandler.name))
 
@@ -151,6 +152,7 @@ class ProxyFactorySupport {
             // now make the proxy factory
             String factoryName = "${ProxyFactorySupport.package.name}.GroovyAwareJavassistProxyFactory"
             CtClass factorySuperClass = getClassFromPool(pool, AbstractGroovyAwareJavassistProxyFactory.name)
+            pool.getOrNull(factoryName)?.defrost()
             CtClass factorCls = pool.makeClass(factoryName, factorySuperClass)
 
             CtMethod getProxyMethod = factorySuperClass.getMethods().find { CtMethod m -> m.name == 'getProxy' }
