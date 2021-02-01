@@ -1,6 +1,7 @@
 package functionaltests
 
 import datasources.Application
+import example.BookService
 import grails.testing.mixin.integration.Integration
 import grails.gorm.transactions.*
 import spock.lang.*
@@ -10,6 +11,8 @@ import ds2.Book as SecondBook
 @Integration(applicationClass = Application)
 @Rollback
 class MultipleDataSourcesSpec extends Specification {
+
+    BookService bookService
 
     void "Test multiple data source persistence"() {
         when:
@@ -23,5 +26,10 @@ class MultipleDataSourcesSpec extends Specification {
             Book.count() == 2
             SecondBook.withTransaction(readOnly: true) { SecondBook.count() } == 1
             SecondBook.withTransaction(readOnly: true)  { SecondBook.secondary.count() } == 1
+    }
+
+    void "test BookService does NOT throw NoUniqueBeanDefinitionException when multiple dataSources are configured"() {
+        expect:
+        bookService != null
     }
 }
