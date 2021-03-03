@@ -1,3 +1,6 @@
+branches:
+  only:
+    - 6.1.x
 addons:
   chrome: stable
   firefox: latest
