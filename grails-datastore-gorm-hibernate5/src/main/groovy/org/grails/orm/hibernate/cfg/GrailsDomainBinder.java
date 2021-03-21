@@ -1772,13 +1772,10 @@ public class GrailsDomainBinder implements MetadataContributor {
 
         bindIdentity(domainClass, root, mappings, m, sessionFactoryBeanName);
 
-        if (m == null) {
+        if (m == null || m.getVersioned()) {
             bindVersion(domainClass.getVersion(), root, mappings, sessionFactoryBeanName);
-        }
-        else {
-            if (m.getVersioned()) {
-                bindVersion(domainClass.getVersion(), root, mappings, sessionFactoryBeanName);
-            }
+        } else {
+            root.setOptimisticLockStyle(OptimisticLockStyle.NONE);
         }
 
         root.createPrimaryKey();
