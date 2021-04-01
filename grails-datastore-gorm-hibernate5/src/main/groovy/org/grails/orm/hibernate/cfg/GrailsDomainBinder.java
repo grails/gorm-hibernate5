@@ -1779,6 +1779,9 @@ public class GrailsDomainBinder implements MetadataContributor {
             if (m.getVersioned()) {
                 bindVersion(domainClass.getVersion(), root, mappings, sessionFactoryBeanName);
             }
+            else {
+                root.setOptimisticLockStyle(OptimisticLockStyle.NONE);
+            }
         }
 
         root.createPrimaryKey();
@@ -2515,7 +2518,7 @@ public class GrailsDomainBinder implements MetadataContributor {
     protected void bindVersion(PersistentProperty version, RootClass entity,
                                InFlightMetadataCollector mappings, String sessionFactoryBeanName) {
 
-        if(version != null) {
+        if (version != null) {
 
             SimpleValue val = new SimpleValue(metadataBuildingContext, entity.getTable());
 
@@ -2542,6 +2545,9 @@ public class GrailsDomainBinder implements MetadataContributor {
             entity.setDeclaredVersion(prop);
             entity.setOptimisticLockStyle(OptimisticLockStyle.VERSION);
             entity.addProperty(prop);
+        }
+        else {
+            entity.setOptimisticLockStyle(OptimisticLockStyle.NONE);
         }
     }
 
