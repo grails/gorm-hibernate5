@@ -3,6 +3,7 @@ package org.grails.orm.hibernate.compiler
 import grails.gorm.dirty.checking.DirtyCheckedProperty
 import groovy.transform.CompilationUnitAware
 import groovy.transform.CompileStatic
+import org.apache.groovy.ast.tools.AnnotatedNodeUtils
 import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.IfStatement
@@ -124,6 +125,7 @@ class HibernateEntityTransformation implements ASTTransformation, CompilationUni
                 returnS(varX(interceptorField))
         )
         classNode.addMethod(getInterceptorMethod)
+        AnnotatedNodeUtils.markAsGenerated(classNode, getInterceptorMethod)
         staticCompilationVisitor.visitMethod(getInterceptorMethod)
 
         // add method: void $$_hibernate_setInterceptor(PersistentAttributeInterceptor interceptor)
@@ -137,6 +139,7 @@ class HibernateEntityTransformation implements ASTTransformation, CompilationUni
                 assignS( varX(interceptorField), varX(p1) )
         )
         classNode.addMethod(setInterceptorMethod)
+        AnnotatedNodeUtils.markAsGenerated(classNode, setInterceptorMethod)
         staticCompilationVisitor.visitMethod(setInterceptorMethod)
 
         // add method: Object $$_hibernate_getEntityInstance()
@@ -149,6 +152,7 @@ class HibernateEntityTransformation implements ASTTransformation, CompilationUni
                 returnS(varX("this"))
         )
         classNode.addMethod(getEntityInstanceMethod)
+        AnnotatedNodeUtils.markAsGenerated(classNode, getEntityInstanceMethod)
         staticCompilationVisitor.visitMethod(getEntityInstanceMethod)
 
 
@@ -162,6 +166,7 @@ class HibernateEntityTransformation implements ASTTransformation, CompilationUni
                 returnS(varX(entityEntryHolderField))
         )
         classNode.addMethod(getEntityEntryMethod)
+        AnnotatedNodeUtils.markAsGenerated(classNode, getEntityEntryMethod)
         staticCompilationVisitor.visitMethod(getEntityEntryMethod)
 
         // add method: void $$_hibernate_setEntityEntry(EntityEntry entityEntry)
@@ -175,6 +180,7 @@ class HibernateEntityTransformation implements ASTTransformation, CompilationUni
                 assignS( varX(entityEntryHolderField), varX(entityEntryParam) )
         )
         classNode.addMethod(setEntityEntryMethod)
+        AnnotatedNodeUtils.markAsGenerated(classNode, setEntityEntryMethod)
         staticCompilationVisitor.visitMethod(setEntityEntryMethod)
 
         // add method: ManagedEntity $$_hibernate_getPreviousManagedEntity()
@@ -187,6 +193,7 @@ class HibernateEntityTransformation implements ASTTransformation, CompilationUni
                 returnS(varX(previousManagedEntityField))
         )
         classNode.addMethod(getPreviousManagedEntityMethod)
+        AnnotatedNodeUtils.markAsGenerated(classNode, getPreviousManagedEntityMethod)
         staticCompilationVisitor.visitMethod(getPreviousManagedEntityMethod)
 
         // add method: ManagedEntity $$_hibernate_getNextManagedEntity() {
@@ -199,6 +206,7 @@ class HibernateEntityTransformation implements ASTTransformation, CompilationUni
                 returnS(varX(nextManagedEntityField))
         )
         classNode.addMethod(getNextManagedEntityMethod)
+        AnnotatedNodeUtils.markAsGenerated(classNode, getNextManagedEntityMethod)
         staticCompilationVisitor.visitMethod(getNextManagedEntityMethod)
 
         // add method: void $$_hibernate_setPreviousManagedEntity(ManagedEntity previous)
@@ -212,6 +220,7 @@ class HibernateEntityTransformation implements ASTTransformation, CompilationUni
                 assignS( varX(previousManagedEntityField), varX(previousParam) )
         )
         classNode.addMethod(setPreviousManagedEntityMethod)
+        AnnotatedNodeUtils.markAsGenerated(classNode, setPreviousManagedEntityMethod)
         staticCompilationVisitor.visitMethod(setPreviousManagedEntityMethod)
 
         // add method: void $$_hibernate_setNextManagedEntity(ManagedEntity next)
@@ -225,6 +234,7 @@ class HibernateEntityTransformation implements ASTTransformation, CompilationUni
                 assignS( varX(nextManagedEntityField), varX(nextParam) )
         )
         classNode.addMethod(setNextManagedEntityMethod)
+        AnnotatedNodeUtils.markAsGenerated(classNode, setNextManagedEntityMethod)
         staticCompilationVisitor.visitMethod(setNextManagedEntityMethod)
 
         List<MethodNode> allMethods = classNode.getMethods()
