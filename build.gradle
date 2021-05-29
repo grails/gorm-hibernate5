@@ -30,7 +30,7 @@ logger.info("GORM VERSION = ${project.gormVersion}")
 
 ext {
     isTravisBuild = System.getenv().get("TRAVIS") == 'true'
-    isCiBuild = project.hasProperty("isCiBuild")
+    isCiBuild = project.hasProperty("isCiBuild") || System.getenv().get("CI") as Boolean
     isBuildSnapshot = version.endsWith('-SNAPSHOT')
     isReleaseVersion = !isBuildSnapshot
     nexusUsername = System.getenv("SONATYPE_USERNAME") ?: project.hasProperty("sonatypeOssUsername") ? project.sonatypeOssUsername : ''
