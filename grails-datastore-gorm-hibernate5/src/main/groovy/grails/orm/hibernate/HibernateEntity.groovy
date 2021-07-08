@@ -1,6 +1,7 @@
 package grails.gorm.hibernate
 
 import groovy.transform.CompileStatic
+import groovy.transform.Generated
 import org.grails.datastore.gorm.GormEnhancer
 import org.grails.datastore.gorm.GormEntity
 import org.grails.orm.hibernate.AbstractHibernateGormStaticApi
@@ -21,6 +22,7 @@ trait HibernateEntity<D> extends GormEntity<D> {
      *
      * @return The object
      */
+    @Generated
     static List<D> findAllWithSql(CharSequence sql) {
         currentHibernateStaticApi().findAllWithSql sql, Collections.emptyMap()
     }
@@ -31,6 +33,7 @@ trait HibernateEntity<D> extends GormEntity<D> {
      * @param sql The sql query
      * @return The entity
      */
+    @Generated
     static D findWithSql(CharSequence sql) {
         currentHibernateStaticApi().findWithSql(sql, Collections.emptyMap())
     }
@@ -42,6 +45,7 @@ trait HibernateEntity<D> extends GormEntity<D> {
      *
      * @return The object
      */
+    @Generated
     static List<D> findAllWithSql(CharSequence sql, Map args) {
         currentHibernateStaticApi().findAllWithSql sql, args
     }
@@ -52,10 +56,12 @@ trait HibernateEntity<D> extends GormEntity<D> {
      * @param sql The sql query
      * @return The entity
      */
+    @Generated
     static D findWithSql(CharSequence sql, Map args) {
         currentHibernateStaticApi().findWithSql(sql, args)
     }
 
+    @Generated
     private static AbstractHibernateGormStaticApi currentHibernateStaticApi() {
         (AbstractHibernateGormStaticApi)GormEnhancer.findStaticApi(this)
     }

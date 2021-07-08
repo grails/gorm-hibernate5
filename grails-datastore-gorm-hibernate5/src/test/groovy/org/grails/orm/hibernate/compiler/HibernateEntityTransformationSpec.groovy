@@ -1,5 +1,7 @@
 package org.grails.orm.hibernate.compiler
 
+import groovy.transform.Generated
+import org.hibernate.engine.spi.EntityEntry
 import org.hibernate.engine.spi.ManagedEntity
 import org.hibernate.engine.spi.PersistentAttributeInterceptable
 import org.hibernate.engine.spi.PersistentAttributeInterceptor
@@ -153,6 +155,17 @@ class MyEntity {
 
         then:"The value is changed"
         myEntity.name == 'changed'
+
+        and: "by transformation added methods are all marked as Generated"
+        cls.getMethod('$$_hibernate_getInterceptor').isAnnotationPresent(Generated)
+        cls.getMethod('$$_hibernate_setInterceptor', PersistentAttributeInterceptor).isAnnotationPresent(Generated)
+        cls.getMethod('$$_hibernate_getEntityInstance').isAnnotationPresent(Generated)
+        cls.getMethod('$$_hibernate_getEntityEntry').isAnnotationPresent(Generated)
+        cls.getMethod('$$_hibernate_setEntityEntry', EntityEntry).isAnnotationPresent(Generated)
+        cls.getMethod('$$_hibernate_getPreviousManagedEntity').isAnnotationPresent(Generated)
+        cls.getMethod('$$_hibernate_getNextManagedEntity').isAnnotationPresent(Generated)
+        cls.getMethod('$$_hibernate_setPreviousManagedEntity', ManagedEntity).isAnnotationPresent(Generated)
+        cls.getMethod('$$_hibernate_setNextManagedEntity', ManagedEntity).isAnnotationPresent(Generated)
     }
 }
 @grails.gorm.hibernate.annotation.ManagedEntity
