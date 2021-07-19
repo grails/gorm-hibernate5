@@ -305,7 +305,16 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
     }
 
     private static boolean canModifyReadWriteState(Session session, Object target) {
-        return session.contains(target) && Hibernate.isInitialized(target);
+        return isHibernateManagedEntity(session, target) && Hibernate.isInitialized(target);
+    }
+
+    private static boolean isHibernateManagedEntity(Session session, Object target) {
+        try {
+            return session.contains(target);
+        } catch (IllegalArgumentException ex) {
+            LOG.debug("Probably not an entity, cannot manage its state.", ex);
+        }
+        return false;
     }
 
     /**
