@@ -13,7 +13,7 @@ buildscript {
         classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
         classpath "io.github.groovylang.groovydoc:groovydoc-gradle-plugin:1.0.1"
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "org.grails.plugins:views-gradle:2.1.0.M4"
+        classpath "org.grails.plugins:views-gradle:2.1.1.BUILD-SNAPSHOT"
         classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.6.1'
         classpath "gradle.plugin.com.energizedwork.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
     }
@@ -114,10 +114,10 @@ subprojects { project ->
         }
 
         dependencies {
-            testImplementation "io.projectreactor:reactor-test:3.4.0"
+            testImplementation "io.projectreactor:reactor-test:3.4.8"
             testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
             testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
-            testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"
+            testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
             testImplementation "org.junit.platform:junit-platform-runner:1.7.0"
             testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.0"
         }
