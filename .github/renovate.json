@@ -15,6 +15,14 @@
       "groupName": "groovy monorepo"
     },
     {
+      "matcgPackageNames": [
+        "org.slf4j:slf4j-api",
+        "org.slf4j:slf4j-simple",
+        "org.slf4j:jcl-over-slf4j"
+       ],
+      "groupName": "slf4j monorepo"
+    },
+    {
       "matchPackageNames": [
         "org.grails:grails-bom",
         "org.grails:grails-bootstrap",
