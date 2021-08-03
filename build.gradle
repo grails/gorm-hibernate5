@@ -57,6 +57,7 @@ if (isReleaseVersion) {
 subprojects { project ->
 
     repositories {
+        mavenCentral()
         maven { url "https://repo.grails.org/grails/core" }
         if(groovyVersion && groovyVersion.endsWith('-SNAPSHOT')) {
             maven {
