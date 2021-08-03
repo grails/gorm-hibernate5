@@ -15,7 +15,7 @@
       "groupName": "groovy monorepo"
     },
     {
-      "matcgPackageNames": [
+      "matchPackageNames": [
         "org.slf4j:slf4j-api",
         "org.slf4j:slf4j-simple",
         "org.slf4j:jcl-over-slf4j"
