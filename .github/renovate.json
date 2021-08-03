@@ -24,6 +24,17 @@
     },
     {
       "matchPackageNames": [
+        "org.grails:views-core",
+        "org.grails:views-json-testing-support",
+        "org.grails.plugins:views-gradle",
+        "org.grails.plugins:views-json",
+        "org.grails.plugins:views-json-templates",
+        "org.grails.plugins:views-markup"
+      ],
+      "groupName": "grails-views monorepo"
+    },
+    {
+      "matchPackageNames": [
         "org.grails:grails-bom",
         "org.grails:grails-bootstrap",
         "org.grails:grails-codecs",
