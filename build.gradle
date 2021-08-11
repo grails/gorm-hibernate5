@@ -31,6 +31,7 @@ ext {
 ext."signing.keyId" = System.getenv("SIGNING_KEY") ?: project.hasProperty("signing.keyId") ? project.getProperty('signing.keyId') : null
 ext."signing.password" = System.getenv("SIGNING_PASSPHRASE") ?: project.hasProperty("signing.password") ? project.getProperty('signing.password') : null
 ext."signing.secretKeyRingFile" = project.hasProperty("signing.secretKeyRingFile") ? project.getProperty('signing.secretKeyRingFile') : null
+ext['junit-jupiter.version'] = junitJupiterVersion
 
 if (isReleaseVersion) {
     apply plugin: 'maven-publish'
@@ -113,9 +114,9 @@ subprojects { project ->
             testImplementation "io.projectreactor:reactor-test:3.4.9"
             testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
             testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
-            testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
+            testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
             testImplementation "org.junit.platform:junit-platform-runner:1.7.2"
-            testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.2"
+            testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
         }
 
         apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
@@ -219,9 +220,9 @@ subprojects { project ->
         implementation "org.codehaus.groovy:groovy:$groovyVersion"
         testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
         testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
-        testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
         testImplementation "org.junit.platform:junit-platform-runner:1.7.0"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.0"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
     }
 
     apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
