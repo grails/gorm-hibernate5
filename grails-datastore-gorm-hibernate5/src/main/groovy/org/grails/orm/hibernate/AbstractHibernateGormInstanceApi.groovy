@@ -18,30 +18,27 @@ package org.grails.orm.hibernate
 import grails.gorm.validation.CascadingValidator
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.grails.datastore.gorm.GormInstanceApi
 import org.grails.datastore.gorm.GormValidateable
 import org.grails.datastore.mapping.core.Datastore
 import org.grails.datastore.mapping.dirty.checking.DirtyCheckable
+import org.grails.datastore.mapping.engine.event.ValidationEvent
+import org.grails.datastore.mapping.model.PersistentEntity
+import org.grails.datastore.mapping.model.PersistentProperty
 import org.grails.datastore.mapping.model.config.GormProperties
+import org.grails.datastore.mapping.model.types.Association
 import org.grails.datastore.mapping.model.types.Embedded
-import org.grails.datastore.mapping.model.types.EmbeddedCollection
-import org.grails.datastore.mapping.model.types.ToMany
+import org.grails.datastore.mapping.model.types.ToOne
 import org.grails.datastore.mapping.proxy.ProxyHandler
 import org.grails.datastore.mapping.reflect.ClassUtils
 import org.grails.datastore.mapping.reflect.EntityReflector
 import org.grails.orm.hibernate.support.HibernateRuntimeUtils
-import org.grails.datastore.gorm.GormInstanceApi
-import org.grails.datastore.mapping.engine.event.ValidationEvent
-import org.grails.datastore.mapping.model.PersistentEntity
-import org.grails.datastore.mapping.model.PersistentProperty
-import org.grails.datastore.mapping.model.types.Association
-import org.grails.datastore.mapping.model.types.ToOne
 import org.hibernate.*
 import org.springframework.beans.BeanWrapperImpl
 import org.springframework.beans.InvalidPropertyException
 import org.springframework.dao.DataAccessException
 import org.springframework.validation.Errors
 import org.springframework.validation.Validator
-
 
 /**
  * Abstract extension of the {@link GormInstanceApi} class that provides common logic shared by Hibernate 3 and Hibernate 4
@@ -390,7 +387,7 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
         setObjectToReadOnly target
         if (entity) {
             for (Association association in entity.associations) {
-                if (association instanceof ToOne) {
+                if (association instanceof ToOne && !association instanceof Embedded) {
                     if(proxyHandler.isInitialized(target, association.name)) {
                         def bean = new BeanWrapperImpl(target)
                         def propertyValue = bean.getPropertyValue(association.name)
