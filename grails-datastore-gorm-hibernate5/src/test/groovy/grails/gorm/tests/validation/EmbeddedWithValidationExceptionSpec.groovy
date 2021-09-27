@@ -1,16 +1,16 @@
 package grails.gorm.tests.validation
 
 import grails.gorm.annotation.Entity
-import grails.gorm.tests.GormDatastoreSpec
 import grails.gorm.transactions.Rollback
 import grails.validation.ValidationException
+import org.grails.orm.hibernate.HibernateDatastore
+import spock.lang.AutoCleanup
 import spock.lang.Issue
+import spock.lang.Shared
+import spock.lang.Specification
 
-class EmbeddedWithValidationExceptionSpec extends GormDatastoreSpec {
-    @Override
-    List getDomainClasses() {
-        return [DomainWithEmbedded]
-    }
+class EmbeddedWithValidationExceptionSpec extends Specification {
+    @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(DomainWithEmbedded)
 
     @Rollback
     @Issue("https://github.com/grails/gorm-hibernate5/issues/110")
