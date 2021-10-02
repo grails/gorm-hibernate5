@@ -51,7 +51,7 @@ if (isReleaseVersion) {
     }
 }
 
-subprojects { project ->
+subprojects { subproject ->
 
     repositories {
         maven { url "https://repo.grails.org/grails/core" }
@@ -70,17 +70,18 @@ subprojects { project ->
     }
 
     ext {
-        isExample = project.name.startsWith('example')
-        isPluginProject = project.name.endsWith("-plugin") && (project.name.startsWith("grails") || project.name.startsWith("rx-"))
-        isGrails3PluginProject = project.name.endsWith("-plugin")
+        isExample = subproject.name.startsWith('example')
+        isPluginProject = subproject.name.endsWith("-plugin") && (subproject.name.startsWith("grails") || subproject.name.startsWith("rx-"))
+        isGrails3PluginProject = subproject.name.endsWith("-plugin")
     }
 
     if(isExample) {
         apply plugin: "groovy"
 
         ext['h2.version'] = h2Version
+        ext['gorm.version'] = gormVersion
 
-        if(project.name.startsWith("examples-grails")) {
+        if(subproject.name.startsWith("examples-grails")) {
             apply plugin:"org.grails.grails-web"
             apply plugin:"org.grails.grails-gsp"
         }
@@ -105,7 +106,7 @@ subprojects { project ->
                 }
             }
         }
-        boolean usesGeb = project.name.contains('examples-grails') 
+        boolean usesGeb = subproject.name.contains('examples-grails')
         if (usesGeb) {
             apply plugin:"com.energizedwork.webdriver-binaries"
         }
@@ -181,14 +182,14 @@ subprojects { project ->
 
     if(isPluginProject) {
         group "org.grails.plugins"
-        version project.rootProject.version - '.RELEASE'
+        version project.version - '.RELEASE'
     }
     else {
         group "org.grails"
-        version project.rootProject.version
+        version project.version
     }
 
-    if(project.name == 'docs') {
+    if(subproject.name == 'docs') {
         return
     }
 
