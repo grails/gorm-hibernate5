@@ -168,7 +168,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
             loadDataServices(null)
                     .each {serviceName, serviceClass->
-                        "$serviceName"(DatastoreServiceMethodInvokingFactoryBean) {
+                        "$serviceName"(DatastoreServiceMethodInvokingFactoryBean, serviceClass) {
                             targetObject = ref("hibernateDatastore")
                             targetMethod = 'getService'
                             arguments = [serviceClass]
