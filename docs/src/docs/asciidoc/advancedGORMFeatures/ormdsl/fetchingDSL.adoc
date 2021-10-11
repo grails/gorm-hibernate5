@@ -63,7 +63,7 @@ class Person {
 ----
 If a query returns multiple `Person` instances, then when we access the first `pet` property, Hibernate will fetch that `Pet` plus the four next ones. You can get the same behaviour with eager loading by combining `batchSize` with the `lazy: false` option.
 
-You can find out more about these options in the http://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#fetching[Hibernate user guide]. Note that ORM DSL does not currently support the "subselect" fetching strategy.
+You can find out more about these options in the https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#fetching[Hibernate user guide]. Note that ORM DSL does not currently support the "subselect" fetching strategy.
 
 
 ===== Lazy Single-Ended Associations

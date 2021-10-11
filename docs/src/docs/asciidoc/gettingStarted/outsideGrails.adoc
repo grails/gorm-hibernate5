@@ -9,7 +9,7 @@ runtime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
 runtime "org.slf4j:slf4j-api:1.7.10"
 ----
 
-NOTE: The above example also uses the http://www.h2database.com[H2 Database] and Tomcat connection pool.
+NOTE: The above example also uses the https://www.h2database.com[H2 Database] and Tomcat connection pool.
 However other pool implementations are supported including `commons-dbcp`, `tomcat pool` or `hikari`.
 If a connection pool is not specified `org.springframework.jdbc.datasource.DriverManagerDataSource` is used,
 which creates a new connection to the database each time you request a connect.

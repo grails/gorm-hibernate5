@@ -19,7 +19,7 @@ class Person {
 
 In this case we're using one of Hibernate's built in 'hilo' generators that uses a separate table to generate ids.
 
-NOTE: For more information on the different Hibernate generators refer to the http://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#identifiers-generators[Hibernate reference documentation]
+NOTE: For more information on the different Hibernate generators refer to the https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#identifiers-generators[Hibernate reference documentation]
 
 Although you don't typically specify the `id` field (GORM adds it for you) you can still configure its mapping like the other properties. For example to customise the column for the id property you can do:
 
