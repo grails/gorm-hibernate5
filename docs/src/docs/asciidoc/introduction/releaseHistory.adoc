@@ -1,8 +1,11 @@
 ==== GORM 7.1
 
-GORM 7.1 brings support for Groovy 3
-
-* Autowire the bean by type in the Data Service.
+* GORM 7.1 brings support for Apache Groovy 3
+* Default autowire the bean by type in the Data Service
+* Support for Java 14
+* Spring 5.3
+* Spring Boot 2.5
+* Hibernate 5.5
 
 ==== GORM 7.0
 
