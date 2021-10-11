@@ -1,6 +1,6 @@
 GORM's transaction management is built on Spring and uses Spring's Transaction abstraction for dealing with programmatic transactions.
 
-However, GORM classes have been enhanced to make this simpler with the link:../api/org/grails/datastore/gorm/GormEntity.html#withTransaction(groovy.lang.Closure)[withTransaction(Closure)]  method. This method has a single parameter, a Closure, which has a single parameter which is a Spring http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/transaction/TransactionStatus.html[TransactionStatus] instance.
+However, GORM classes have been enhanced to make this simpler with the link:../api/org/grails/datastore/gorm/GormEntity.html#withTransaction(groovy.lang.Closure)[withTransaction(Closure)]  method. This method has a single parameter, a Closure, which has a single parameter which is a Spring https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/transaction/TransactionStatus.html[TransactionStatus] instance.
 
 ==== Using the withTransaction Method
 
@@ -33,7 +33,7 @@ Also, if an `Exception` (both checked or runtime exception) or `Error` is thrown
 
 WARNING: GORM versions prior to 6.0.0 did not roll back transactions for a checked `Exception`.
 
-You can also use "save points" to rollback a transaction to a particular point in time if you don't want to rollback the entire transaction. This can be achieved through the use of Spring's http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/transaction/SavepointManager.html[SavePointManager] interface.
+You can also use "save points" to rollback a transaction to a particular point in time if you don't want to rollback the entire transaction. This can be achieved through the use of Spring's https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/transaction/SavepointManager.html[SavePointManager] interface.
 
 The `withTransaction` method deals with the begin/commit/rollback logic for you within the scope of the block.
 

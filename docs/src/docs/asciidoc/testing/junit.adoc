@@ -1,4 +1,4 @@
-To unit test with http://junit.org/junit4[JUnit] it is largely similar to Spock, just following different idioms.
+To unit test with https://junit.org/junit4[JUnit] it is largely similar to Spock, just following different idioms.
 
 So instead of `setupSpec` use `@BeforeClass`:
 

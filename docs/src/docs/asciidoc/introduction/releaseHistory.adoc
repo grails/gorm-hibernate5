@@ -24,7 +24,7 @@ GORM 6.1 includes a variety of enhancements to GORM 6.0 including:
 * Hibernate transformations for dirty checking, managed entities and so on
 * HQL & SQL query escaping for GString queries
 
-See the http://gorm.grails.org/6.1.x/whatsNew/manual[What's New in GORM 6.1] guide for more information.
+See the https://gorm.grails.org/6.1.x/whatsNew/manual[What's New in GORM 6.1] guide for more information.
 
 ==== GORM 6.0
 
@@ -41,7 +41,7 @@ GORM 6.0 continues to evolve the new trait based model and includes the followin
 
 ==== GORM 5.0
 
-GORM 5.0 replaced the majority of the custom AST transformations that power GORM with http://docs.groovy-lang.org/next/html/documentation/core-traits.html[Groovy Traits].
+GORM 5.0 replaced the majority of the custom AST transformations that power GORM with https://docs.groovy-lang.org/next/html/documentation/core-traits.html[Groovy Traits].
 
 Support for the MongoDB 3.x drivers, Neo4j 2.3.x and Hibernate 5.x was added.
 
@@ -63,12 +63,12 @@ The GORM API was separated from Hibernate and an SDK and TCK released for buildi
 
 ==== GORM 2.0
 
-GORM 2.0 evolved as part of Grails 2.0 and re-engineered some of the metaprogramming logic that relied on ExpandoMetaClass into a set of http://groovy-lang.org/metaprogramming.html#_compile_time_metaprogramming[Groovy AST transformations].
+GORM 2.0 evolved as part of Grails 2.0 and re-engineered some of the metaprogramming logic that relied on ExpandoMetaClass into a set of https://groovy-lang.org/metaprogramming.html#_compile_time_metaprogramming[Groovy AST transformations].
 
 These AST transformations relied on the Grails 2.x compiler infrastructure and hence this version of GORM was also only usable from within Grails.
 
 ==== GORM 1.0
 
-The first version of GORM was a series of meta-programming functions that built on the capabilities of Groovy's http://groovy-lang.org/metaprogramming.html#metaprogramming_emc[ExpandoMetaClass].
+The first version of GORM was a series of meta-programming functions that built on the capabilities of Groovy's https://groovy-lang.org/metaprogramming.html#metaprogramming_emc[ExpandoMetaClass].
 
-It was purely dynamic and integrated into the http://grails.org[Grails framework] and not usable without Grails and hence no actual distribution exists for this version and it is only available as part of Grails.
+It was purely dynamic and integrated into the https://grails.org[Grails framework] and not usable without Grails and hence no actual distribution exists for this version and it is only available as part of Grails.

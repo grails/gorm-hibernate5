@@ -1,4 +1,4 @@
-A key thing to remember about GORM is that under the surface GORM is using http://www.hibernate.org/[Hibernate] for persistence. If you are coming from a background of using http://api.rubyonrails.org/classes/ActiveRecord/Base.html[ActiveRecord] or http://www.mybatis.org/[iBatis/MyBatis], Hibernate's "session" model may feel a little strange.
+A key thing to remember about GORM is that under the surface GORM is using https://www.hibernate.org/[Hibernate] for persistence. If you are coming from a background of using https://api.rubyonrails.org/classes/ActiveRecord/Base.html[ActiveRecord] or https://www.mybatis.org/[iBatis/MyBatis], Hibernate's "session" model may feel a little strange.
 
 If you are using Grails, then Grails automatically binds a Hibernate session to the currently executing request. This lets you use the `save()` and `delete` methods as well as other GORM methods transparently.
 

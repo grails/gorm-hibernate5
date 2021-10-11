@@ -14,7 +14,7 @@ runtime "org.apache.tomcat:tomcat-jdbc:8.5.0"
 runtime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.0"
 ----
 
-Then ensure you have configured a http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-sql.html[datasource and Hibernate as per the Spring Boot guide]. For example in the case of MySQL:
+Then ensure you have configured a https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-sql.html[datasource and Hibernate as per the Spring Boot guide]. For example in the case of MySQL:
 
 [source,yaml]
 ----

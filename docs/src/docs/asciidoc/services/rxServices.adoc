@@ -1,4 +1,4 @@
-GORM Data Services also support returning RxJava 1.x http://reactivex.io/RxJava/1.x/javadoc/rx/Observable.html[rx.Observable] or http://reactivex.io/RxJava/1.x/javadoc/rx/Single.html[rx.Single] types.
+GORM Data Services also support returning RxJava 1.x https://reactivex.io/RxJava/1.x/javadoc/rx/Observable.html[rx.Observable] or https://reactivex.io/RxJava/1.x/javadoc/rx/Single.html[rx.Single] types.
 
 NOTE: RxJava 2.x support is planned for a future release
 
@@ -34,7 +34,7 @@ interface BookService {
 }
 ----
 
-For regular GORM entities, GORM will by default execute the persistence operation using RxJava's http://reactivex.io/RxJava/1.x/javadoc/rx/schedulers/Schedulers.html#io()[IO Scheduler].
+For regular GORM entities, GORM will by default execute the persistence operation using RxJava's https://reactivex.io/RxJava/1.x/javadoc/rx/schedulers/Schedulers.html#io()[IO Scheduler].
 
 NOTE: For RxGORM entities where the underlying database supports non-blocking access the database driver will schedule the operation accordingly.
 

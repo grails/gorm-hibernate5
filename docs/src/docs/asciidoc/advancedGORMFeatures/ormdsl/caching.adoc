@@ -1,7 +1,7 @@
 ===== Setting up caching
 
 
-http://www.hibernate.org/[Hibernate] features a second-level cache with a customizable cache provider. This needs to be configured in the `grails-app/conf/application.yml` file as follows:
+https://www.hibernate.org/[Hibernate] features a second-level cache with a customizable cache provider. This needs to be configured in the `grails-app/conf/application.yml` file as follows:
 
 [source,groovy]
 ----
@@ -15,7 +15,7 @@ hibernate:
 
 You can customize any of these settings, for example to use a distributed caching mechanism.
 
-NOTE: For further reading on caching and in particular Hibernate's second-level cache, refer to the http://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#caching[Hibernate documentation] on the subject.
+NOTE: For further reading on caching and in particular Hibernate's second-level cache, refer to the https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#caching[Hibernate documentation] on the subject.
 
 
 ===== Caching instances
