@@ -1,30 +1,31 @@
 ==== Dependency Upgrades
 
-GORM 7.0 supports a minimum version of Java 8, Hibernate 5.3.x and Spring 5.2.x.
+GORM 7.1 supports Apache Groovy 3 and Java 14 Hibernate 5.5.x and Spring 5.3.x.
 
 Each of these underlying components may have changes that require altering your application. These changes are beyond the scope of this documentation.
 
+==== Default Autowire By Type inside GORM Data Services
 
-==== Package Restructuring and Deprecations
+A Grails Service (or a bean) inside GORM DataService will default to autowire by-type, For example:
 
-Previously deprecated classes have been deleted from this release and in order to support Java 11 modules in the future some package re-structuring has occurred.
+_./grails-app/services/example/BookService.groovy_
+```
+package example
 
-==== Changes to Proxy Handling
+import grails.gorm.services.Service
 
-GORM no longer creates custom proxy factories nor automatically unwraps Hibernate proxies.
+@Service(Book)
+abstract class BookService {
 
-This makes it more consistent to the way regular Hibernate behaves and reduces the complexity required at the framework level.
+    TestService testRepo
 
-You may need to alter `instanceof` checks are manually unwrap proxies in certain cases.
+    abstract Book save(String title, String author)
 
-==== Module `grails-validation` Deprecated and Removed
+    void doSomething() {
+        assert testRepo != null
+    }
+}
+```
 
-In GORM 6.x the `grails-validation` module was deprecated and replaced by `grails-datastore-gorm-validation`.
+Please note that with autowire by-type as the default, when multiple beans for same type are found the application with throw Exception. Use the Spring `@Qualifier annotation for https://docs.spring.io/spring-framework/docs/5.3.10/reference/html/core.html#beans-autowired-annotation-qualifiers[Fine-tuning Annotation Based Autowiring with Qualifiers].
 
-Deprecated interfaces were maintained for backwards compatibility. In GORM 7.0 these deprecated classes have been removed and all dependency on `grails-validation` removed.
-
-==== Transactions Now Required for all Operations
-
-Previous versions of Hibernate allowed read operations to be executed without the presence of a declaration transaction.
-
-Hibernate 5.2 and above require the presence of an active transaction. If see a `javax.persistence.TransactionRequiredException` exception it means your method lacks a `@Transactional` annotation around it.
