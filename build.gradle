@@ -9,7 +9,7 @@ buildscript {
         classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
         classpath "io.github.groovylang.groovydoc:groovydoc-gradle-plugin:1.0.1"
         classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath "org.grails.plugins:views-gradle:2.1.0"
+        classpath "org.grails.plugins:views-gradle:2.1.1"
         classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.6.1'
         classpath "gradle.plugin.com.energizedwork.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
     }
@@ -112,11 +112,11 @@ subprojects { subproject ->
         }
 
         dependencies {
-            testImplementation "io.projectreactor:reactor-test:3.4.11"
+            testImplementation "io.projectreactor:reactor-test:3.4.12"
             testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
             testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
             testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-            testImplementation "org.junit.platform:junit-platform-runner:1.8.1"
+            testImplementation "org.junit.platform:junit-platform-runner:1.8.2"
             testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
         }
 
@@ -166,10 +166,8 @@ subprojects { subproject ->
 
     apply plugin: 'groovy'
 
-    configurations.create('documentation') {
-        attributes {
-            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
-        }
+    configurations {
+        documentation.extendsFrom(compileClasspath)
     }
 
     // Uncomment below code to force refresh dependencies
@@ -222,7 +220,7 @@ subprojects { subproject ->
         testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
         testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
         testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-        testImplementation "org.junit.platform:junit-platform-runner:1.8.1"
+        testImplementation "org.junit.platform:junit-platform-runner:1.8.2"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
     }
 
