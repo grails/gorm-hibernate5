@@ -29,40 +29,48 @@ jobs:
           DISPATCH_INFORMATION: ${{ github.event.inputs.message }}
         run: echo $DISPATCH_INFORMATION
       - uses: actions/checkout@v2
-      - uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: ${{ matrix.java }}
-      - name: Optional setup step
-        run: |
-          [ -f ./setup.sh ] && ./setup.sh || true
-      - name: Run all tests (chromeHeadless) except spring-boot
-        run: ./gradlew -Dgeb.env=chromeHeadless check --no-daemon -x gorm-hibernate5-spring-boot:test
-      - name: Run Spring Boot Tests
-        run: ./gradlew gorm-hibernate5-spring-boot:test --no-daemon
+      - name: Run Tests
+        if: github.event_name == 'pull_request'
+        id: tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: check -Dgeb.env=chromeHeadless
+      - name: Run Build
+        if: github.event_name == 'push'
+        id: build
+        uses: gradle/gradle-build-action@v2
+        env:
+          GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+        with:
+          arguments: build -Dgeb.env=chromeHeadless
       - name: Publish Test Report
-        if: failure()
+        if: steps.build.outcome == 'failure' || steps.tests.outcome == 'failure'
         uses: scacap/action-surefire-report@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           report_paths: '**/build/test-results/test/TEST-*.xml'
       - name: Publish to repo.grails.org
-        if: success() && github.event_name == 'push' && matrix.java == '8'
+        id: publish
+        uses: gradle/gradle-build-action@v2
+        if: steps.build.outcome == 'success' && github.event_name == 'push' && matrix.java == '8'
         env:
           ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
           ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-        run: |
-          ./gradlew publish
-          ./gradlew docs:docs
+        with:
+          arguments: -Dorg.gradle.internal.publish.checksums.insecure=true publish
+      - name: Build Docs
+        id: docs
+        if: steps.build.outcome == 'success' && github.event_name == 'push' && matrix.java == '8'
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: docs:docs
       - name: Determine docs target repository
-        if: success() && github.event_name == 'push' && matrix.java == '8'
+        if: steps.docs.outcome == 'success' && github.event_name == 'push' && matrix.java == '8'
         uses: haya14busa/action-cond@v1
         id: docs_target
         with:
@@ -70,7 +78,7 @@ jobs:
           if_true: "grails/grails-data-mapping"
           if_false: ${{ github.repository }}
       - name: Publish to Github Pages
-        if: success() && github.event_name == 'push' && matrix.java == '8'
+        if: steps.docs.outcome == 'success' && github.event_name == 'push' && matrix.java == '8'
         uses: micronaut-projects/github-pages-deploy-action@master
         env:
           TARGET_REPOSITORY: ${{ steps.docs_target.outputs.value }}
