@@ -63,7 +63,7 @@ dependencies {
 
 test {
     if (isTravisBuild || isCiBuild) {
-        maxParallelForks = 1
+        maxParallelForks = 2
         forkEvery = 10
     }
     else {
