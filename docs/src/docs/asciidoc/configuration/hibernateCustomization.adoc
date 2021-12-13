@@ -12,7 +12,7 @@ If you are using Spring, it is registered as a Spring bean using the name `hiber
 
 If you are not using Spring it can be passed to the constructor of the `HibernateDatastore` class on instantiation.
 
-The `HibernateConnectionSourceFactory` has a few useful setters that allow you to specify a Hibernate https://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/Interceptor.html[Interceptor] or https://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/boot/spi/MetadataContributor.html[MetadataContributor] (Hibernate 5+ only).
+The `HibernateConnectionSourceFactory` has a few useful setters that allow you to specify a Hibernate https://docs.jboss.org/hibernate/orm/5.6/javadocs/org/hibernate/Interceptor.html[Interceptor] or https://docs.jboss.org/hibernate/orm/5.6/javadocs/org/hibernate/boot/spi/MetadataContributor.html[MetadataContributor] (Hibernate 5+ only).
 
 ==== The HibernateMappingContextConfiguration
 
