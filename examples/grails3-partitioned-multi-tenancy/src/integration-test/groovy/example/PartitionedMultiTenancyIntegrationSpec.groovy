@@ -1,6 +1,7 @@
 package example
 
 import datasources.Application
+import grails.core.GrailsApplication
 import grails.gorm.transactions.Rollback
 import grails.testing.mixin.integration.Integration
 import grails.util.GrailsWebMockUtil
@@ -18,8 +19,13 @@ class PartitionedMultiTenancyIntegrationSpec extends Specification {
     BookService bookService
     AnotherBookService anotherBookService
     GrailsWebRequest webRequest
+    GrailsApplication grailsApplication
 
     def setup() {
+        //To register MimeTypes
+        if (grailsApplication.mainContext.parent) {
+            grailsApplication.mainContext.getBean("mimeTypesHolder")
+        }
         webRequest = GrailsWebMockUtil.bindMockWebRequest()
     }
 

@@ -1,15 +1,18 @@
 package example
 
+
+import grails.core.GrailsApplication
 import grails.gorm.transactions.Rollback
 import grails.test.hibernate.HibernateSpec
 import org.grails.datastore.mapping.config.Settings
 import org.grails.datastore.mapping.multitenancy.exceptions.TenantNotFoundException
 import org.grails.datastore.mapping.multitenancy.resolvers.SystemPropertyTenantResolver
+import org.grails.testing.GrailsUnitTest
 
 /**
  * Created by graemerocher on 06/04/2017.
  */
-class SchemaPerTenantSpec extends HibernateSpec {
+class SchemaPerTenantSpec extends HibernateSpec implements GrailsUnitTest{
 
     BookService bookDataService = hibernateDatastore.getService(BookService)
 
@@ -22,6 +25,10 @@ class SchemaPerTenantSpec extends HibernateSpec {
     }
 
     def setup() {
+        //To register MimeTypes
+        if (grailsApplication.mainContext.parent) {
+            grailsApplication.mainContext.getBean("mimeTypesHolder")
+        }
         hibernateDatastore.addTenantForSchema("moreBooks")
         hibernateDatastore.addTenantForSchema("evenMoreBooks")
     }
