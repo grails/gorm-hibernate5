@@ -1,6 +1,7 @@
 package example
 
 import datasources.Application
+import grails.core.GrailsApplication
 import grails.gorm.transactions.Rollback
 import grails.testing.mixin.integration.Integration
 import grails.util.GrailsWebMockUtil
@@ -20,8 +21,13 @@ class SchemaPerTenantIntegrationSpec extends Specification {
     AnotherBookService anotherBookService
     GrailsWebRequest webRequest
     HibernateDatastore hibernateDatastore
+    GrailsApplication grailsApplication
 
     def setup() {
+        //To register MimeTypes
+        if (grailsApplication.mainContext.parent) {
+            grailsApplication.mainContext.getBean("mimeTypesHolder")
+        }
         hibernateDatastore.addTenantForSchema("moreBooks")
         hibernateDatastore.addTenantForSchema("evenMoreBooks")
         webRequest = GrailsWebMockUtil.bindMockWebRequest()
