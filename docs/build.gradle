@@ -1,5 +1,5 @@
 ext {
-    githubBranch = "master"
+    githubBranch = "7.2.x"
     checkOutDir = "build/checkout"
     zipFile = "build/source.zip"
 
