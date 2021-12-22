@@ -168,6 +168,10 @@ subprojects { Project subproject ->
                     delegate.id 'burtbeckwith'
                     delegate.name 'Burt Beckwith'
                 }
+                delegate.developer {
+                    delegate.id 'puneetbehl'
+                    delegate.name 'Puneet Behl'
+                }
             }
 
         }
