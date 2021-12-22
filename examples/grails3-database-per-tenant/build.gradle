@@ -40,20 +40,4 @@ dependencies {
     testImplementation ("org.grails:grails-gorm-testing-support:$testingSupportVersion") {
         exclude group: "org.spockframework", module: "spock-core"
     }
-    testImplementation "org.grails.plugins:geb"
-    testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-    testRuntimeOnly "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
-    testRuntimeOnly "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
-
-    testImplementation "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
-    testImplementation "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
-    testImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
-}
-webdriverBinaries {
-    chromedriver "$chromeDriverVersion"
-    geckodriver "$geckodriverVersion"
-}
-tasks.withType(Test) {
-    systemProperty "geb.env", System.getProperty('geb.env')
-    systemProperty "geb.build.reportsDir", reporting.file("geb/integrationTest")
 }
