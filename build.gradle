@@ -121,7 +121,7 @@ subprojects { Project subproject ->
         }
 
         dependencies {
-            testImplementation "io.projectreactor:reactor-test:3.4.13"
+            testImplementation "io.projectreactor:reactor-test:3.4.14"
             testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
             testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
             testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
