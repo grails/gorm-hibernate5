@@ -24,6 +24,7 @@ ext {
     isCiBuild = project.hasProperty("isCiBuild") || System.getenv().get("CI") as Boolean
     isBuildSnapshot = version.endsWith('-SNAPSHOT')
     isReleaseVersion = !isBuildSnapshot
+    nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
     nexusUsername = System.getenv("SONATYPE_USERNAME") ?: project.hasProperty("sonatypeOssUsername") ? project.sonatypeOssUsername : ''
     nexusPassword = System.getenv("SONATYPE_PASSWORD") ?: project.hasProperty("sonatypeOssPassword") ? project.sonatypeOssPassword : ''
 }
