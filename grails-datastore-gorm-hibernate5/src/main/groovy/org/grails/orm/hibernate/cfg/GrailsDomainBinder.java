@@ -1516,7 +1516,9 @@ public class GrailsDomainBinder implements MetadataContributor {
         if (m.getDynamicInsert()) {
             subClass.setDynamicInsert(true);
         }
-        
+
+        subClass.setCached(parent.isCached());
+
         subClass.setAbstract(sub.isAbstract());
         subClass.setEntityName(fullName);
         subClass.setJpaEntityName(unqualify(fullName));
