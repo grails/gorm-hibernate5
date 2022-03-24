@@ -17,8 +17,6 @@ import org.grails.datastore.mapping.multitenancy.resolvers.SystemPropertyTenantR
 import org.grails.orm.hibernate.HibernateDatastore
 import org.hibernate.Session
 import org.hibernate.dialect.H2Dialect
-import org.springframework.orm.hibernate5.SessionHolder
-import org.springframework.transaction.support.TransactionSynchronizationManager
 import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
@@ -181,6 +179,55 @@ class PartitionedMultiTenancySpec extends Specification {
 
     }
 
+    void "Test list without 'max' parameter"() {
+        given: "Create two Authors with tenant T0"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'TENANT')
+            MultiTenantAuthor.saveAll([new MultiTenantAuthor(name: "A"), new MultiTenantAuthor(name: "B")])
+
+        when: "Query with no tenant"
+            datastore.sessionFactory.currentSession.clear()
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, '')
+            MultiTenantAuthor.list()
+        then: "An exception is thrown"
+            thrown(TenantNotFoundException)
+
+        when: "Query with the same tenant as saved, should obtain 2 entities"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'TENANT')
+        then:
+            MultiTenantAuthor.list().size() == 2
+    }
+
+    void "Test list with 'max' parameter"() {
+        given: "Create two Authors with tenant T0"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'TENANT')
+            MultiTenantAuthor.saveAll([new MultiTenantAuthor(name: "A"), new MultiTenantAuthor(name: "B")])
+
+        when: "Query with no tenant"
+            datastore.sessionFactory.currentSession.clear()
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, '')
+            MultiTenantAuthor.list([max: 2])
+        then: "An exception is thrown"
+            thrown(TenantNotFoundException)
+
+        when: "Query with the same tenant as saved, should obtain 2 entities"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'TENANT')
+        then:
+            MultiTenantAuthor.list().size() == 2
+
+        when: "Check the paged results"
+            def sameTenantList = MultiTenantAuthor.list([max:1])
+        then:
+            sameTenantList.size() == 1
+            sameTenantList.getTotalCount() == 2
+
+        when: "Query by another tenant, should obtain no entities"
+            datastore.sessionFactory.currentSession.clear()
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'OTHER TENANT')
+            def list = MultiTenantAuthor.list([max: 2])
+        then:
+            list.size() == 0
+            list.getTotalCount() == 0
+    }
 }
 
 class MyTenantResolver extends SystemPropertyTenantResolver implements AllTenantsResolver {
