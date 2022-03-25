@@ -179,6 +179,82 @@ class PartitionedMultiTenancySpec extends Specification {
 
     }
 
+    void "Test first "() {
+        given: "Create two Authors with tenant T0"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'TENANT')
+            MultiTenantAuthor.saveAll([new MultiTenantAuthor(name: "A")])
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'OTHER TENANT')
+            MultiTenantAuthor.saveAll([new MultiTenantAuthor(name: "B")])
+
+        when: "Query with no tenant"
+            datastore.sessionFactory.currentSession.clear()
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, '')
+            MultiTenantAuthor.first()
+        then: "An exception is thrown"
+            thrown(TenantNotFoundException)
+
+        when: "Query with a TENANT"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'TENANT')
+        then:
+            MultiTenantAuthor.first().name == 'A'
+
+        when: "Query with OTHER TENANT"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'OTHER TENANT')
+        then:
+            MultiTenantAuthor.first().name == 'B'
+    }
+
+
+    void "Test last "() {
+        given: "Create two Authors with tenant T0"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'TENANT')
+            MultiTenantAuthor.saveAll([new MultiTenantAuthor(name: "A")])
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'OTHER TENANT')
+            MultiTenantAuthor.saveAll([new MultiTenantAuthor(name: "B")])
+
+        when: "Query with no tenant"
+            datastore.sessionFactory.currentSession.clear()
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, '')
+            MultiTenantAuthor.last()
+        then: "An exception is thrown"
+            thrown(TenantNotFoundException)
+
+        when: "Query with a TENANT"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'TENANT')
+        then:
+            MultiTenantAuthor.last().name == 'A'
+
+        when: "Query with OTHER TENANT"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'OTHER TENANT')
+        then:
+            MultiTenantAuthor.last().name == 'B'
+    }
+
+    void "Test findAll with max params"() {
+        given: "Create two Authors with tenant T0"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'TENANT')
+            MultiTenantAuthor.saveAll([new MultiTenantAuthor(name: "A")])
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'OTHER TENANT')
+            MultiTenantAuthor.saveAll([new MultiTenantAuthor(name: "B")])
+
+        when: "Query with no tenant"
+            datastore.sessionFactory.currentSession.clear()
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, '')
+            MultiTenantAuthor.findAll([max:2])
+        then: "An exception is thrown"
+            thrown(TenantNotFoundException)
+
+        when: "Query with a TENANT"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'TENANT')
+        then:
+            MultiTenantAuthor.findAll([max:2]).name == ['A']
+
+        when: "Query with OTHER TENANT"
+            System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'OTHER TENANT')
+        then:
+            MultiTenantAuthor.findAll([max:2]).name == ['B']
+    }
+
     void "Test list without 'max' parameter"() {
         given: "Create two Authors with tenant T0"
             System.setProperty(SystemPropertyTenantResolver.PROPERTY_NAME, 'TENANT')
