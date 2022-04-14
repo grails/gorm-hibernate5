@@ -110,7 +110,7 @@ class HibernateGormStaticApi<D> extends AbstractHibernateGormStaticApi<D> {
                 return new PagedResultList(
                         hibernateTemplate,
                         persistentEntity,
-                        query,
+                        hibernateQuery,
                         criteriaQuery,
                         queryRoot,
                         criteriaBuilder
