@@ -49,6 +49,7 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
      * @return true if the field is dirty
      */
 
+    @CompileDynamic
     boolean isDirty(D instance, String fieldName) {
         SessionImplementor session = (SessionImplementor)sessionFactory.currentSession
         def entry = findEntityEntry(instance, session)
@@ -58,7 +59,7 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
 
         EntityPersister persister = entry.persister
         Object[] values = persister.getPropertyValues(instance)
-        int[] dirtyProperties = findDirty(persister, values, entry, instance, session)
+        def dirtyProperties = findDirty(persister, values, entry, instance, session)
         if(dirtyProperties == null) {
             return false
         }
@@ -69,7 +70,7 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
     }
 
     @CompileDynamic // required for Hibernate 5.2 compatibility
-    private int[] findDirty(EntityPersister persister, Object[] values, EntityEntry entry, D instance, SessionImplementor session) {
+    private def findDirty(EntityPersister persister, Object[] values, EntityEntry entry, D instance, SessionImplementor session) {
         persister.findDirty(values, entry.loadedState, instance, session)
     }
 
@@ -79,6 +80,7 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
      * @param instance The instance
      * @return true if it is dirty
      */
+    @CompileDynamic
     boolean isDirty(D instance) {
         SessionImplementor session = (SessionImplementor)sessionFactory.currentSession
         def entry = findEntityEntry(instance, session)
@@ -87,7 +89,7 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
         }
         EntityPersister persister = entry.persister
         Object[] currentState = persister.getPropertyValues(instance)
-        int[] dirtyPropertyIndexes = findDirty(persister, currentState, entry, instance, session)
+        def dirtyPropertyIndexes = findDirty(persister, currentState, entry, instance, session)
         return dirtyPropertyIndexes != null
     }
 
@@ -97,6 +99,8 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
      * @param instance The instance
      * @return A list of property names that are dirty
      */
+
+    @CompileDynamic
     List getDirtyPropertyNames(D instance) {
         SessionImplementor session = (SessionImplementor)sessionFactory.currentSession
         def entry = findEntityEntry(instance, session)
@@ -107,7 +111,7 @@ class HibernateGormInstanceApi<D> extends AbstractHibernateGormInstanceApi<D> {
         EntityPersister persister = entry.persister
         Object[] currentState = persister.getPropertyValues(instance)
         int[] dirtyPropertyIndexes = findDirty(persister, currentState, entry, instance, session)
-        List names = []
+        List<String> names = []
         def entityProperties = persister.getEntityMetamodel().getProperties()
         for (index in dirtyPropertyIndexes) {
             names.add entityProperties[index].name
