@@ -462,7 +462,7 @@ class PropertyConfig extends Property {
             pc.typeParams = new Properties(typeParams)
         }
 
-        def newColumns = new ArrayList<>(columns.size())
+        List newColumns = new ArrayList<ColumnConfig>(columns.size())
         pc.columns = newColumns
         for(c in columns) {
             newColumns.add(c.clone())
