@@ -3036,6 +3036,9 @@ public class GrailsDomainBinder implements MetadataContributor {
         for (Iterator<?> i = propertyNames.iterator(); i.hasNext();) {
             String propertyName = (String) i.next();
             PersistentProperty otherProp = grailsProp.getOwner().getPropertyByName(propertyName);
+            if (otherProp == null) {
+                throw new MappingException(grailsProp.getOwner().getJavaClass().getName() + " references an unknown property " + propertyName);
+            }
             String otherColumnName = getColumnNameForPropertyAndPath(otherProp, path, null, sessionFactoryBeanName);
             keyList.add(new Column(otherColumnName));
         }
