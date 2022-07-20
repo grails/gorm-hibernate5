@@ -272,11 +272,12 @@ public class GrailsHibernateQueryUtils {
                                                String sort,
                                                String order,
                                                boolean ignoreCase) {
-        if (ignoreCase && entity.getPropertyByName(sort).getType() != String.class) {
-            ignoreCase = false;
-        }
         int firstDotPos = sort.indexOf(".");
         if (firstDotPos == -1) {
+            PersistentProperty property = entity.getPropertyByName(sort);
+            if (ignoreCase && property != null && property.getType() != String.class) {
+                ignoreCase = false;
+            }
             addOrder(entity, query, queryRoot, criteriaBuilder, sort, order, ignoreCase);
         } else { // nested property
             String sortHead = sort.substring(0, firstDotPos);
@@ -284,6 +285,10 @@ public class GrailsHibernateQueryUtils {
             PersistentProperty property = entity.getPropertyByName(sortHead);
             if (property instanceof Embedded) {
                 // embedded objects cannot reference entities (at time of writing), so no more recursion needed
+                PersistentProperty associatedProperty = ((Embedded<?>) property).getAssociatedEntity().getPropertyByName(sortTail);
+                if (ignoreCase && associatedProperty != null && associatedProperty.getType() != String.class) {
+                    ignoreCase = false;
+                }
                 addOrder(entity, query, queryRoot, criteriaBuilder, sort, order, ignoreCase);
             } else if (property instanceof Association) {
                 Association a = (Association) property;
