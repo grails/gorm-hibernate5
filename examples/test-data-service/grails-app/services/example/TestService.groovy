@@ -1,8 +1,11 @@
 package example
 
+import grails.gorm.transactions.TransactionService
+
 class TestService {
 
     LibraryService libraryService
+    TransactionService transactionService
 
     Boolean testDataService(Serializable id)  {
         libraryService.bookExists(id)

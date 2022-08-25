@@ -297,18 +297,6 @@ public class ClosureEventTriggeringInterceptor extends AbstractClosureEventTrigg
         }
     }
 
-    @SuppressWarnings("serial")
-    /**
-     * Prevents hitting the database for an extra check if the row exists in the database.
-     *
-     * ThreadLocal is used to pass the "insert:true" information to Hibernate.
-     *
-     */
-    @Override
-    protected Boolean getAssumedUnsaved() {
-        return AbstractHibernateGormInstanceApi.getAssumedUnsaved();
-    }
-
     private void activateDirtyChecking(Object entity) {
         if(entity instanceof DirtyCheckable && proxyHandler.isInitialized(entity)) {
             PersistentEntity persistentEntity = mappingContext.getPersistentEntity(Hibernate.getClass(entity).getName());

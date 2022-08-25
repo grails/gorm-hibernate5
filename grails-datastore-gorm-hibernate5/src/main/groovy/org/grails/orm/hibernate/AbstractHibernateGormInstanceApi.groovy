@@ -449,17 +449,6 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
     }
 
     /**
-     * Prevents hitting the database for an extra check if the row exists in the database.
-     *
-     * ThreadLocal is used to pass the "insert:true" information to Hibernate.
-     *
-     * @see org.hibernate.event.def.AbstractSaveEventListener#getAssumedUnsaved()
-     */
-    static Boolean getAssumedUnsaved() {
-        return insertActiveThreadLocal.get();
-    }
-
-    /**
      * Called by org.grails.orm.hibernate.metaclass.SavePersistentMethod's performInsert
      * to set a ThreadLocal variable that determines the value for getAssumedUnsaved().
      */

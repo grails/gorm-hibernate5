@@ -154,8 +154,12 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
             hibernateDatastore(HibernateDatastore, config, hibernateConnectionSourceFactory, eventPublisher) { bean->
                 bean.primary = true
             }
-            sessionFactory(hibernateDatastore:'getSessionFactory')
-            transactionManager(hibernateDatastore:"getTransactionManager")
+            sessionFactory(hibernateDatastore:'getSessionFactory') { bean->
+                bean.primary = true
+            }
+            transactionManager(hibernateDatastore:"getTransactionManager") { bean->
+                bean.primary = true
+            }
             autoTimestampEventListener(hibernateDatastore:"getAutoTimestampEventListener")
             getBeanDefinition("transactionManager").beanClass = PlatformTransactionManager
             hibernateDatastoreConnectionSourcesRegistrar(HibernateDatastoreConnectionSourcesRegistrar, dataSources)
@@ -164,7 +168,7 @@ class HibernateDatastoreSpringInitializer extends AbstractDatastoreInitializer {
 
             loadDataServices(null)
                     .each {serviceName, serviceClass->
-                        "$serviceName"(DatastoreServiceMethodInvokingFactoryBean) {
+                        "$serviceName"(DatastoreServiceMethodInvokingFactoryBean, serviceClass) {
                             targetObject = ref("hibernateDatastore")
                             targetMethod = 'getService'
                             arguments = [serviceClass]

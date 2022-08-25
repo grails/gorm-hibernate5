@@ -1,4 +1,4 @@
-http://docs.spockframework.org[Spock] is the recommended tool for writing unit tests with GORM and is trivial to setup.
+https://docs.spockframework.org[Spock] is the recommended tool for writing unit tests with GORM and is trivial to setup.
 
 ==== GORM with Hibernate and Spock Basics
 

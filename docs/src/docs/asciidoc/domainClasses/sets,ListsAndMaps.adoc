@@ -84,7 +84,7 @@ author.save()
 ==== Bags of Objects
 
 
-If ordering and uniqueness aren't a concern (or if you manage these explicitly) then you can use the Hibernate http://docs.jboss.org/hibernate/core/3.6/reference/en-US/html/collections.html[Bag] type to represent mapped collections.
+If ordering and uniqueness aren't a concern (or if you manage these explicitly) then you can use the Hibernate https://docs.jboss.org/hibernate/core/3.6/reference/en-US/html/collections.html[Bag] type to represent mapped collections.
 
 The only change required for this is to define the collection type as a `Collection`:
 

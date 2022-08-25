@@ -63,7 +63,7 @@ class Person {
 ----
 If a query returns multiple `Person` instances, then when we access the first `pet` property, Hibernate will fetch that `Pet` plus the four next ones. You can get the same behaviour with eager loading by combining `batchSize` with the `lazy: false` option.
 
-You can find out more about these options in the http://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#fetching[Hibernate user guide]. Note that ORM DSL does not currently support the "subselect" fetching strategy.
+You can find out more about these options in the https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#fetching[Hibernate user guide]. Note that ORM DSL does not currently support the "subselect" fetching strategy.
 
 
 ===== Lazy Single-Ended Associations
@@ -98,7 +98,7 @@ class Address {
 Here we configure GORM to load the associated `Person` instance (through the `person` property) whenever an `Address` is loaded.
 
 
-===== Lazy Single-Ended Associations and Proxies
+===== Lazy Associations and Proxies
 
 
 Hibernate uses runtime-generated proxies to facilitate single-ended lazy associations; Hibernate dynamically subclasses the entity class to create the proxy.
@@ -128,50 +128,49 @@ class Person {
 }
 ----
 
-and assume that we have a single `Person` instance with a `Dog` as the `pet`. The following code will work as you would expect:
+Proxies can have confusing behavior when combined with inheritance. Because the proxy is only a subclass of the parent class, any attempt to cast or access data on the subclass will fail. Assuming we have a single `Person` instance with a `Dog` as the `pet`.
+
+The code below will not fail because directly querying the `Pet` table does not require the resulting objects to be proxies because they are not lazy.
+
+[source,groovy]
+----
+def pet = Pet.get(1)
+assert pet instanceof Dog
+----
+
+The following code will fail because the association is lazy and the `pet` instance is a proxy.
+
 [source,groovy]
 ----
 def person = Person.get(1)
 assert person.pet instanceof Dog
-assert Pet.get(person.petId) instanceof Dog
 ----
 
-But this won't:
+If the only goal is to check if the proxy is an instance of a class, there is one helper method available to do so that works with proxies. Take special care in using it though because it does cause a call to the database to retrieve the association data.
 
 [source,groovy]
 ----
 def person = Person.get(1)
+assert person.pet.instanceOf(Dog)
+----
+
+There are a couple of ways to approach this issue. The first rule of thumb is that if it is known ahead of time that the association data is required, join the data in the query of the `Person`. For example, the following assertion is true.
+
+[source,groovy]
+----
+def person = Person.where { id == 1 }.join("pet").get()
 assert person.pet instanceof Dog
-assert Pet.list()[0] instanceof Dog
 ----
 
-The second assertion fails, and to add to the confusion, this will work:
+In the above example the `pet` association is no longer lazy because it is being retrieved along with the `Person` and thus no proxies are necessary. There are cases when it makes sense for a proxy to be returned, mostly in the case where its impossible to know if the data will be used or not. For those cases in order to access properties of the subclasses, the proxy must be unwrapped. To unwrap a proxy inject an instance of link:../api/org/grails/datastore/mapping/proxy/ProxyHandler.html[ProxyHandler] and pass the proxy to the `unwrap` method.
 
 [source,groovy]
 ----
-assert Pet.list()[0] instanceof Dog
-----
-
-What's going on here? It's down to a combination of how proxies work and the guarantees that the Hibernate session makes. When you load the `Person` instance, Hibernate creates a proxy for its `pet` relation and attaches it to the session. Once that happens, whenever you retrieve that `Pet` instance with a query, a `get()`, or the `pet` relation _within the same session_ , Hibernate gives you the proxy.
-
-Fortunately for us, GORM automatically unwraps the proxy when you use `get()` and `findBy\*()`, or when you directly access the relation. That means you don't have to worry at all about proxies in the majority of cases. But GORM doesn't do that for objects returned with a query that returns a list, such as `list()` and `findAllBy\*()`. However, if Hibernate hasn't attached the proxy to the session, those queries will return the real instances - hence why the last example works.
-
-You can protect yourself to a degree from this problem by using the `instanceOf` method by GORM:
-
-[source,java]
-----
 def person = Person.get(1)
-assert Pet.list()[0].instanceOf(Dog)
+assert proxyHandler.unwrap(person.pet) instanceof Dog
 ----
 
-However, it won't help here if casting is involved. For example, the following code will throw a `ClassCastException` because the first pet in the list is a proxy instance with a class that is neither `Dog` nor a sub-class of `Dog`:
+For cases where dependency injection is impractical or not available, a helper method link:../api/org/grails/orm/hibernate/cfg/GrailsHibernateUtil.html#unwrapIfProxy(java.lang.Object)[GrailsHibernateUtil.unwrapIfProxy(Object)] can be used instead.
 
-[source,java]
-----
-def person = Person.get(1)
-Dog pet = Pet.list()[0]
-----
+Unwrapping a proxy is different than initializing it. Initializing a proxy simply populates the underlying instance with data from the database, however unwrapping a returns the inner target.
 
-Of course, it's best not to use static types in this situation. If you use an untyped variable for the pet instead, you can access any `Dog` properties or methods on the instance without any problems.
-
-These days it's rare that you will come across this issue, but it's best to be aware of it just in case. At least you will know why such an error occurs and be able to work around it.

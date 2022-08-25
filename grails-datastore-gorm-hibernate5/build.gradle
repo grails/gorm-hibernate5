@@ -43,7 +43,9 @@ dependencies {
     testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
     testImplementation "org.codehaus.groovy:groovy-sql:$groovyVersion"
     testImplementation "org.codehaus.groovy:groovy-json:$groovyVersion"
-    testImplementation "org.grails:grails-datastore-gorm-tck:$gormVersion"
+    testImplementation "org.grails:grails-datastore-gorm-tck:$gormVersion", {
+        exclude group: "org.spockframework"
+    }
     testImplementation "com.h2database:h2:$h2Version"
 
     testImplementation "net.sf.ehcache:ehcache-core:2.6.11"
@@ -60,7 +62,7 @@ dependencies {
 }
 
 test {
-    if (isTravisBuild) {
+    if (isTravisBuild || isCiBuild) {
         maxParallelForks = 1
         forkEvery = 10
     }

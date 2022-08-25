@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    labels:
+      - "type: dependency upgrade"
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  target-branch: 7.0.x
+  ignore:
+  - dependency-name: com.gradle.build-scan
+    versions:
+    - 3.5.1
+    - "3.6"

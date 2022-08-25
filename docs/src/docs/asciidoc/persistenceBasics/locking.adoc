@@ -13,7 +13,7 @@ def airport = Airport.get(10)
 println airport.version
 ----
 
-When you perform updates Hibernate will automatically check the version property against the  version column in the database and if they differ will throw a http://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/StaleObjectStateException.html[StaleObjectException]. This will roll back the transaction if one is active.
+When you perform updates Hibernate will automatically check the version property against the  version column in the database and if they differ will throw a https://docs.jboss.org/hibernate/orm/current/javadocs/org/hibernate/StaleObjectStateException.html[StaleObjectException]. This will roll back the transaction if one is active.
 
 This is useful as it allows a certain level of atomicity without resorting to pessimistic locking that has an inherit performance penalty. The downside is that you have to deal with this exception if you have highly concurrent writes. This requires flushing the session:
 
