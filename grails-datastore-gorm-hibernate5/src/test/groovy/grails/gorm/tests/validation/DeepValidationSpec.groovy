@@ -4,6 +4,7 @@ import grails.gorm.annotation.Entity
 import grails.gorm.tests.GormDatastoreSpec
 import grails.gorm.transactions.Rollback
 import org.springframework.dao.DataIntegrityViolationException
+import spock.lang.Ignore
 import spock.lang.Issue
 
 /**
