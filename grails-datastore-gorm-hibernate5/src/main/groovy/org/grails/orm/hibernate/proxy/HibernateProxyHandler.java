@@ -15,24 +15,66 @@
  */
 package org.grails.orm.hibernate.proxy;
 
-
-import org.hibernate.collection.internal.AbstractPersistentCollection;
+import java.io.Serializable;
+import org.grails.datastore.mapping.core.Session;
+import org.grails.datastore.mapping.engine.AssociationQueryExecutor;
+import org.grails.datastore.mapping.proxy.ProxyFactory;
+import org.grails.datastore.mapping.proxy.ProxyHandler;
+import org.grails.datastore.mapping.reflect.ClassPropertyFetcher;
+import org.hibernate.Hibernate;
 import org.hibernate.collection.spi.PersistentCollection;
+import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.HibernateProxyHelper;
 
 /**
- * Implementation of the ProxyHandler interface for Hibernate.
+ * Implementation of the ProxyHandler interface for Hibernate using org.hibernate.Hibernate
+ * and HibernateProxyHelper where possible.
  *
  * @author Graeme Rocher
  * @since 1.2.2
  */
-public class HibernateProxyHandler extends SimpleHibernateProxyHandler {
+public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
 
+    @Override
     public boolean isInitialized(Object o) {
-        if (o instanceof PersistentCollection) {
-            return ((PersistentCollection)o).wasInitialized();
-        }
+        return Hibernate.isInitialized(o);
+    }
 
-        return super.isInitialized(o);
+    @Override
+    public boolean isInitialized(Object obj, String associationName) {
+        try {
+            Object proxy = ClassPropertyFetcher.getInstancePropertyValue(obj, associationName);
+            return isInitialized(proxy);
+        }
+        catch (RuntimeException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public Object unwrap(Object object) {
+        return unwrapIfProxy(object);
+    }
+
+    @Override
+    public Serializable getIdentifier(Object o) {
+        if (o instanceof HibernateProxy) {
+            return ((HibernateProxy)o).getHibernateLazyInitializer().getIdentifier();
+        }
+        else {
+            //TODO seems we can get the id here if its has normal getId
+            return null;
+        }
+    }
+
+    @Override
+    public Class<?> getProxiedClass(Object o) {
+        if(o instanceof HibernateProxy) {
+            return HibernateProxyHelper.getClassWithoutInitializingProxy(o);
+        }
+        else {
+            return o.getClass();
+        }
     }
 
     public Object unwrapIfProxy(Object instance) {
@@ -40,21 +82,43 @@ public class HibernateProxyHandler extends SimpleHibernateProxyHandler {
             initialize(instance);
             return instance;
         }
-
-        return super.unwrapIfProxy(instance);
+        return Hibernate.unproxy(instance);
     }
 
+    @Override
     public boolean isProxy(Object o) {
-        return super.isProxy(o) || (o instanceof PersistentCollection);
+        return (o instanceof HibernateProxy)  || (o instanceof PersistentCollection);
     }
 
+    @Override
     public void initialize(Object o) {
-        if (o instanceof PersistentCollection) {
-            final PersistentCollection col = (PersistentCollection)o;
-            if (!col.wasInitialized()) {
-                col.forceInitialization();
+        Hibernate.initialize(o);
+    }
+
+    @Override
+    public <T> T createProxy(Session session, Class<T> type, Serializable key) {
+        throw new UnsupportedOperationException("createProxy not supported in HibernateProxyHandler");
+    }
+
+    @Override
+    public <T, K extends Serializable> T createProxy(Session session, AssociationQueryExecutor<K, T> executor, K associationKey) {
+        throw new UnsupportedOperationException("createProxy not supported in HibernateProxyHandler");
+    }
+
+    public Object unwrapProxy(Object proxy) {
+        return unwrapIfProxy(proxy);
+    }
+
+    public HibernateProxy getAssociationProxy(Object obj, String associationName) {
+        try {
+            Object proxy = ClassPropertyFetcher.getInstancePropertyValue(obj, associationName);
+            if (proxy instanceof HibernateProxy) {
+                return (HibernateProxy) proxy;
             }
+            return null;
         }
-        super.initialize(o);
+        catch (RuntimeException e) {
+            return null;
+        }
     }
 }
