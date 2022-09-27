@@ -2,18 +2,19 @@ package example
 
 import org.hibernate.Hibernate
 
+import grails.gorm.transactions.Rollback
 import grails.test.hibernate.HibernateSpec
 
 /**
- * Tests Proxy with hibernate-groovy-bytebuddy
+ * Tests Proxy with hibernate-groovy-proxy
  */
 class ProxySpec extends HibernateSpec {
 
+    @Rollback
     void "Test Proxy"() {
         when:
-        Customer.withTransaction {
-            new Customer(1, "Bob").save(failOnError: true, flush: true)
-        }
+        new Customer(1, "Bob").save(failOnError: true, flush: true)
+        hibernateDatastore.currentSession.clear()
 
         def proxy
         Customer.withNewSession {

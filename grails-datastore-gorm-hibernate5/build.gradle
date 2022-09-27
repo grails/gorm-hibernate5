@@ -50,8 +50,9 @@ dependencies {
 
     testImplementation "net.sf.ehcache:ehcache-core:2.6.11"
     testImplementation "org.hibernate:hibernate-ehcache:$hibernate5Version"
-    // lib that picks up metaClass calls by groovy.
-    // testImplementation "org.yakworks:hibernate-groovy-bytebuddy:$hibernateGroovyBytebuddy"
+
+    // groovy proxy fixes bytebuddy to be a bit smarter when it comes to groovy metaClass
+    testImplementation "org.yakworks:hibernate-groovy-proxy:$hibernateGroovyProxy"
 
     testImplementation "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
     testRuntimeOnly "org.springframework:spring-aop:$springVersion"

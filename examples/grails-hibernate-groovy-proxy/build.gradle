@@ -1,7 +1,7 @@
 group "examples"
 
 dependencies {
-    implementation "org.yakworks:hibernate-groovy-bytebuddy:$hibernateGroovyBytebuddy"
+    implementation "org.yakworks:hibernate-groovy-proxy:$hibernateGroovyProxy"
 
     implementation "org.springframework.boot:spring-boot-starter-logging"
     implementation "org.springframework.boot:spring-boot-autoconfigure"
