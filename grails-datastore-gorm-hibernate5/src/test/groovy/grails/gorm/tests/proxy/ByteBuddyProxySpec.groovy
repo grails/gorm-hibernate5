@@ -103,5 +103,28 @@ class ByteBuddyProxySpec extends GormDatastoreSpec {
         !proxyHandler.isInitialized(team.club)
     }
 
+    void "isDirty should not intialize the association proxy"() {
+        when:"load instance"
+        Team team = createATeam()
+        session.clear()
+        team = Team.load(team.id)
+
+        then:"The asserts on the intance should not init proxy"
+        !proxyHandler.isInitialized(team)
+
+        //isDirty will init the proxy. should make changes for this.
+        !team.isDirty()
+        proxyHandler.isInitialized(team)
+        //it should not have initialized the association
+        !proxyHandler.isInitialized(team.club)
+
+        when: "its made dirty"
+        team.name = "B-Team"
+
+        then:
+        team.isDirty()
+        //still should not have initialized it.
+        !proxyHandler.isInitialized(team.club)
+    }
 
 }
