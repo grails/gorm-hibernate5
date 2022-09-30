@@ -16,8 +16,10 @@
 package org.grails.orm.hibernate.proxy;
 
 import java.io.Serializable;
+import org.grails.datastore.gorm.GormEnhancer;
 import org.grails.datastore.mapping.core.Session;
 import org.grails.datastore.mapping.engine.AssociationQueryExecutor;
+import org.grails.datastore.mapping.model.PersistentEntity;
 import org.grails.datastore.mapping.proxy.ProxyFactory;
 import org.grails.datastore.mapping.proxy.ProxyHandler;
 import org.grails.datastore.mapping.reflect.ClassPropertyFetcher;
@@ -35,11 +37,19 @@ import org.hibernate.proxy.HibernateProxyHelper;
  */
 public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
 
+    /**
+     * Check if the proxy or persistent collection is initialized.
+     * @inheritDoc
+     */
     @Override
     public boolean isInitialized(Object o) {
         return Hibernate.isInitialized(o);
     }
 
+    /**
+     * Check if an association proxy or persistent collection is initialized.
+     * @inheritDoc
+     */
     @Override
     public boolean isInitialized(Object obj, String associationName) {
         try {
@@ -51,11 +61,25 @@ public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
         }
     }
 
+    /**
+     * Unproxies a HibernateProxy. If the proxy is uninitialized, it automatically triggers an initialization.
+     * In case the supplied object is null or not a proxy, the object will be returned as-is.
+     * @inheritDoc
+     * @see Hibernate#unproxy
+     */
     @Override
     public Object unwrap(Object object) {
-        return unwrapIfProxy(object);
+        if (object instanceof PersistentCollection) {
+            initialize(object);
+            return object;
+        }
+        return Hibernate.unproxy(object);
     }
 
+    /**
+     * @inheritDoc
+     * @see org.hibernate.proxy.AbstractLazyInitializer#getIdentifier
+     */
     @Override
     public Serializable getIdentifier(Object o) {
         if (o instanceof HibernateProxy) {
@@ -63,33 +87,43 @@ public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
         }
         else {
             //TODO seems we can get the id here if its has normal getId
+            // PersistentEntity persistentEntity = GormEnhancer.findStaticApi(o.getClass()).getGormPersistentEntity();
+            // return persistentEntity.getMappingContext().getEntityReflector(persistentEntity).getIdentifier(o);
             return null;
         }
     }
 
+    /**
+     * @inheritDoc
+     * @see HibernateProxyHelper#getClassWithoutInitializingProxy
+     */
     @Override
     public Class<?> getProxiedClass(Object o) {
-        if(o instanceof HibernateProxy) {
-            return HibernateProxyHelper.getClassWithoutInitializingProxy(o);
-        }
-        else {
-            return o.getClass();
-        }
+        return HibernateProxyHelper.getClassWithoutInitializingProxy(o);
     }
 
+    /**
+     * calls unwrap which calls unproxy
+     * @see #unwrap(Object)
+     * @deprecated use unwrap
+     */
+    @Deprecated
     public Object unwrapIfProxy(Object instance) {
-        if (instance instanceof PersistentCollection) {
-            initialize(instance);
-            return instance;
-        }
-        return Hibernate.unproxy(instance);
+        return unwrap(instance);
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
     public boolean isProxy(Object o) {
         return (o instanceof HibernateProxy)  || (o instanceof PersistentCollection);
     }
 
+    /**
+     * Force initialization of a proxy or persistent collection.
+     * @inheritDoc
+     */
     @Override
     public void initialize(Object o) {
         Hibernate.initialize(o);
@@ -105,10 +139,18 @@ public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
         throw new UnsupportedOperationException("createProxy not supported in HibernateProxyHandler");
     }
 
+    /**
+     * @deprecated use unwrap
+     */
+    @Deprecated
     public Object unwrapProxy(Object proxy) {
-        return unwrapIfProxy(proxy);
+        return unwrap(proxy);
     }
 
+    /**
+     * returns the proxy for an association. returns null if its not a proxy.
+     * Note: Only used in a test. Deprecate?
+     */
     public HibernateProxy getAssociationProxy(Object obj, String associationName) {
         try {
             Object proxy = ClassPropertyFetcher.getInstancePropertyValue(obj, associationName);
