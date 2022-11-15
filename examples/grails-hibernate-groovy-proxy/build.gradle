@@ -1,0 +1,27 @@
+group "examples"
+
+dependencies {
+    implementation "org.yakworks:hibernate-groovy-proxy:$hibernateGroovyProxy"
+
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    // implementation "javax.servlet:javax.servlet-api:$servletApiVersion"
+    implementation "org.grails:grails-core:$grailsVersion"
+    implementation "org.grails:grails-dependencies:$grailsVersion", {
+        exclude module:'grails-datastore-simple'
+    }
+    implementation "org.grails:grails-web-boot:$grailsVersion"
+    implementation project(":grails-plugin")
+
+    implementation "org.hibernate:hibernate-core:$hibernate5Version"
+
+    // runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
+    runtimeOnly "com.h2database:h2"
+    runtimeOnly "org.yaml:snakeyaml:$snakeyamlVersion"
+    runtimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
+    // runtimeOnly "org.grails.plugins:fields:$fieldsVersion"
+    // runtimeOnly "org.grails.plugins:scaffolding:$scaffoldingVersion"
+
+    testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
+
+}

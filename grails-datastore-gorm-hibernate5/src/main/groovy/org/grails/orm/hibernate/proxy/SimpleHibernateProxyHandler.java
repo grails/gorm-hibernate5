@@ -34,9 +34,11 @@ import java.io.Serializable;
 
 /**
  * Implementation of the ProxyHandler interface for Hibernate.
+ * Deprecated as Hibernate 5.6+ no longer supports Javassist
  *
  * @author Graeme Rocher
  * @since 1.2.2
+ * @deprecated
  */
 public class SimpleHibernateProxyHandler extends JavassistProxyFactory implements ProxyHandler, ProxyFactory {
 

@@ -376,7 +376,7 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
      * @return the unproxied instance
      */
     public static Object unwrapProxy(HibernateProxy proxy) {
-        return proxyHandler.unwrapProxy(proxy);
+        return proxyHandler.unwrap(proxy);
     }
 
     /**
@@ -401,8 +401,12 @@ public class GrailsHibernateUtil extends HibernateRuntimeUtils {
         return proxyHandler.isInitialized(obj, associationName);
     }
 
+    /**
+     * Unproxies a HibernateProxy. If the proxy is uninitialized, it automatically triggers an initialization.
+     * In case the supplied object is null or not a proxy, the object will be returned as-is.
+     */
     public static Object unwrapIfProxy(Object instance) {
-        return proxyHandler.unwrapIfProxy(instance);
+        return proxyHandler.unwrap(instance);
     }
 
     /**
