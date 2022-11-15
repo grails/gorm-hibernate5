@@ -1,5 +1,6 @@
 package org.grails.orm.hibernate.query;
 
+import org.grails.datastore.mapping.config.Property;
 import org.grails.datastore.mapping.reflect.ClassUtils;
 import org.grails.orm.hibernate.cfg.AbstractGrailsDomainBinder;
 import org.grails.orm.hibernate.cfg.Mapping;
@@ -274,30 +275,33 @@ public class GrailsHibernateQueryUtils {
                                                boolean ignoreCase) {
         int firstDotPos = sort.indexOf(".");
         if (firstDotPos == -1) {
-            PersistentProperty property = entity.getPropertyByName(sort);
-            if (ignoreCase && property != null && property.getType() != String.class) {
-                ignoreCase = false;
-            }
+            final PersistentProperty<? extends Property> property = entity.getPropertyByName(sort);
+            ignoreCase = isIgnoreCaseProperty(ignoreCase, property);
             addOrder(entity, query, queryRoot, criteriaBuilder, sort, order, ignoreCase);
         } else { // nested property
             String sortHead = sort.substring(0, firstDotPos);
             String sortTail = sort.substring(firstDotPos + 1);
-            PersistentProperty property = entity.getPropertyByName(sortHead);
+            final PersistentProperty<? extends Property> property = entity.getPropertyByName(sortHead);
             if (property instanceof Embedded) {
                 // embedded objects cannot reference entities (at time of writing), so no more recursion needed
-                PersistentProperty associatedProperty = ((Embedded<?>) property).getAssociatedEntity().getPropertyByName(sortTail);
-                if (ignoreCase && associatedProperty != null && associatedProperty.getType() != String.class) {
-                    ignoreCase = false;
-                }
+                final PersistentProperty<? extends Property> associatedProperty = ((Embedded<?>) property).getAssociatedEntity().getPropertyByName(sortTail);
+                ignoreCase = isIgnoreCaseProperty(ignoreCase, associatedProperty);
                 addOrder(entity, query, queryRoot, criteriaBuilder, sort, order, ignoreCase);
             } else if (property instanceof Association) {
-                Association a = (Association) property;
+                final Association<? extends Property> a = (Association<? extends Property>) property;
                 final Join join = queryRoot.join(sortHead);
                 PersistentEntity associatedEntity = a.getAssociatedEntity();
                 Class<?> propertyTargetClass = associatedEntity.getJavaClass();
                 addOrderPossiblyNested(query, join, criteriaBuilder, associatedEntity, sortTail, order, ignoreCase); // Recurse on nested sort
             }
         }
+    }
+
+    private static boolean isIgnoreCaseProperty(boolean ignoreCase, PersistentProperty<? extends Property> persistentProperty) {
+        if (ignoreCase && persistentProperty != null && persistentProperty.getType() != String.class) {
+            ignoreCase = false;
+        }
+        return ignoreCase;
     }
 
     /**
