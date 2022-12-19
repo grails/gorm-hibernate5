@@ -3,7 +3,7 @@ You can refer to the link:../api/org/grails/orm/hibernate/connections/HibernateC
 [format="csv", options="header"]
 |===
 name,description,default value
-`grails.gorm.flushMode`, The flush mode to use, `AUTO`
+`grails.gorm.flushMode`, The flush mode to use, `COMMIT`
 `grails.gorm.failOnError`, Whether to throw an exception on validation error, `false`
 `grails.gorm.default.mapping`,The default mapping to apply to all classes, `null`
 `grails.gorm.default.constraints`,The default constraints to apply to all classes, `null`
