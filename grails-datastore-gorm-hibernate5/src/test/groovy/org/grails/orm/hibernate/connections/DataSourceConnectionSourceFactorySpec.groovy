@@ -16,7 +16,7 @@ class DataSourceConnectionSourceFactorySpec extends Specification {
         when:
         DataSourceConnectionSourceFactory factory = new DataSourceConnectionSourceFactory()
         Map config = [
-                'dataSource.url':"jdbc:h2:mem:grailsDB;LOCK_TIMEOUT=10000",
+                'dataSource.url':"jdbc:h2:mem:dsConnDsFactorySpecDb;LOCK_TIMEOUT=10000",
                 'dataSource.dbCreate': 'update',
                 'dataSource.dialect': Oracle8iDialect.name,
                 'dataSource.properties.dbProperties': [useSSL: false]

@@ -390,7 +390,7 @@ abstract class AbstractHibernateGormInstanceApi<D> extends GormInstanceApi<D> {
         setObjectToReadOnly target
         if (entity) {
             for (Association association in entity.associations) {
-                if (association instanceof ToOne) {
+                if (association instanceof ToOne && !association instanceof Embedded) {
                     if(proxyHandler.isInitialized(target, association.name)) {
                         def bean = new BeanWrapperImpl(target)
                         def propertyValue = bean.getPropertyValue(association.name)
