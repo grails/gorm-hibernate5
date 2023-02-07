@@ -163,7 +163,7 @@ public abstract class AbstractHibernateDatastore extends AbstractDatastore imple
 
     @Override
     public Datastore getDatastoreForTenantId(Serializable tenantId) {
-        if(multiTenantMode == MultiTenancySettings.MultiTenancyMode.DATABASE) {
+        if(getMultiTenancyMode() == MultiTenancySettings.MultiTenancyMode.DATABASE) {
             return getDatastoreForConnection(tenantId.toString());
         }
         else {
