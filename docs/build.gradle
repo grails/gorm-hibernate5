@@ -1,6 +1,8 @@
 ext {
-    githubBranch = "7.1.x"
+    githubBranch = "8.0.x"
     checkOutDir = "build/checkout"
+    explicitGormSrc = System.getProperty("gorm.src") ?: (project.hasProperty('gorm.src') ? project.getProperty("gorm.src") : null)
+    gormSrc = explicitGormSrc ? file(explicitGormSrc).absolutePath : "$checkOutDir/gorm-src"
     zipFile = "build/source.zip"
 
     coreProjects = [
@@ -69,12 +71,17 @@ asciidoctorj {
 }
 
 task fetchSource {
-    doLast {
-        ant.mkdir dir: project.buildDir
-        ant.mkdir dir: checkOutDir
+    outputs.dir layout.buildDirectory.dir('checkout')
+    inputs.properties(branch: githubBranch)
 
+    onlyIf {
+        println "GORM SRC=$explicitGormSrc"
+        return !explicitGormSrc
+    }
+
+    doLast {
         println "Downloading GORM source code."
-        def tag = System.getenv('TRAVIS_TAG')
+        def tag = System.getenv('TAGGED_VERSION')
         if (tag) {
             ant.get src: "https://github.com/grails/grails-data-mapping/archive/${tag}.zip", dest: zipFile, verbose: true
         } else {
@@ -86,10 +93,8 @@ task fetchSource {
         }
         println "GORM source code downloaded."
     }
-}
 
-fetchSource.inputs.properties(branch:githubBranch)
-fetchSource.outputs.dir checkOutDir
+}
 
 
 task copyDocs(type:Copy, dependsOn:asciidoctor) {
@@ -131,8 +136,13 @@ task docs(dependsOn:[asciidoctor, groovydoc, copyDocs, copyResources] +
                 .collect { project -> project.tasks.groovydoc }
 )
 
-//task assemble(type: Zip, dependsOn:docs) {
-//    from "${project.buildDir}/docs"
-//    baseName = "${project.name}-${project.version}"
-//    destinationDir = project.file("${project.buildDir}/distributions")
-//}
+task assembleDocsDist(type: Zip) {
+    dependsOn docs
+    from "${project.buildDir}/docs"
+    include '*'
+    include '*/**'
+    archiveFileName = "${project.name}-${project.version}.zip"
+    destinationDirectory = project.layout.buildDirectory.dir('distributions')
+}
+
+docs.finalizedBy assembleDocsDist
