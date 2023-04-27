@@ -90,7 +90,7 @@ public class Entity1 {
 }
 @Entity
 class Entity2 {
-    static belongsTo = { parent: Entity1 }
+    static belongsTo = [parent: Entity1]
     String field
 }
 @Entity

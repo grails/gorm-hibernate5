@@ -179,7 +179,12 @@ public abstract class AbstractHibernateCriterionAdapter {
             @Override
             public Criterion toHibernateCriterion(AbstractHibernateQuery hibernateQuery, Query.Criterion criterion, String alias) {
                 DetachedAssociationCriteria<?> existing = (DetachedAssociationCriteria<?>) criterion;
-                alias = hibernateQuery.handleAssociationQuery(existing.getAssociation(), existing.getCriteria());
+                if(existing.getAlias() == null) {
+                    alias = hibernateQuery.handleAssociationQuery(existing.getAssociation(), existing.getCriteria());
+                }
+                else{
+                    alias = hibernateQuery.handleAssociationQuery(existing.getAssociation(), existing.getCriteria(), existing.getAlias());
+                }
                 Association association = existing.getAssociation();
                 hibernateQuery.associationStack.add(association);
                 Junction conjunction = Restrictions.conjunction();
