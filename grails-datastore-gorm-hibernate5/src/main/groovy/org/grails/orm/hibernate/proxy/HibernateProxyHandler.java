@@ -39,7 +39,7 @@ public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
 
     /**
      * Check if the proxy or persistent collection is initialized.
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean isInitialized(Object o) {
@@ -48,7 +48,7 @@ public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
 
     /**
      * Check if an association proxy or persistent collection is initialized.
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean isInitialized(Object obj, String associationName) {
@@ -64,7 +64,7 @@ public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
     /**
      * Unproxies a HibernateProxy. If the proxy is uninitialized, it automatically triggers an initialization.
      * In case the supplied object is null or not a proxy, the object will be returned as-is.
-     * @inheritDoc
+     * {@inheritDoc}
      * @see Hibernate#unproxy
      */
     @Override
@@ -77,7 +77,7 @@ public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      * @see org.hibernate.proxy.AbstractLazyInitializer#getIdentifier
      */
     @Override
@@ -94,7 +94,7 @@ public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      * @see HibernateProxyHelper#getClassWithoutInitializingProxy
      */
     @Override
@@ -113,7 +113,7 @@ public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public boolean isProxy(Object o) {
@@ -122,7 +122,7 @@ public class HibernateProxyHandler implements ProxyHandler, ProxyFactory {
 
     /**
      * Force initialization of a proxy or persistent collection.
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void initialize(Object o) {
