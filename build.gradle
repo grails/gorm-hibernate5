@@ -129,6 +129,10 @@ subprojects { Project subproject ->
         }
 
         apply from: "${rootProject.projectDir}/gradle/testVerbose.gradle"
+
+        tasks.withType(Jar) {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        }
         return
     }
 
