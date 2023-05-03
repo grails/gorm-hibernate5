@@ -14,8 +14,8 @@ ext {
 
 version rootProject.version
 
-apply plugin: 'org.asciidoctor.convert'
 apply plugin: 'groovy'
+apply plugin: 'org.asciidoctor.jvm.convert'
 
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
@@ -64,10 +64,6 @@ asciidoctor {
                 'version'       : project.version,
                 'pluginVersion' : project.version,
                 'sourcedir'     : "${project.projectDir}/src/main/groovy"
-}
-
-asciidoctorj {
-    version = '1.5.4'
 }
 
 task fetchSource {
