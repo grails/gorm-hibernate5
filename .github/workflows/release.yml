@@ -29,9 +29,12 @@ jobs:
         uses: micronaut-projects/github-actions/pre-release@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate secring file
+        env:
+          SECRING_FILE: ${{ secrets.SECRING_FILE }}
+        run: echo $SECRING_FILE | base64 -d > ${{ github.workspace }}/secring.gpg
       - name: Publish to Sonatype OSSRH
         env:
-          TAGGED_VERSION: ${{ steps.release_version.outputs.release_version }}
           GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
           GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER }}
           GRADLE_ENTERPRISE_BUILD_CACHE_NODE_KEY: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_KEY }}
@@ -42,13 +45,18 @@ jobs:
           ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSPHRASE: ${{ secrets.SIGNING_PASSPHRASE }}
-          SECRING_FILE: ${{ secrets.SECRING_FILE }}
-        run: |
-          echo $SECRING_FILE | base64 -d > secring.gpg
-          echo "Publishing Artifacts"
-          (set -x; ./gradlew -Psigning.secretKeyRingFile="${GITHUB_WORKSPACE}/secring.gpg" publishToSonatype closeAndReleaseSonatypeStagingRepository --no-daemon)
-          echo "Publishing Documentation"
-          ./gradlew docs:docs
+        with:
+          arguments: -Psigning.secretKeyRingFile="${GITHUB_WORKSPACE}/secring.gpg" publishToSonatype closeAndReleaseSonatypeStagingRepository --no-daemon
+      - name: Publish Documentation
+        id: docs
+        if: steps.publish.outcome == 'success'
+        uses: gradle/gradle-build-action@v2
+        env:
+          GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+          GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER }}
+          GRADLE_ENTERPRISE_BUILD_CACHE_NODE_KEY: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_KEY }}
+        with:
+          arguments: docs:docs
       - name: Export Gradle Properties
         uses: micronaut-projects/github-actions/export-gradle-properties@master
       - name: Determine docs target repository
