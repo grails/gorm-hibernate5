@@ -78,9 +78,9 @@ task fetchSource {
     doLast {
         println "Downloading GORM source code."
         if (isReleaseVersion) {
-            ant.get src: "https://github.com/grails/grails-data-mapping/archive/${gormVersion}.zip", dest: zipFile, verbose: true
+            ant.get src: "https://github.com/grails/grails-data-mapping/archive/ref/tags/${gormVersion}.zip", dest: zipFile, verbose: true
         } else {
-            ant.get src: "https://github.com/grails/grails-data-mapping/zipball/${githubBranch}", dest: zipFile, verbose: true
+            ant.get src: "https://github.com/grails/grails-data-mapping/archive/refs/heads/${githubBranch}.zip", dest: zipFile, verbose: true
         }
 
         ant.unzip src: zipFile, dest: checkOutDir, {
