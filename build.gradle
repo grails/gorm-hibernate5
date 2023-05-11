@@ -11,7 +11,6 @@ buildscript {
         classpath "org.grails.plugins:views-gradle:2.3.2"
         classpath("org.asciidoctor:asciidoctor-gradle-jvm:4.0.0-alpha.1")
         classpath "com.github.erdi:webdriver-binaries-gradle-plugin:3.0"
-        classpath "org.gradle:test-retry-gradle-plugin:1.5.2"
     }
 }
 
@@ -209,7 +208,6 @@ subprojects { Project subproject ->
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
-    apply plugin: "org.gradle.test-retry"
 
     sourceCompatibility = "1.11"
     targetCompatibility = "1.11"
