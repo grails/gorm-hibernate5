@@ -17,10 +17,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        ref: v${{github.event.inputs.release_version}}
         with:
           token: ${{ secrets.GH_TOKEN }}
-      - uses: gradle/wrapper-validation-action@v1
+          ref: v${{github.event.inputs.release_version}}
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
