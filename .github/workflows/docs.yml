@@ -2,8 +2,8 @@ name: Publish Docs
 on:
   workflow_dispatch:
     inputs:
-      release_version:
-        description: 'The Release Version'
+      ref:
+        description: 'The Tag or Branch Name'
         required: true
 jobs:
   docs:
@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_TOKEN }}
-          ref: v${{github.event.inputs.release_version}}
+          ref: ${{github.event.inputs.ref}}
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
