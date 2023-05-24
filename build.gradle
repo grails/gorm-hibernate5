@@ -109,9 +109,6 @@ subprojects { Project subproject ->
                         details.requested.name != 'grails-datastore-gorm-hibernate5') {
                     details.useVersion(gormVersion)
                 }
-                if (details.requested.group == "io.micronaut.spring") {
-                    details.useVersion(micronautSpringVersion)
-                }
             }
         }
 
