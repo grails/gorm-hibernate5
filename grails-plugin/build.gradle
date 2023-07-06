@@ -42,7 +42,7 @@ dependencies {
     }
     testRuntime "org.yaml:snakeyaml:$snakeyamlVersion"
     testCompile "org.grails:grails-gorm-testing-support:$testingSupportVersion"
-    testRuntime "com.h2database:h2:1.4.192"
+    testRuntime "com.h2database:h2:2.2.220"
     testRuntime "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
     testRuntime "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.2"
     testRuntime "org.springframework:spring-aop:$springVersion"
