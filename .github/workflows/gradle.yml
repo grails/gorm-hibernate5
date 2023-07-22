@@ -92,7 +92,7 @@ jobs:
           if_false: ${{ github.repository }}
       - name: Publish to Github Pages
         if: steps.docs.outcome == 'success' && github.event_name == 'push' && matrix.java == '11'
-        uses: micronaut-projects/github-pages-deploy-action@master
+        uses: micronaut-projects/github-pages-deploy-action@grails
         env:
           SKIP_SNAPSHOT: ${{ contains(steps.release_version.outputs.release_version, 'M') }}
           TARGET_REPOSITORY: ${{ steps.docs_target.outputs.value }}
