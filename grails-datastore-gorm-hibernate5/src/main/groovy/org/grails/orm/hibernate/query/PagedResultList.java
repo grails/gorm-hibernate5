@@ -58,7 +58,7 @@ public class PagedResultList extends grails.gorm.PagedResultList {
         if (totalCount == Integer.MIN_VALUE) {
             totalCount = hibernateTemplate.execute(new GrailsHibernateTemplate.HibernateCallback<Integer>() {
                 public Integer doInHibernate(Session session) throws HibernateException, SQLException {
-                    final CriteriaQuery finalQuery = criteriaQuery.select(criteriaBuilder.count(queryRoot)).distinct(true);
+                    final CriteriaQuery finalQuery = criteriaQuery.select(criteriaBuilder.count(queryRoot)).distinct(true).orderBy();
                     final Query query = session.createQuery(finalQuery);
                     hibernateTemplate.applySettings(query);
                     return ((Number)query.uniqueResult()).intValue();
