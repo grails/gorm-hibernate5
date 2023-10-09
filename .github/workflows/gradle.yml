@@ -2,50 +2,25 @@ name: Java CI
 on:
   push:
     branches:
-      - master
       - '[7-9]+.[0-9]+.x'
   pull_request:
     branches:
-      - master
       - '[7-9]+.[0-9]+.x'
   workflow_dispatch:
-    inputs:
-      message:
-        description: 'Snapshot information (e.g. New Core Snapshot Tue Dec 15 00:07:18 UTC 2020 f212f54)'
-        required: true
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: ['11', '14']
     env:
       WORKSPACE: ${{ github.workspace }}
       GRADLE_OPTS: -Xmx1500m -Dfile.encoding=UTF-8
     steps:
-      - name: Print Dispatch Information
-        if: github.event_name == 'workflow_dispatch'
-        env:
-          DISPATCH_INFORMATION: ${{ github.event.inputs.message }}
-        run: echo $DISPATCH_INFORMATION
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: ${{ matrix.java }}
-      - name: Run Tests
-        if: github.event_name == 'pull_request'
-        id: tests
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: check -Dgeb.env=chromeHeadless
-        env:
-          GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
-          GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER }}
-          GRADLE_ENTERPRISE_BUILD_CACHE_NODE_KEY: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_KEY }}
+          java-version: '11'
       - name: Run Build
-        if: github.event_name == 'push'
         id: build
         uses: gradle/gradle-build-action@v2
         env:
@@ -54,16 +29,19 @@ jobs:
           GRADLE_ENTERPRISE_BUILD_CACHE_NODE_KEY: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_KEY }}
         with:
           arguments: build -Dgeb.env=chromeHeadless
-      - name: Publish Test Report
-        if: steps.build.outcome == 'failure' || steps.tests.outcome == 'failure'
-        uses: scacap/action-surefire-report@v1
+  publish:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    needs: ['build']
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          report_paths: '**/build/test-results/test/TEST-*.xml'
-      - name: Publish to repo.grails.org
-        id: publish
+          distribution: 'adopt'
+          java-version: '11'
+      - name: Publish Artifacts To Grails Artifactory (repo.grails.org)
         uses: gradle/gradle-build-action@v2
-        if: steps.build.outcome == 'success' && github.event_name == 'push' && matrix.java == '11'
         env:
           GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
           GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER }}
@@ -73,8 +51,7 @@ jobs:
         with:
           arguments: -Dorg.gradle.internal.publish.checksums.insecure=true publish
       - name: Build Docs
-        id: docs
-        if: steps.build.outcome == 'success' && github.event_name == 'push' && matrix.java == '11'
+        if: success()
         uses: gradle/gradle-build-action@v2
         env:
           GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
@@ -83,7 +60,7 @@ jobs:
         with:
           arguments: docs:docs
       - name: Determine docs target repository
-        if: steps.docs.outcome == 'success' && github.event_name == 'push' && matrix.java == '11'
+        if: success()
         uses: haya14busa/action-cond@v1
         id: docs_target
         with:
@@ -91,7 +68,7 @@ jobs:
           if_true: "grails/grails-data-mapping"
           if_false: ${{ github.repository }}
       - name: Publish to Github Pages
-        if: steps.docs.outcome == 'success' && github.event_name == 'push' && matrix.java == '11'
+        if: success()
         uses: micronaut-projects/github-pages-deploy-action@grails
         env:
           SKIP_SNAPSHOT: ${{ contains(steps.release_version.outputs.release_version, 'M') }}
