@@ -1,5 +1,6 @@
 = GORM for Hibernate
 Graeme Rocher, Puneet Behl
+:revnumber: {version}
 :imagesdir: ./images
 :source-highlighter: coderay
 :last-update-label!:
@@ -9,7 +10,7 @@ Graeme Rocher, Puneet Behl
 [[introduction]]
 == Introduction
 
-include::introduction.adoc[]
+include::{includedir}/introduction.adoc[]
 
 [[releaseHistory]]
 === Release History
