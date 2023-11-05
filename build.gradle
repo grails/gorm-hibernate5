@@ -117,7 +117,7 @@ subprojects { Project subproject ->
             testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
             testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
             testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-            testImplementation "org.junit.platform:junit-platform-runner:1.10.0"
+            testImplementation "org.junit.platform:junit-platform-runner:1.10.1"
             testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
         }
 
@@ -221,7 +221,7 @@ subprojects { Project subproject ->
         testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
         testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
         testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-        testImplementation "org.junit.platform:junit-platform-runner:1.10.0"
+        testImplementation "org.junit.platform:junit-platform-runner:1.10.1"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
     }
 
