@@ -21,7 +21,7 @@ dependencies {
     api 'javax.validation:validation-api:2.0.1.Final'
     runtimeOnly('javax.el:javax.el-api:3.0.1-b06')
     runtimeOnly "javax.xml.bind:jaxb-api:2.3.1"
-    runtimeOnly "com.sun.xml.bind:jaxb-impl:2.3.9"
+    runtimeOnly "com.sun.xml.bind:jaxb-impl:4.0.4"
 
     compileOnly ("net.sf.ehcache:ehcache-core:2.6.11") {
         exclude group: 'commons-logging', module:'commons-logging'
