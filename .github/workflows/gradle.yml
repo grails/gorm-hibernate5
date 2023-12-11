@@ -78,5 +78,5 @@ jobs:
           FOLDER: docs/build/docs
           DOC_SUB_FOLDER: hibernate
           DOC_FOLDER: gh-pages
-          COMMIT_EMAIL: behlp@objectcomputing.com
+          COMMIT_EMAIL: behlp@unityfoundation.io
           COMMIT_NAME: Puneet Behl
