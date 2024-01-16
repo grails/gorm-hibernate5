@@ -63,6 +63,10 @@ subprojects { Project subproject ->
         }
     }
 
+    ext {
+        groovyVersion = System.getenv('CI_GROOVY_VERSION') ?: project.groovyVersion
+    }
+
     configurations.all {
         resolutionStrategy.dependencySubstitution {
             substitute module("org.codehaus.groovy:groovy-all") with module("org.codehaus.groovy:groovy:$groovyVersion")
