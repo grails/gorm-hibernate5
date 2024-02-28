@@ -22,7 +22,7 @@ jobs:
           java-version: '11'
       - name: Run Build
         id: build
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         env:
           GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
           GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER }}
@@ -41,7 +41,7 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
       - name: Publish Artifacts To Grails Artifactory (repo.grails.org)
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         env:
           GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
           GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER }}
@@ -52,7 +52,7 @@ jobs:
           arguments: -Dorg.gradle.internal.publish.checksums.insecure=true publish
       - name: Build Docs
         if: success()
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         env:
           GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
           GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER }}
