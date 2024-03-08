@@ -51,7 +51,6 @@ public class HibernateVersionSupport {
     /**
      * Set the native Hibernate FlushMode, adapting between Hibernate 5.0/5.1 and 5.2+.
      * @param session the Hibernate Session to get the flush mode from
-     * @return the FlushMode (never {@code null})
      * @since 4.3
      * @deprecated Previously used for Hibernate backwards, will be removed in a future release.
      */
