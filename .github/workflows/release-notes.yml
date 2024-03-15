@@ -4,14 +4,17 @@ on:
     types: [closed,reopened]
   push:
     branches:
-      - master
       - '[7-9]+.[0-9]+.x'
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_target:
+    types: [opened, reopened, synchronize]          
   workflow_dispatch:
 jobs:
   release_notes:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - name: Check if it has release drafter config file
         id: check_release_drafter
         run: |
@@ -21,12 +24,10 @@ jobs:
         id: extract_branch
         run: echo "value=${GITHUB_REF:11}" >> $GITHUB_OUTPUT
       # If it has release drafter:
-      - uses: release-drafter/release-drafter@v6
+      - uses: release-drafter/release-drafter@v5
         if: steps.check_release_drafter.outputs.has_release_drafter == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          commitish: ${{ steps.extract_branch.outputs.value }}
       # Otherwise:
       - name: Export Gradle Properties
         if: steps.check_release_drafter.outputs.has_release_drafter == 'false'
