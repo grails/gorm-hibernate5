@@ -81,6 +81,7 @@ categories:
   - title: '🐛 Bug Fixes'
     labels:
       - 'fix'
+      - 'bug'
       - "type: improvement"
       - "type: bug"
       - "type: minor"
