@@ -1615,6 +1615,7 @@ public class GrailsDomainBinder implements MetadataContributor {
         bindSimpleValue(identifier.getType().getName(), key, false, columnName, mappings);
 
         joinedSubclass.createPrimaryKey();
+        joinedSubclass.createForeignKey();
 
         // properties
         createClassProperties(sub, joinedSubclass, mappings, sessionFactoryBeanName);
