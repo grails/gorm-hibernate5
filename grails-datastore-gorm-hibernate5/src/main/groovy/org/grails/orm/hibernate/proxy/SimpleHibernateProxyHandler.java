@@ -40,6 +40,8 @@ import java.io.Serializable;
  * @since 1.2.2
  * @deprecated
  */
+
+@Deprecated
 public class SimpleHibernateProxyHandler extends JavassistProxyFactory implements ProxyHandler, ProxyFactory {
 
     public boolean isInitialized(Object o) {

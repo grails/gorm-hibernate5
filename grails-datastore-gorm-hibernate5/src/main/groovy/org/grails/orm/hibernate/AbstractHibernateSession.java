@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import jakarta.persistence.FlushModeType;
 import org.grails.datastore.mapping.core.AbstractAttributeStoringSession;
 import org.grails.datastore.mapping.core.Datastore;
 import org.grails.datastore.mapping.engine.Persister;
@@ -198,4 +199,5 @@ public abstract class AbstractHibernateSession extends AbstractAttributeStoringS
     }
 
 
+    public abstract FlushModeType getFlushMode();
 }

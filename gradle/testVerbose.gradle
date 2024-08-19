@@ -1,8 +1,8 @@
 tasks.withType(Test) {
     systemProperty("hibernate5.gorm.suite", System.getProperty("hibernate5.gorm.suite") ?: true)
     useJUnitPlatform()
-    reports.html.enabled = !System.getenv("TRAVIS")
-    reports.junitXml.enabled = !System.getenv("TRAVIS")
+    //reports.html.enabled = !System.getenv("TRAVIS")
+    //reports.junitXml.enabled = !System.getenv("TRAVIS")
     afterTest { desc, result ->
         logger.quiet " -- Executed test ${desc.name} [${desc.className}] with result: ${result.resultType}"
     }

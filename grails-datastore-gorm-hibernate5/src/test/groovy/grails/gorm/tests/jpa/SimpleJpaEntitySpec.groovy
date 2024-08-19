@@ -10,12 +10,12 @@ import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.OneToMany
-import javax.validation.ConstraintViolationException
-import javax.validation.constraints.Digits
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
+import jakarta.validation.ConstraintViolationException
+import jakarta.validation.constraints.Digits
 
 /**
  * Created by graemerocher on 22/12/16.
@@ -45,7 +45,7 @@ class SimpleJpaEntitySpec extends Specification {
     }
 
     @Rollback
-    void "test that JPA entities can use javax.validation"() {
+    void "test that JPA entities can use jakarta.validation"() {
         when:"A basic entity is persisted and validated"
         Customer c = new Customer(firstName: "Bad", lastName: "Flintstone")
         c.save(flush:true)
@@ -60,7 +60,7 @@ class SimpleJpaEntitySpec extends Specification {
     }
 
     @Rollback
-    void "test that JPA entities can use javax.validation and the hibernate interceptor evicts invalid entities"() {
+    void "test that JPA entities can use jakarta.validation and the hibernate interceptor evicts invalid entities"() {
         when:"A basic entity is persisted and validated"
         Customer c = new Customer(firstName: "Bad", lastName: "Flintstone")
         c.save(flush:true, validate:false)

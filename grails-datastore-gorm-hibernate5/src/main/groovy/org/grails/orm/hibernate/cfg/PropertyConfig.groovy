@@ -24,7 +24,7 @@ import org.hibernate.FetchMode
 import org.springframework.beans.MutablePropertyValues
 import org.springframework.validation.DataBinder
 
-import javax.persistence.FetchType
+import jakarta.persistence.FetchType
 
 /**
  * Custom mapping for a single domain property. Note that a property

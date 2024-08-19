@@ -26,10 +26,10 @@ import org.hibernate.transform.DistinctRootEntityResultTransformer
 import org.springframework.core.convert.ConversionService
 import org.springframework.transaction.PlatformTransactionManager
 
-import javax.persistence.criteria.CriteriaBuilder
-import javax.persistence.criteria.CriteriaQuery
-import javax.persistence.criteria.Expression
-import javax.persistence.criteria.Root
+import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Expression
+import jakarta.persistence.criteria.Root
 
 /**
  * Abstract implementation of the Hibernate static API for GORM, providing String-based method implementations

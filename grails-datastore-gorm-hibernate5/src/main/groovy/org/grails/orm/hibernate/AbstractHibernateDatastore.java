@@ -42,7 +42,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.context.*;
 import org.springframework.core.env.PropertyResolver;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 import javax.sql.DataSource;
 import java.io.Closeable;
 import java.io.IOException;

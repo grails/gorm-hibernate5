@@ -36,8 +36,8 @@ import org.hibernate.type.Type;
 import org.springframework.orm.hibernate5.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.PluralAttribute;
 import java.util.List;
 import java.util.Map;
 

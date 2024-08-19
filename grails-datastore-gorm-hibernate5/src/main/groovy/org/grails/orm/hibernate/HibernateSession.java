@@ -15,15 +15,14 @@
 package org.grails.orm.hibernate;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.FlushModeType;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 import org.grails.datastore.gorm.timestamp.DefaultTimestampProvider;
 import org.grails.datastore.mapping.model.PersistentProperty;
@@ -41,7 +40,6 @@ import org.grails.datastore.mapping.query.jpa.JpaQueryBuilder;
 import org.grails.datastore.mapping.query.jpa.JpaQueryInfo;
 import org.grails.datastore.mapping.reflect.ClassPropertyFetcher;
 import org.hibernate.*;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.context.ApplicationEventPublisher;
 

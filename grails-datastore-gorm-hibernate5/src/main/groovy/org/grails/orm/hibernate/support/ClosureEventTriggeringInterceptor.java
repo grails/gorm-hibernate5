@@ -64,42 +64,52 @@ public class ClosureEventTriggeringInterceptor extends AbstractClosureEventTrigg
     /**
      * @deprecated Use {@link AbstractPersistenceEvent#ONLOAD_EVENT} instead
      */
+    @Deprecated
     public static final String ONLOAD_EVENT = AbstractPersistenceEvent.ONLOAD_EVENT;
     /**
      * @deprecated Use {@link AbstractPersistenceEvent#ONLOAD_SAVE} instead
      */
+    @Deprecated
     public static final String ONLOAD_SAVE = AbstractPersistenceEvent.ONLOAD_SAVE;
     /**
      * @deprecated Use {@link AbstractPersistenceEvent#BEFORE_LOAD_EVENT} instead
      */
+    @Deprecated
     public static final String BEFORE_LOAD_EVENT = AbstractPersistenceEvent.BEFORE_LOAD_EVENT;
     /**
      * @deprecated Use {@link AbstractPersistenceEvent#BEFORE_INSERT_EVENT} instead
      */
+    @Deprecated
     public static final String BEFORE_INSERT_EVENT = AbstractPersistenceEvent.BEFORE_INSERT_EVENT;
     /**
      * @deprecated Use {@link AbstractPersistenceEvent#AFTER_INSERT_EVENT} instead
      */
+    @Deprecated
     public static final String AFTER_INSERT_EVENT = AbstractPersistenceEvent.AFTER_INSERT_EVENT;
     /**
      * @deprecated Use {@link AbstractPersistenceEvent#BEFORE_UPDATE_EVENT} instead
      */
+    @Deprecated
     public static final String BEFORE_UPDATE_EVENT = AbstractPersistenceEvent.BEFORE_UPDATE_EVENT;
     /**
      * @deprecated Use {@link AbstractPersistenceEvent#AFTER_UPDATE_EVENT} instead
      */
+    @Deprecated
     public static final String AFTER_UPDATE_EVENT = AbstractPersistenceEvent.AFTER_UPDATE_EVENT;
     /**
      * @deprecated Use {@link AbstractPersistenceEvent#BEFORE_DELETE_EVENT} instead
      */
+    @Deprecated
     public static final String BEFORE_DELETE_EVENT = AbstractPersistenceEvent.BEFORE_DELETE_EVENT;
     /**
      * @deprecated Use {@link AbstractPersistenceEvent#AFTER_DELETE_EVENT} instead
      */
+    @Deprecated
     public static final String AFTER_DELETE_EVENT = AbstractPersistenceEvent.AFTER_DELETE_EVENT;
     /**
      * @deprecated Use {@link AbstractPersistenceEvent#AFTER_LOAD_EVENT} instead
      */
+    @Deprecated
     public static final String AFTER_LOAD_EVENT = AbstractPersistenceEvent.AFTER_LOAD_EVENT;
 
     protected AbstractHibernateDatastore datastore;

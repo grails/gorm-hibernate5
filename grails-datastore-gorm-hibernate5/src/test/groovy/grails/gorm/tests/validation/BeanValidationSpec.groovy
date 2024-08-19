@@ -8,7 +8,7 @@ import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
 
-import javax.validation.constraints.Digits
+import jakarta.validation.constraints.Digits
 
 /**
  * Created by graemerocher on 07/04/2017.

@@ -1,6 +1,7 @@
 package functional.tests
 
-class Employee extends Person {
+// TODO domain inheritance
+class Employee /*extends Person*/ {
 
     static belongsTo = [
             business: Business

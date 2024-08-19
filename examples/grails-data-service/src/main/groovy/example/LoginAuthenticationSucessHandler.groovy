@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @CompileStatic
-class LoginAuthenticationSucessHandler extends RestAuthenticationSuccessHandler implements EventPublisher {
+abstract class LoginAuthenticationSucessHandler extends RestAuthenticationSuccessHandler implements EventPublisher {
 
     TestService testService
 

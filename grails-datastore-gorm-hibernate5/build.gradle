@@ -1,10 +1,10 @@
 dependencies {
     api "org.slf4j:slf4j-api:$slf4jVersion"
 
-    api "org.codehaus.groovy:groovy:$groovyVersion"
+    api "org.apache.groovy:groovy:$groovyVersion"
     api("org.grails:grails-datastore-gorm:$gormVersion")
     api "org.springframework:spring-orm:$springVersion"
-    api("org.hibernate:hibernate-core:$hibernate5Version") {
+    api("org.hibernate:hibernate-core-jakarta:$hibernate5Version") {
         exclude group:'commons-logging', module:'commons-logging'
         exclude group:'com.h2database', module:'h2'
         exclude group:'commons-collections', module:'commons-collections'
@@ -18,9 +18,8 @@ dependencies {
         exclude group:'commons-collections', module:'commons-collections'
         exclude group:'org.slf4j', module:'slf4j-api'
     }
-    api 'javax.validation:validation-api:2.0.1.Final'
-    runtimeOnly('javax.el:javax.el-api:3.0.1-b06')
-    runtimeOnly "javax.xml.bind:jaxb-api:2.3.1"
+    runtimeOnly('jakarta.el:jakarta.el-api:6.0.1')
+    runtimeOnly "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"
     runtimeOnly "com.sun.xml.bind:jaxb-impl:4.0.5"
 
     compileOnly ("net.sf.ehcache:ehcache-core:2.6.11") {
@@ -40,9 +39,9 @@ dependencies {
         exclude group:'xml-apis', module:'xml-apis'
     }
 
-    testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
-    testImplementation "org.codehaus.groovy:groovy-sql:$groovyVersion"
-    testImplementation "org.codehaus.groovy:groovy-json:$groovyVersion"
+    testImplementation "org.apache.groovy:groovy-test-junit5:$groovyVersion"
+    testImplementation "org.apache.groovy:groovy-sql:$groovyVersion"
+    testImplementation "org.apache.groovy:groovy-json:$groovyVersion"
     testImplementation "org.grails:grails-datastore-gorm-tck:$gormVersion", {
         exclude group: "org.spockframework"
     }
@@ -61,7 +60,7 @@ dependencies {
     testRuntimeOnly "org.slf4j:slf4j-simple:$slf4jVersion"
     testRuntimeOnly "org.slf4j:jcl-over-slf4j:$slf4jVersion"
     // The groovydoc task needs the Hibernate 4.x jars in the classpath
-    documentation("org.hibernate:hibernate-core:${hibernate5Version}")
+    documentation("org.hibernate:hibernate-core-jakarta:${hibernate5Version}")
 }
 
 test {

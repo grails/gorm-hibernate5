@@ -1,6 +1,6 @@
 package org.grails.orm.hibernate.transaction;
 
-import javax.transaction.*;
+import jakarta.transaction.*;
 import javax.transaction.xa.XAResource;
 
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;

@@ -9,7 +9,7 @@ import org.grails.datastore.mapping.core.Session
 import org.grails.orm.hibernate.GrailsHibernateTransactionManager
 import org.grails.orm.hibernate.HibernateDatastore
 import org.grails.orm.hibernate.cfg.HibernateMappingContextConfiguration
-//import org.codehaus.groovy.grails.plugins.web.api.ControllersDomainBindingApi
+//import org.apache.groovy.grails.plugins.web.api.ControllersDomainBindingApi
 import org.h2.Driver
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.DisposableBean

@@ -26,7 +26,7 @@ You can specify query joins using the `@Join` annotation:
 
 [source,groovy]
 ----
-import static javax.persistence.criteria.JoinType.*
+import static jakarta.persistence.criteria.JoinType.*
 
 @Service(Book)
 interface BookService {

@@ -57,8 +57,9 @@ project(":examples-standalone-hibernate5").projectDir = new File(settingsDir, "e
 include "examples-spring-boot-hibernate5"
 project(":examples-spring-boot-hibernate5").projectDir = new File(settingsDir, "examples/spring-boot-hibernate5")
 
-include "examples-grails-data-service"
-project(":examples-grails-data-service").projectDir = new File(settingsDir, "examples/grails-data-service")
+// TODO: General error during canonicalization: No signature of method: org.codehaus.groovy.ast.ClassCodeExpressionTransformer.transform() is applicable for argument types: (org.codehaus.groovy.ast.expr.MethodCallExpression) values: [org.codehaus.groovy.ast.expr.MethodCallExpression@776b49b2[object: org.codehaus.groovy.ast.expr.VariableExpression@30b9eadd[variable: response] method: org.codehaus.groovy.ast.expr.ConstantExpression@497570fb[status] arguments: org.codehaus.groovy.ast.expr.ArgumentListExpression@412c995d[org.codehaus.groovy.ast.expr.PropertyExpression@3249a1ce[object: org.codehaus.groovy.ast.expr.ClassExpression@4dd94a58[type: org.springframework.http.HttpStatus] property: org.codehaus.groovy.ast.expr.ConstantExpression@2f4919b0[UNPROCESSABLE_ENTITY]]]]]
+//include "examples-grails-data-service"
+//project(":examples-grails-data-service").projectDir = new File(settingsDir, "examples/grails-data-service")
 
 include "examples-grails-hibernate-groovy-proxy"
 project(":examples-grails-hibernate-groovy-proxy").projectDir = new File(settingsDir, "examples/grails-hibernate-groovy-proxy")

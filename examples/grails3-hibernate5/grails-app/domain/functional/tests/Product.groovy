@@ -2,10 +2,10 @@ package functional.tests
 
 import grails.gorm.annotation.JpaEntity
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.validation.constraints.Digits
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
+import jakarta.validation.constraints.Digits
 
 /**
  * Created by graemerocher on 02/01/2017.

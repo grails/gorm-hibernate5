@@ -5,7 +5,7 @@ import org.grails.datastore.gorm.finders.DynamicFinder
 import org.grails.orm.hibernate.GormSpec
 import org.grails.orm.hibernate.query.HibernateQuery
 
-import javax.persistence.criteria.JoinType
+import jakarta.persistence.criteria.JoinType
 
 class DetachedCriteriaJoinSpec  extends GormSpec {
     @Override

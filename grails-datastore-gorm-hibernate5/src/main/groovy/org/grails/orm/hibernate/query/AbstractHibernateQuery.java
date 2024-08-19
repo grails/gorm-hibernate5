@@ -18,8 +18,8 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.persistence.FetchType;
-import javax.persistence.criteria.JoinType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.criteria.JoinType;
 
 import org.grails.datastore.mapping.core.Datastore;
 import org.grails.datastore.mapping.proxy.ProxyHandler;

@@ -5,9 +5,6 @@ configurations.all {
                 details.requested.name != 'grails-datastore-gorm-hibernate5') {
             details.useVersion(gormVersion)
         }
-        if(details.requested.group == 'org.codehaus.groovy' && details.requested.name.startsWith('groovy')) {
-            details.useVersion(groovyVersion)   
-        }
         if(details.requested.group == 'org.springframework') {
             details.useVersion(springVersion)
         }
@@ -24,13 +21,13 @@ dependencies {
     compileOnly("org.grails:grails-core:$pluginGrailsVersion")
     compileOnly "org.spockframework:spock-core:$spockVersion", {
         exclude group: "junit", module: "junit-dep"
-        exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+        exclude group: 'org.apache.groovy', module: 'groovy-all'
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
 
     api "org.springframework.boot:spring-boot:$springBootVersion"
     api "org.springframework:spring-orm:$springVersion"
-    api "org.hibernate:hibernate-core:${hibernate5Version}"
+    api "org.hibernate:hibernate-core-jakarta:${hibernate5Version}"
     api "org.grails:grails-datastore-web:$gormVersion"
     api "org.grails:grails-datastore-gorm-support:$gormVersion"
     api project(":grails-datastore-gorm-hibernate5"), {
@@ -39,7 +36,7 @@ dependencies {
         exclude group:'org.springframework', module:'spring-beans'
         exclude group:'org.springframework', module:'spring-tx'
         exclude group:'org.grails', module:'grails-bootstrap'
-        exclude group:'org.codehaus.groovy', module:'groovy-all'
+        exclude group:'org.apache.groovy', module:'groovy-all'
         exclude group:'org.grails', module:'grails-core'
         exclude group:'javax.transaction', module:'jta'
     }
