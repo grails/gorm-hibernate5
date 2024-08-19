@@ -1,5 +1,5 @@
 dependencies {
-    compileOnly "org.springframework.boot:spring-boot-cli:$springBootVersion", {
+    compileOnly "org.grails:grails-shell:$grailsVersion", {
         exclude group:'org.apache.groovy', module:'groovy'
     }
     api "org.apache.groovy:groovy:$groovyVersion"

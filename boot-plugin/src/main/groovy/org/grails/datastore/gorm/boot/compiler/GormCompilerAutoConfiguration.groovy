@@ -21,9 +21,9 @@ import org.codehaus.groovy.control.CompilationFailedException
 import org.codehaus.groovy.control.customizers.ImportCustomizer
 
 // https://github.com/spring-projects/spring-boot/commit/0555dda63d17bbd4364c4eb2268da27480be4d05#diff-26fb6a79071ed389aa8e3ffe28cc8b0d171930c4e9a5277357170704e52f32c6
-import org.springframework.boot.cli.compiler.AstUtils;
-import org.springframework.boot.cli.compiler.CompilerAutoConfiguration
-import org.springframework.boot.cli.compiler.DependencyCustomizer;
+import org.grails.cli.compiler.AstUtils
+import org.grails.cli.compiler.CompilerAutoConfiguration
+import org.grails.cli.compiler.DependencyCustomizer
 
 /**
  * A compiler configuration that automatically adds the necessary imports
