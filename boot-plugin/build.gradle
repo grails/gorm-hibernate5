@@ -1,5 +1,5 @@
 dependencies {
-    compileOnly "org.grails:grails-shell:$grailsVersion", {
+    compileOnly "org.grails:grails-shell:$grailsShellVersion", {
         exclude group:'org.apache.groovy', module:'groovy'
     }
     api "org.apache.groovy:groovy:$groovyVersion"
