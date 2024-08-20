@@ -4,10 +4,12 @@ import org.hibernate.Hibernate
 
 import grails.gorm.transactions.Rollback
 import grails.test.hibernate.HibernateSpec
+import spock.lang.Ignore
 
 /**
  * Tests Proxy with hibernate-groovy-proxy
  */
+
 class ProxySpec extends HibernateSpec {
 
     @Rollback

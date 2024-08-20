@@ -18,8 +18,8 @@ dependencies {
         exclude group:'commons-collections', module:'commons-collections'
         exclude group:'org.slf4j', module:'slf4j-api'
     }
-    runtimeOnly('jakarta.el:jakarta.el-api:6.0.1')
-    runtimeOnly "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"
+    runtimeOnly "jakarta.el:jakarta.el-api:$jakartaElVersion"
+    runtimeOnly "jakarta.xml.bind:jakarta.xml.bind-api:$jakartaXmlBindVersion"
     runtimeOnly "com.sun.xml.bind:jaxb-impl:4.0.5"
 
     compileOnly ("net.sf.ehcache:ehcache-core:2.6.11") {

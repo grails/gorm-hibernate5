@@ -1,13 +1,7 @@
 group "examples"
 
 configurations.all {
-//        resolutionStrategy.dependencySubstitution {
-//            substitute module("org.apache.groovy:groovy-all") with module("org.apache.groovy:groovy:$groovyVersion")
-//        }
-
     resolutionStrategy.dependencySubstitution {
-
-        //update fields plugin used by scaffolding
         substitute(module("org.codehaus.groovy:groovy-bom:3.0.8")).using(module("org.apache.groovy:groovy-bom:4.0.22"))
     }
 }

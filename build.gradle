@@ -4,7 +4,6 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        //classpath "org.codehaus.groovy.modules.http-builder:http-builder:0.7.2"
         classpath "io.github.gradle-nexus:publish-plugin:2.0.0"
         classpath "io.github.groovylang.groovydoc:groovydoc-gradle-plugin:1.0.1"
         classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
@@ -71,30 +70,25 @@ subprojects { Project subproject ->
 
     configurations.all {
         resolutionStrategy.dependencySubstitution {
-            substitute module("org.apache.groovy:groovy-all") using module("org.apache.groovy:groovy:$groovyVersion")
+            substitute module("org.codehaus.groovy:groovy-all") using module("org.apache.groovy:groovy:$groovyVersion")
         }
 
         resolutionStrategy.dependencySubstitution {
-            //update fields plugin used by scaffolding
             substitute(module("org.codehaus.groovy:groovy-bom:3.0.8")).using(module("org.apache.groovy:groovy-bom:4.0.22"))
         }
 
         resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-
             if (details.requested.group == 'org.codehaus.groovy') {
                 details.useTarget(group: "org.apache.groovy", name: details.requested.name, version: groovyVersion)
                 details.because "The dependency coordinates are changed in Apache Groovy 4"
             }
-
-
 
             if (details.requested.group == "io.micronaut" && details.requested.name == "micronaut-inject-groovy") {
                 details.useVersion("4.6.1")
             }
         }
     }
-
-
+    
     ext {
         isExample = subproject.name.startsWith('example')
         isPluginProject = subproject.name.endsWith("-plugin") && (subproject.name.startsWith("grails") || subproject.name.startsWith("rx-"))

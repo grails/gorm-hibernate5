@@ -11,8 +11,6 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin:"groovy"
-sourceCompatibility = 1.17
-targetCompatibility = 1.17
 
 group 'examples'
 
