@@ -13,7 +13,7 @@ jobs:
         java: ['11']
     env:
       GIT_USER_NAME: puneetbehl
-      GIT_USER_EMAIL: behlp@objectcomputing.com
+      GIT_USER_EMAIL: behlp@unityfoundation.io
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,13 +21,13 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           ref: ${{github.event.inputs.ref}}
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'adopt'
           java-version: ${{ matrix.java }}
       - name: Publish Documentation
         id: docs
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         env:
           GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
           GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_USER }}
@@ -53,6 +53,6 @@ jobs:
           FOLDER: docs/build/docs
           DOC_SUB_FOLDER: hibernate
           DOC_FOLDER: gh-pages
-          COMMIT_EMAIL: behlp@objectcomputing.com
+          COMMIT_EMAIL: behlp@unityfoundation.io
           COMMIT_NAME: Puneet Behl
           VERSION: ${{ steps.release_version.outputs.release_version }}

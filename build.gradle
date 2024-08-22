@@ -5,11 +5,11 @@ buildscript {
     }
     dependencies {
         classpath "org.codehaus.groovy.modules.http-builder:http-builder:0.7.2"
-        classpath "io.github.gradle-nexus:publish-plugin:1.3.0"
+        classpath "io.github.gradle-nexus:publish-plugin:2.0.0"
         classpath "io.github.groovylang.groovydoc:groovydoc-gradle-plugin:1.0.1"
         classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath "org.grails.plugins:views-gradle:3.1.0"
-        classpath("org.asciidoctor:asciidoctor-gradle-jvm:4.0.0-alpha.1")
+        classpath "org.grails.plugins:views-gradle:3.2.3"
+        classpath("org.asciidoctor:asciidoctor-gradle-jvm:4.0.2")
         classpath "com.github.erdi:webdriver-binaries-gradle-plugin:3.2"
     }
 }
@@ -54,6 +54,7 @@ if (isReleaseVersion) {
 subprojects { Project subproject ->
 
     repositories {
+        mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
         if(groovyVersion && groovyVersion.endsWith('-SNAPSHOT')) {
             maven {
@@ -61,6 +62,10 @@ subprojects { Project subproject ->
                 url 'https://oss.jfrog.org/oss-snapshot-local/'
             }
         }
+    }
+
+    ext {
+        groovyVersion = System.getenv('CI_GROOVY_VERSION') ?: project.groovyVersion
     }
 
     configurations.all {
@@ -113,11 +118,11 @@ subprojects { Project subproject ->
         }
 
         dependencies {
-            testImplementation "io.projectreactor:reactor-test:3.5.11"
+            testImplementation "io.projectreactor:reactor-test:3.6.5"
             testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
             testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
             testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-            testImplementation "org.junit.platform:junit-platform-runner:1.10.1"
+            testImplementation "org.junit.platform:junit-platform-runner:1.10.2"
             testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
         }
 
@@ -221,7 +226,7 @@ subprojects { Project subproject ->
         testImplementation "org.codehaus.groovy:groovy-test-junit5:$groovyVersion"
         testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
         testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-        testImplementation "org.junit.platform:junit-platform-runner:1.10.1"
+        testImplementation "org.junit.platform:junit-platform-runner:1.10.2"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
     }
 
@@ -288,7 +293,7 @@ subprojects { Project subproject ->
                         developer {
                             id = 'puneetbehl'
                             name = 'Puneet Behl'
-                            email = 'behlp@objectcomputing.com'
+                            email = 'behlp@unityfoundation.io'
                         }
                     }
                 }

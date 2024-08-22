@@ -771,7 +771,7 @@ abstract class AbstractHibernateGormStaticApi<D> extends GormStaticApi<D> {
 
     protected List<String> removeNullNames(Map query) {
         List<String> nullNames = []
-        Set<String> allNames = new HashSet<String>(query.keySet())
+        Set<String> allNames = new HashSet<>(query.keySet() as Set<String>)
         for (String name in allNames) {
             if (query[name] == null) {
                 query.remove name
