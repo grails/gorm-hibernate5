@@ -40,8 +40,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
-          java-version: '11.0.6'
+          distribution: temurin
+          java-version: '17'
       - name: Cache local Maven repository & Groovy
         uses: actions/cache@v4
         with:
@@ -51,7 +51,7 @@ jobs:
           key: cache-local-groovy-maven-${{ github.sha }}
       - name: Checkout Groovy 3_0_X (Grails 5 and later)
         if: startsWith(github.ref, 'refs/heads/8.') || startsWith(github.base_ref, '8.')
-        run: cd .. && git clone --depth 1 https://github.com/apache/groovy.git -b GROOVY_3_0_X --single-branch
+        run: cd .. && git clone --depth 1 https://github.com/apache/groovy.git -b GROOVY_4_0_X --single-branch
       - name: Set CI_GROOVY_VERSION for Grails
         id: groovy-version
         run: |
@@ -127,8 +127,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
-          java-version: '11'
+          distribution: temurin
+          java-version: '17'
       - name: Cache local Maven repository & Groovy
         uses: actions/cache@v4
         with:
