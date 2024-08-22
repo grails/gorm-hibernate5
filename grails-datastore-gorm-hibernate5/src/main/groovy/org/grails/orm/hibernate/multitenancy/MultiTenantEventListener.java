@@ -67,7 +67,7 @@ public class MultiTenantEventListener implements PersistenceEventListener {
                             currentId = Tenants.currentId((MultiTenantCapableDatastore) hibernateDatastore);
                         }
                         else {
-                            currentId = Tenants.currentIdFromDatasource(hibernateDatastore.getClass());
+                            currentId = Tenants.currentId(hibernateDatastore.getClass());
                         }
                         if(currentId != null) {
                             try {
