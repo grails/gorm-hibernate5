@@ -8,9 +8,6 @@ on:
 jobs:
   docs:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: ['17']
     env:
       GIT_USER_NAME: 'grails-build'
       GIT_USER_EMAIL: 'grails-build@users.noreply.github.com'
@@ -23,8 +20,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
-          java-version: ${{ matrix.java }}
+          distribution: temurin
+          java-version: '17'
       - name: Publish Documentation
         id: docs
         uses: gradle/gradle-build-action@v3
@@ -53,6 +50,6 @@ jobs:
           FOLDER: docs/build/docs
           DOC_SUB_FOLDER: hibernate
           DOC_FOLDER: gh-pages
-          COMMIT_EMAIL: behlp@unityfoundation.io
-          COMMIT_NAME: Puneet Behl
+          COMMIT_EMAIL: 'grails-build@users.noreply.github.com'
+          COMMIT_NAME: 'grails-build'
           VERSION: ${{ steps.release_version.outputs.release_version }}

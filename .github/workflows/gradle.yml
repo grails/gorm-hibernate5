@@ -78,5 +78,5 @@ jobs:
           FOLDER: docs/build/docs
           DOC_SUB_FOLDER: hibernate
           DOC_FOLDER: gh-pages
-          COMMIT_EMAIL: behlp@unityfoundation.io
-          COMMIT_NAME: Puneet Behl
+          COMMIT_EMAIL: 'grails-build@users.noreply.github.com'
+          COMMIT_NAME: 'grails-build'
