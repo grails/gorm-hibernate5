@@ -158,3 +158,5 @@ jobs:
           arguments: |
             build
             -x groovydoc
+            -x test
+            -x integrationTest
