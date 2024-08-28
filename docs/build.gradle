@@ -93,7 +93,7 @@ task fetchSource {
 }
 
 task copyDocs(type:Copy, dependsOn:asciidoctor) {
-    mustRunAfter('asciidoctor', 'groovydoc')
+    mustRunAfter('asciidoctor', 'groovydoc', 'copyResources')
     finalizedBy('cleanAsciidoc')
     from project(':docs').layout.buildDirectory.dir('docs/asciidoc')
     into project(':docs').layout.buildDirectory.dir('docs/manual')
@@ -130,7 +130,7 @@ tasks.withType(Groovydoc) {
 
 task copyResources(type:Copy) {
     from 'src/docs/resources'
-    into "${project.buildDir}/docs"
+    into "${project.layout.buildDirectory.get()}/docs"
 }
 
 task docs(dependsOn:[asciidoctor, groovydoc, copyDocs, copyResources] +
@@ -141,7 +141,7 @@ task docs(dependsOn:[asciidoctor, groovydoc, copyDocs, copyResources] +
 
 task assembleDocsDist(type: Zip) {
     dependsOn 'docs', 'copyDocs'
-    from "${project.buildDir}/docs"
+    from "${project.layout.buildDirectory.get()}/docs"
     include '*'
     include '*/**'
     archiveFileName = "${project.name}-${project.version}.zip"
