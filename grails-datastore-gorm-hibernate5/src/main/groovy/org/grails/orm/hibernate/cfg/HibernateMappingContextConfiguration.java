@@ -2,7 +2,7 @@ package org.grails.orm.hibernate.cfg;
 
 import org.grails.datastore.gorm.GormEntity;
 import org.grails.datastore.gorm.jdbc.connections.DataSourceSettings;
-import org.grails.datastore.gorm.validation.javax.JavaxValidatorRegistry;
+import org.grails.datastore.gorm.validation.jakarta.JakartaValidatorRegistry;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.model.PersistentEntity;
 import org.grails.datastore.mapping.validation.ValidatorRegistry;
@@ -45,9 +45,9 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.ClassUtils;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Entity;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.MappedSuperclass;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;

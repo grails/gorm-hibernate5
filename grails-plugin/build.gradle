@@ -5,9 +5,6 @@ configurations.all {
                 details.requested.name != 'grails-datastore-gorm-hibernate5') {
             details.useVersion(gormVersion)
         }
-        if(details.requested.group == 'org.codehaus.groovy' && details.requested.name.startsWith('groovy')) {
-            details.useVersion(groovyVersion)   
-        }
         if(details.requested.group == 'org.springframework') {
             details.useVersion(springVersion)
         }
@@ -30,7 +27,7 @@ dependencies {
 
     api "org.springframework.boot:spring-boot:$springBootVersion"
     api "org.springframework:spring-orm:$springVersion"
-    api "org.hibernate:hibernate-core:${hibernate5Version}"
+    api "org.hibernate:hibernate-core-jakarta:${hibernate5Version}"
     api "org.grails:grails-datastore-web:$gormVersion"
     api "org.grails:grails-datastore-gorm-support:$gormVersion"
     api project(":grails-datastore-gorm-hibernate5"), {

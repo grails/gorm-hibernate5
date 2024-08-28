@@ -19,7 +19,7 @@ apply plugin: 'org.asciidoctor.jvm.convert'
 
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        if (details.requested.group == 'org.codehaus.groovy' && details.requested.name.startsWith('groovy')) {
+        if (details.requested.group == 'org.apache.groovy' && details.requested.name.startsWith('groovy')) {
             details.useVersion(groovyVersion)
         }
         if (details.requested.group == 'org.springframework') {
@@ -37,7 +37,7 @@ dependencies {
     documentation "org.grails:grails-spring:$grailsVersion"
     documentation "info.picocli:picocli:$picocliVersion"
     documentation "org.fusesource.jansi:jansi:$jansiVersion"
-    documentation "org.codehaus.groovy:groovy-dateutil:$groovyVersion"
+    documentation "org.apache.groovy:groovy-dateutil:$groovyVersion"
     documentation "com.github.javaparser:javaparser-core:$javaParserCoreVersion"
 
     documentation "org.fusesource.jansi:jansi:$jansiVersion"

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.MutablePropertyValues
 import org.springframework.validation.DataBinder
 
-import javax.persistence.AccessType
+import jakarta.persistence.AccessType
 
 /**
  * Implements the ORM mapping DSL constructing a model that can be evaluated by the

@@ -10,7 +10,7 @@ import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
 
-import javax.persistence.AccessType
+import jakarta.persistence.AccessType
 
 /**
  * Created by graemerocher on 08/12/16.

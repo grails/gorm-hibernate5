@@ -24,7 +24,7 @@ import org.hibernate.engine.spi.ManagedEntity
 import org.hibernate.engine.spi.PersistentAttributeInterceptable
 import org.hibernate.engine.spi.PersistentAttributeInterceptor
 
-import javax.persistence.Transient
+import jakarta.persistence.Transient
 import java.lang.reflect.Modifier
 
 import static org.codehaus.groovy.ast.tools.GeneralUtils.*

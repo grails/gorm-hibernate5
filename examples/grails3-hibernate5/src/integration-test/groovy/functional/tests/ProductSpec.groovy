@@ -33,7 +33,7 @@ class ProductSpec extends Specification {
     }
 
     @Rollback
-    void "test that JPA entities can use javax.validation"() {
+    void "test that JPA entities can use jakarta.validation"() {
         when:"A basic entity is persisted and validated"
         Product c = new Product(price: "Bad", name: "iMac")
         c.save(flush:true)

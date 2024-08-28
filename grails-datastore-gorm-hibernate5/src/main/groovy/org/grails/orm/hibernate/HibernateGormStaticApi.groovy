@@ -36,10 +36,10 @@ import org.springframework.orm.hibernate5.SessionHolder
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionSynchronizationManager
 
-import javax.persistence.FlushModeType
-import javax.persistence.criteria.CriteriaBuilder
-import javax.persistence.criteria.CriteriaQuery
-import javax.persistence.criteria.Root
+import jakarta.persistence.FlushModeType
+import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Root
 
 /**
  * The implementation of the GORM static method contract for Hibernate

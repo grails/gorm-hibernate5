@@ -1,6 +1,6 @@
 package org.grails.orm.hibernate.connections;
 
-import org.grails.datastore.gorm.validation.javax.JavaxValidatorRegistry;
+import org.grails.datastore.gorm.validation.jakarta.JakartaValidatorRegistry;
 import org.grails.datastore.mapping.core.connections.ConnectionSource;
 import org.grails.datastore.mapping.core.exceptions.ConfigurationException;
 import org.grails.datastore.mapping.core.grailsversion.GrailsVersion;
@@ -110,10 +110,10 @@ public class HibernateConnectionSourceFactory extends AbstractHibernateConnectio
             configuration = new HibernateMappingContextConfiguration();
         }
 
-        if(JavaxValidatorRegistry.isAvailable() && messageSource != null) {
-            ValidatorRegistry registry = new JavaxValidatorRegistry(mappingContext,dataSourceConnectionSource.getSettings(), messageSource );
+        if(JakartaValidatorRegistry.isAvailable() && messageSource != null) {
+            ValidatorRegistry registry = new JakartaValidatorRegistry(mappingContext,dataSourceConnectionSource.getSettings(), messageSource );
             mappingContext.setValidatorRegistry(registry);
-            configuration.getProperties().put("javax.persistence.validation.factory", registry);
+            configuration.getProperties().put("jakarta.persistence.validation.factory", registry);
         }
 
         if(applicationContext != null && applicationContext.containsBean(dataSourceConnectionSource.getName())) {

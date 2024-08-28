@@ -2,6 +2,7 @@ group "examples"
 
 apply plugin:"org.grails.grails-web"
 apply plugin:"org.grails.plugins.views-json"
+apply plugin: 'java'
 
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-logging"
@@ -18,14 +19,14 @@ dependencies {
     implementation "org.grails.plugins:cache"
     implementation "org.grails.plugins:events"
     implementation project(":grails-plugin")
-    implementation "org.hibernate:hibernate-core:$hibernate5Version"
+    implementation "org.hibernate:hibernate-core-jakarta:$hibernate5Version"
     implementation "org.grails.plugins:views-json"
     implementation "org.grails.plugins:views-json-templates"
     implementation 'org.grails.plugins:spring-security-rest:3.0.1'
     profile "org.grails.profiles:rest-api"
     runtimeOnly "org.glassfish.web:el-impl:2.2.1-b05"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "javax.xml.bind:jaxb-api:2.3.1"
+    runtimeOnly "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"
     testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
     testImplementation "org.grails:grails-web-testing-support:$testingSupportVersion"
 }

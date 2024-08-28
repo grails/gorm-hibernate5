@@ -19,9 +19,9 @@ import groovy.transform.CompileStatic
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.control.CompilationFailedException
 import org.codehaus.groovy.control.customizers.ImportCustomizer
-import org.springframework.boot.cli.compiler.AstUtils;
-import org.springframework.boot.cli.compiler.CompilerAutoConfiguration
-import org.springframework.boot.cli.compiler.DependencyCustomizer;
+import org.grails.cli.compiler.AstUtils
+import org.grails.cli.compiler.CompilerAutoConfiguration
+import org.grails.cli.compiler.DependencyCustomizer
 
 /**
  * A compiler configuration that automatically adds the necessary imports

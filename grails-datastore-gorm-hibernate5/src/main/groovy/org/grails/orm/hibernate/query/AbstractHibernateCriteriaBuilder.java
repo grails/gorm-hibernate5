@@ -18,9 +18,9 @@ import org.hibernate.type.Type;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
 
-import javax.persistence.criteria.JoinType;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EntityType;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.EntityType;
 import java.beans.PropertyDescriptor;
 import java.util.*;
 
@@ -265,7 +265,6 @@ public abstract class AbstractHibernateCriteriaBuilder extends GroovyObjectSuppo
         return this;
     }
 
-    @Override
     public BuildableCriteria join(String property, JoinType joinType) {
         criteria.setFetchMode(calculatePropertyName(property), FetchMode.JOIN);
         return this;

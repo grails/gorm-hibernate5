@@ -61,7 +61,7 @@ public class HibernatePersistenceContextInterceptor implements PersistenceContex
     }
 
     /* (non-Javadoc)
-     * @see org.codehaus.groovy.grails.support.PersistenceContextInterceptor#destroy()
+     * @see org.apache.groovy.grails.support.PersistenceContextInterceptor#destroy()
      */
     public void destroy() {
         DeferredBindingActions.clear();
@@ -149,7 +149,7 @@ public class HibernatePersistenceContextInterceptor implements PersistenceContex
     }
 
     /* (non-Javadoc)
-     * @see org.codehaus.groovy.grails.support.PersistenceContextInterceptor#init()
+     * @see org.apache.groovy.grails.support.PersistenceContextInterceptor#init()
      */
     public void init() {
         if (incNestingCount() > 1) {

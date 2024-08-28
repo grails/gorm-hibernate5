@@ -6,7 +6,7 @@ import org.grails.orm.hibernate.cfg.Mapping
 import org.grails.orm.hibernate.cfg.PropertyConfig
 import spock.lang.Specification
 
-import javax.persistence.FetchType
+import jakarta.persistence.FetchType
 
 import static grails.gorm.hibernate.mapping.MappingBuilder.define
 /**

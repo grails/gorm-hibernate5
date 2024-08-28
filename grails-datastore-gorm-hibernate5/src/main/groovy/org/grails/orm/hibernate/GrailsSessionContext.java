@@ -34,9 +34,9 @@ import org.springframework.transaction.jta.SpringJtaSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import javax.transaction.Status;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
+import jakarta.transaction.Status;
+import jakarta.transaction.Transaction;
+import jakarta.transaction.TransactionManager;
 
 /**
  * Based on org.springframework.orm.hibernate4.SpringSessionContext.
@@ -158,7 +158,7 @@ public class GrailsSessionContext implements CurrentSessionContext {
 
     protected void registerJtaSynchronization(Session session, SessionHolder sessionHolder) {
 
-        // JTA synchronization is only possible with a javax.transaction.TransactionManager.
+        // JTA synchronization is only possible with a jakarta.transaction.TransactionManager.
         // We'll check the Hibernate SessionFactory: If a TransactionManagerLookup is specified
         // in Hibernate configuration, it will contain a TransactionManager reference.
         TransactionManager jtaTm = getJtaTransactionManager(session);

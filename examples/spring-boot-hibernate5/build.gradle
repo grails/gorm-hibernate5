@@ -11,14 +11,12 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin:"groovy"
-sourceCompatibility = 1.11
-targetCompatibility = 1.11
 
 group 'examples'
 
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        if(details.requested.group == 'org.codehaus.groovy' && details.requested.name.startsWith('groovy')) {
+        if(details.requested.group == 'org.apache.groovy' && details.requested.name.startsWith('groovy')) {
             details.useVersion(groovyVersion)   
         }
     }
@@ -29,7 +27,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-autoconfigure"
     implementation "org.springframework.boot:spring-boot-starter-tomcat"
     implementation project(":gorm-hibernate5-spring-boot")
-    implementation "org.hibernate:hibernate-core:$hibernate5Version"
+    implementation "org.hibernate:hibernate-core-jakarta:$hibernate5Version"
     implementation "org.hibernate:hibernate-ehcache:$hibernate5Version"
 
     runtimeOnly "com.h2database:h2:$h2Version"

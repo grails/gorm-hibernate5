@@ -18,8 +18,8 @@ import org.hibernate.query.Query;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.util.ReflectionUtils;
 
-import javax.persistence.LockModeType;
-import javax.persistence.criteria.*;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.criteria.*;
 import java.lang.reflect.Method;
 import java.util.Map;
 
