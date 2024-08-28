@@ -38,8 +38,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
-          java-version: '11'
+          distribution: temurin
+          java-version: '17'
       - name: Publish Artifacts To Grails Artifactory (repo.grails.org)
         uses: gradle/gradle-build-action@v3
         env:
