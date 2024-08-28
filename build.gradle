@@ -77,12 +77,8 @@ allprojects {
             substitute module("org.codehaus.groovy:groovy-all") using module("org.apache.groovy:groovy:$groovyVersion")
         }
 
-        resolutionStrategy.dependencySubstitution {
-            substitute(module("org.codehaus.groovy:groovy-bom:3.0.8")).using(module("org.apache.groovy:groovy-bom:4.0.22"))
-        }
-
         resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if ((details.requested.group == 'org.codehaus.groovy' || details.requested.group == 'org.apache.groovy') && details.requested.name != 'groovy-bom') {
+            if ((details.requested.group == 'org.codehaus.groovy' || details.requested.group == 'org.apache.groovy')) {
                 details.useTarget(group: 'org.apache.groovy', name: details.requested.name, version: "$groovyVersion")
                 details.because "The dependency coordinates are changed in Apache Groovy 4, plus ensure version"
             }
@@ -330,7 +326,7 @@ subprojects { Project subproject ->
 
                 afterEvaluate {
                     if(isGrails3PluginProject) {
-                        artifact source:"${sourceSets.main.groovy.destinationDirectory}/META-INF/grails-plugin.xml",
+                        artifact source:"${sourceSets.main.groovy.getClassesDirectory().get().getAsFile()}/META-INF/grails-plugin.xml",
                                 classifier:"plugin",
                                 extension:'xml'
                     }
