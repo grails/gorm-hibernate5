@@ -149,7 +149,7 @@ subprojects { Project subproject ->
         dependencies {
             testImplementation "jakarta.annotation:jakarta.annotation-api:$jakartaAnnotationApiVersion"
             testImplementation "io.micrometer:micrometer-core:latest.integration"
-            testImplementation "io.projectreactor:reactor-test:3.6.5"
+            testImplementation "io.projectreactor:reactor-test:3.6.10"
             testImplementation "org.apache.groovy:groovy-test-junit5:$groovyVersion"
             testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
             testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
