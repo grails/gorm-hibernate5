@@ -20,7 +20,7 @@ dependencies {
     }
     runtimeOnly "jakarta.el:jakarta.el-api:$jakartaElVersion"
     runtimeOnly "jakarta.xml.bind:jakarta.xml.bind-api:$jakartaXmlBindVersion"
-    runtimeOnly "com.sun.xml.bind:jaxb-impl:4.0.5"
+    runtimeOnly "org.glassfish.jaxb:jaxb-runtime:$jakartaXmlBindImpVersion"
 
     compileOnly ("net.sf.ehcache:ehcache-core:2.6.11") {
         exclude group: 'commons-logging', module:'commons-logging'
