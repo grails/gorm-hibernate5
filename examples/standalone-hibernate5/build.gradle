@@ -6,7 +6,7 @@ dependencies {
     implementation project(":grails-datastore-gorm-hibernate5")
     runtimeOnly "com.h2database:h2:$h2Version"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
-    runtimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.2"
+    runtimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatLog4jVersion"
     runtimeOnly "org.slf4j:slf4j-api:$slf4jVersion"
     implementation "org.grails:grails-core:$grailsVersion"
     testImplementation "org.spockframework:spock-core:$spockVersion"

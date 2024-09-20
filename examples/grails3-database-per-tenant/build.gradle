@@ -24,7 +24,7 @@ dependencies {
     implementation "org.grails:grails-dependencies:$grailsVersion", {
         exclude module:'grails-datastore-simple'
     }
-    implementation("org.ysb33r.gradle:grolifant50:2.0.2")
+    implementation "org.ysb33r.gradle:grolifant80:$grolifantVersion"
     implementation "org.grails:grails-web-boot:$grailsVersion"
     implementation project(":grails-plugin")
 

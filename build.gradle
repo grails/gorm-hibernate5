@@ -4,12 +4,12 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath "io.github.gradle-nexus:publish-plugin:2.0.0"
-        classpath "io.github.groovylang.groovydoc:groovydoc-gradle-plugin:1.0.1"
+        classpath "io.github.gradle-nexus:publish-plugin:$gradleNexusPublishPluginVersion"
+        classpath "io.github.groovylang.groovydoc:groovydoc-gradle-plugin:$groovydocGradlePluginVersion"
         classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath "org.grails.plugins:views-gradle:3.2.3"
-        classpath"org.asciidoctor:asciidoctor-gradle-jvm:4.0.0"
-        classpath "com.github.erdi:webdriver-binaries-gradle-plugin:3.2"
+        classpath "org.grails.plugins:views-gradle:$viewsGradleVersion"
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm:$asciidoctorGradleVersion"
+        classpath "com.github.erdi:webdriver-binaries-gradle-plugin:$webdriverBinariesPluginVersion"
     }
 
     configurations.configureEach {
@@ -149,11 +149,11 @@ subprojects { Project subproject ->
         dependencies {
             testImplementation "jakarta.annotation:jakarta.annotation-api:$jakartaAnnotationApiVersion"
             testImplementation "io.micrometer:micrometer-core:latest.integration"
-            testImplementation "io.projectreactor:reactor-test:3.6.5"
+            testImplementation "io.projectreactor:reactor-test:$projectreactorVersion"
             testImplementation "org.apache.groovy:groovy-test-junit5:$groovyVersion"
             testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
             testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-            testImplementation "org.junit.platform:junit-platform-runner:1.10.2"
+            testImplementation "org.junit.platform:junit-platform-runner:$junitJupiterPlatformVersion"
             testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
         }
 
@@ -257,7 +257,7 @@ subprojects { Project subproject ->
         testImplementation "org.apache.groovy:groovy-test-junit5:$groovyVersion"
         testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
         testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-        testImplementation "org.junit.platform:junit-platform-runner:1.10.2"
+        testImplementation "org.junit.platform:junit-platform-runner:$junitJupiterPlatformVersion"
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
     }
 

@@ -12,6 +12,6 @@ dependencies {
     testImplementation "org.spockframework:spock-core:$spockVersion"
 
     testRuntimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
-    testRuntimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.2"
+    testRuntimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatLog4jVersion"
     testRuntimeOnly "com.h2database:h2:$h2Version"
 }

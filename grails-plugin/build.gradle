@@ -12,13 +12,13 @@ configurations.all {
 }
 
 dependencies {
-    documentation ("org.grails:grails-core:$pluginGrailsVersion")
-    documentation ("org.grails:grails-bootstrap:$pluginGrailsVersion")
-    documentation ("org.grails:grails-spring:$pluginGrailsVersion")
+    documentation ("org.grails:grails-core:$grailsVersion")
+    documentation ("org.grails:grails-bootstrap:$grailsVersion")
+    documentation ("org.grails:grails-spring:$grailsVersion")
     documentation ("com.github.javaparser:javaparser-core:$javaParserCoreVersion")
 
-    compileOnly("org.grails:grails-bootstrap:$pluginGrailsVersion")
-    compileOnly("org.grails:grails-core:$pluginGrailsVersion")
+    compileOnly("org.grails:grails-bootstrap:$grailsVersion")
+    compileOnly("org.grails:grails-core:$grailsVersion")
     compileOnly "org.spockframework:spock-core:$spockVersion", {
         exclude group: "junit", module: "junit-dep"
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
@@ -44,7 +44,7 @@ dependencies {
     testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
     testRuntimeOnly "com.h2database:h2:$h2Version"
     testRuntimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
-    testRuntimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:8.5.2"
+    testRuntimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatLog4jVersion"
     testRuntimeOnly "org.springframework:spring-aop:$springVersion"
     testRuntimeOnly "org.springframework:spring-expression:$springVersion"
 }
