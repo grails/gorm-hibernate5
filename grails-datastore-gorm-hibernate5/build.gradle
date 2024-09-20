@@ -19,7 +19,7 @@ dependencies {
         exclude group:'org.slf4j', module:'slf4j-api'
     }
 
-    compileOnly ("net.sf.ehcache:ehcache-core:2.6.11") {
+    compileOnly ("org.ehcache:ehcache:$ehcacheVersion") {
         exclude group: 'commons-logging', module:'commons-logging'
     }
 
@@ -44,7 +44,7 @@ dependencies {
     }
     testImplementation "com.h2database:h2:$h2Version"
 
-    testImplementation "net.sf.ehcache:ehcache-core:2.6.11"
+    testImplementation "org.ehcache:ehcache:$ehcacheVersion"
     testImplementation "org.hibernate:hibernate-ehcache:$hibernate5Version"
 
     // groovy proxy fixes bytebuddy to be a bit smarter when it comes to groovy metaClass
