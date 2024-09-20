@@ -24,9 +24,7 @@ dependencies {
     implementation "org.grails.plugins:views-json-templates"
     implementation 'org.grails.plugins:spring-security-rest:3.0.1'
     profile "org.grails.profiles:rest-api"
-    runtimeOnly "org.glassfish.web:el-impl:2.2.1-b05"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2"
     testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
     testImplementation "org.grails:grails-web-testing-support:$testingSupportVersion"
 }

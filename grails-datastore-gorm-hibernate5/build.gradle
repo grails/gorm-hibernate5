@@ -18,9 +18,6 @@ dependencies {
         exclude group:'commons-collections', module:'commons-collections'
         exclude group:'org.slf4j', module:'slf4j-api'
     }
-    runtimeOnly "jakarta.el:jakarta.el-api:$jakartaElVersion"
-    runtimeOnly "jakarta.xml.bind:jakarta.xml.bind-api:$jakartaXmlBindVersion"
-    runtimeOnly "org.glassfish.jaxb:jaxb-runtime:$jakartaXmlBindImpVersion"
 
     compileOnly ("net.sf.ehcache:ehcache-core:2.6.11") {
         exclude group: 'commons-logging', module:'commons-logging'
