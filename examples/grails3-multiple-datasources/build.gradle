@@ -1,11 +1,5 @@
 group "examples"
 
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("org.codehaus.groovy:groovy-bom:3.0.8")).using(module("org.apache.groovy:groovy-bom:$groovyVersion"))
-    }
-}
-
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-logging"
     implementation "org.springframework.boot:spring-boot-autoconfigure"
@@ -31,6 +25,7 @@ dependencies {
     testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
     testImplementation("org.grails.plugins:geb") {
         exclude group: 'org.gebish', module: 'geb-spock'
+        exclude group: 'org.codehaus.groovy'
     }
     testImplementation "org.gebish:geb-spock:$gebVersion"
     testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
