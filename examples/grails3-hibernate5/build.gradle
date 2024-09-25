@@ -33,7 +33,6 @@ dependencies {
 
     testImplementation("org.grails.plugins:geb") {
         exclude group: 'org.gebish', module: 'geb-spock'
-        exclude group: 'org.codehaus.groovy'
     }
     testImplementation "org.gebish:geb-spock:$gebVersion"
     testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"

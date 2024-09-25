@@ -23,9 +23,7 @@ dependencies {
     runtimeOnly "org.grails.plugins:scaffolding:$scaffoldingVersion"
 
     testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
-    testImplementation "org.grails.plugins:geb:$gebPluginVersion", {
-        exclude group: 'org.codehaus.groovy'
-    }
+    testImplementation "org.grails.plugins:geb:$gebPluginVersion"
     testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
     testRuntimeOnly "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
     testRuntimeOnly "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
