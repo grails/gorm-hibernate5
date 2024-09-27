@@ -23,14 +23,14 @@ dependencies {
     runtimeOnly "org.grails.plugins:scaffolding:$scaffoldingVersion"
 
     testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
-    testImplementation "org.grails.plugins:geb:$gebPluginVersion"
-    testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-    testRuntimeOnly "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
-    testRuntimeOnly "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
+    integrationTestImplementation "org.gebish:geb-spock:$gebVersion"
+    integrationTestRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+    integrationTestRuntimeOnly "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+    integrationTestRuntimeOnly "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
 
-    testImplementation "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
-    testImplementation "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
-    testImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+    integrationTestRuntimeOnly "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
+    integrationTestRuntimeOnly "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
+    integrationTestRuntimeOnly "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 }
 
 tasks.withType(Test) {
