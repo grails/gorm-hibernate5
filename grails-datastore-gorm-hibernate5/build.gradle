@@ -18,13 +18,6 @@ dependencies {
         exclude group:'commons-collections', module:'commons-collections'
         exclude group:'org.slf4j', module:'slf4j-api'
     }
-    runtimeOnly "jakarta.el:jakarta.el-api:$jakartaElVersion"
-    runtimeOnly "jakarta.xml.bind:jakarta.xml.bind-api:$jakartaXmlBindVersion"
-    runtimeOnly "com.sun.xml.bind:jaxb-impl:4.0.5"
-
-    compileOnly ("net.sf.ehcache:ehcache-core:2.6.11") {
-        exclude group: 'commons-logging', module:'commons-logging'
-    }
 
     compileOnly ("org.hibernate:hibernate-ehcache:$hibernate5Version") {
         exclude group:'commons-collections', module:'commons-collections'
@@ -47,7 +40,6 @@ dependencies {
     }
     testImplementation "com.h2database:h2:$h2Version"
 
-    testImplementation "net.sf.ehcache:ehcache-core:2.6.11"
     testImplementation "org.hibernate:hibernate-ehcache:$hibernate5Version"
 
     // groovy proxy fixes bytebuddy to be a bit smarter when it comes to groovy metaClass
