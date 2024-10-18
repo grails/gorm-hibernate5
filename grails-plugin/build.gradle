@@ -41,7 +41,7 @@ dependencies {
         exclude group:'org.grails', module:'grails-core'
         exclude group:'javax.transaction', module:'jta'
     }
-    testRuntimeOnly "org.yaml:snakeyaml:$snakeyamlVersion"
+    testRuntimeOnly "org.yaml:snakeyaml:$snakeYamlVersion"
     testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
     testRuntimeOnly "com.h2database:h2:$h2Version"
     testRuntimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
