@@ -15,7 +15,7 @@ dependencies {
     implementation "org.hibernate:hibernate-core-jakarta:$hibernate5Version"
 
     runtimeOnly "com.h2database:h2"
-    runtimeOnly "org.yaml:snakeyaml:$snakeyamlVersion"
+    runtimeOnly "org.yaml:snakeyaml:$snakeYamlVersion"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
 
     testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"

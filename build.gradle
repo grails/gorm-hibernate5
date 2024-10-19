@@ -56,10 +56,10 @@ allprojects {
     ext.groovyVersion = System.getenv('CI_GROOVY_VERSION') ?: project.groovyVersion
 
     repositories {
-        mavenLocal()
         mavenCentral()
         maven { url = 'https://repo.grails.org/grails/core' }
         maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+        // mavenLocal() // Keep, this will be uncommented and used by CI (groovy-joint-workflow)
         if(isSnapshot) {
             maven { url = 'https://repo.grails.org/grails/libs-snapshots-local' }
         }
@@ -122,7 +122,7 @@ subprojects { Project subproject ->
         dependencies {
             testImplementation "jakarta.annotation:jakarta.annotation-api:$jakartaAnnotationApiVersion"
             testImplementation "io.micrometer:micrometer-core:latest.integration"
-            testImplementation "io.projectreactor:reactor-test:$projectreactorVersion"
+            testImplementation "io.projectreactor:reactor-test:$projectReactorVersion"
             testImplementation "org.apache.groovy:groovy-test-junit5:$groovyVersion"
             testImplementation("org.spockframework:spock-core:$spockVersion") { transitive = false}
             testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
