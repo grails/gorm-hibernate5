@@ -56,10 +56,10 @@ allprojects {
     ext.groovyVersion = System.getenv('CI_GROOVY_VERSION') ?: project.groovyVersion
 
     repositories {
-        mavenLocal()
         mavenCentral()
         maven { url = 'https://repo.grails.org/grails/core' }
         maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+        // mavenLocal() // Keep, this will be uncommented and used by CI (groovy-joint-workflow)
         if(isSnapshot) {
             maven { url = 'https://repo.grails.org/grails/libs-snapshots-local' }
         }
