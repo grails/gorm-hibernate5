@@ -48,7 +48,6 @@ class MultiTenancyBidirectionalManyToManySpec extends Specification {
 
     @Rollback
     @Issue("https://github.com/grails/gorm-hibernate5/issues/58")
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.multitenancy.Department] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test hasMany and 'in' query with multi-tenancy" () {
         given:
         createSomeUsers()
@@ -79,6 +78,10 @@ class User implements MultiTenant<User> {
 
     static belongsTo = [Department]
     static hasMany = [departments: Department]
+
+    static mapping = {
+        table '`user`'
+    }
 }
 
 @Entity

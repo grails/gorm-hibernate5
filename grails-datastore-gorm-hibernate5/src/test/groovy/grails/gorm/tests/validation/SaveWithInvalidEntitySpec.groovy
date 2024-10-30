@@ -14,7 +14,7 @@ import spock.lang.Specification
  */
 class SaveWithInvalidEntitySpec extends Specification {
 
-    @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(getClass().getPackage())
+    @Shared @AutoCleanup HibernateDatastore hibernateDatastore = new HibernateDatastore(A, B)
 
     /**
      * This currently fails with a NPE. See explanation https://github.com/grails/grails-core/issues/10604#issuecomment-298943022

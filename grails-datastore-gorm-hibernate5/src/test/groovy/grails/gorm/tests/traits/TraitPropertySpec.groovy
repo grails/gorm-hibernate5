@@ -16,7 +16,6 @@ class TraitPropertySpec extends Specification {
     @Shared @AutoCleanup HibernateDatastore datastore = new HibernateDatastore(getClass().getPackage())
 
     @Rollback
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.traits.EntityWithTrait] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test entity with trait property"() {
         when:
         new EntityWithTrait(name: "test", bar: "test2").save(flush:true)

@@ -28,7 +28,6 @@ class DataServiceSpec extends Specification {
     @Shared @AutoCleanup HibernateDatastore datastore = new HibernateDatastore(getClass().getPackage())
 
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test inter service interaction"() {
         given:
         Product p1 = new Product(name: "Apple", type:"Fruit").save(flush:true)
@@ -40,7 +39,6 @@ class DataServiceSpec extends Specification {
 
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test list products"() {
         given:
         Product p1 = new Product(name: "Apple", type:"Fruit").save(flush:true)
@@ -69,7 +67,6 @@ class DataServiceSpec extends Specification {
         productService.find("Apple", "Device") == null
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test delete by id implementation"() {
         given:
         Product p1 = new Product(name: "Apple", type:"Fruit").save(flush:true)
@@ -91,7 +88,6 @@ class DataServiceSpec extends Specification {
 
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test delete by parameter query implementation"() {
         given:
         Product p1 = new Product(name: "Apple", type:"Fruit").save(flush:true)
@@ -114,7 +110,6 @@ class DataServiceSpec extends Specification {
 
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test delete all implementation"() {
         given:
         Product p1 = new Product(name: "Apple", type:"Fruit").save(flush:true)
@@ -137,7 +132,6 @@ class DataServiceSpec extends Specification {
 
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test delete with void return type"() {
         given:
         Product p1 = new Product(name: "Apple", type:"Fruit").save(flush:true)
@@ -158,7 +152,6 @@ class DataServiceSpec extends Specification {
         productService.get(p1.id) == null
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test save entity"() {
         given:
         ProductService productService = datastore.getService(ProductService)
@@ -170,7 +163,6 @@ class DataServiceSpec extends Specification {
         productService.find("Pineapple", "Fruit") != null
     }
 
-    @Ignore("java.lang.NullPointerException: Cannot invoke \"org.grails.datastore.mapping.model.PersistentEntity.getJavaClass()\" because \"entity\" is null")
     void "test save invalid entity"() {
         given:
         def mappingContext = datastore.mappingContext
@@ -190,7 +182,6 @@ class DataServiceSpec extends Specification {
         thrown(ValidationException)
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test abstract class service impl"() {
         given:
         AnotherProductService productService = (AnotherProductService)datastore.getService(AnotherProductInterface)
@@ -212,7 +203,6 @@ class DataServiceSpec extends Specification {
 
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test update one method"() {
         given:
         ProductService productService = datastore.getService(ProductService)
@@ -234,7 +224,6 @@ class DataServiceSpec extends Specification {
 
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void 'test property projection'() {
         given:
         ProductService productService = datastore.getService(ProductService)
@@ -246,7 +235,6 @@ class DataServiceSpec extends Specification {
         productService.findProductType(p.id) == "Vegetable"
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void 'test property projection return all types'() {
         given:
         ProductService productService = datastore.getService(ProductService)
@@ -263,7 +251,6 @@ class DataServiceSpec extends Specification {
         productService.countByType("Vegetable") == 2
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test @where annotation"() {
         given:
         ProductService productService = datastore.getService(ProductService)
@@ -284,7 +271,6 @@ class DataServiceSpec extends Specification {
 
     }
 
-    @Ignore(" java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test @query annotation"() {
         given:
         ProductService productService = datastore.getService(ProductService)
@@ -317,7 +303,6 @@ class DataServiceSpec extends Specification {
 
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test interface projection"() {
         given:
         ProductService productService = datastore.getService(ProductService)
@@ -358,7 +343,6 @@ class DataServiceSpec extends Specification {
 
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test join query on attributes with @Query"() {
         given:
         ProductService productService = datastore.getService(ProductService)
@@ -378,7 +362,6 @@ class DataServiceSpec extends Specification {
     }
 
     @Issue('https://github.com/grails/grails-data-mapping/issues/960')
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.services.Product] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test findBy dynamic finder with @Join doesn't return proxies"() {
         given:
         ProductService productService = datastore.getService(ProductService)

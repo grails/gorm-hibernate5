@@ -34,7 +34,6 @@ class SoftDeleteSpec extends Specification {
 
 
     @Rollback
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.softdelete.Person] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void 'test soft delete'() {
         given:
         new Person(name: "Fred").save(flush:true)

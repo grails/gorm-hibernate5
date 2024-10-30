@@ -15,7 +15,6 @@ class ListCollectionSpec extends Specification {
     @Shared @AutoCleanup HibernateDatastore datastore = new HibernateDatastore(getClass().getPackage())
 
     @Rollback
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.hasmany.Animal] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "test legs are not loaded eagerly"() {
         given:
         new Animal(name: "Chloe")

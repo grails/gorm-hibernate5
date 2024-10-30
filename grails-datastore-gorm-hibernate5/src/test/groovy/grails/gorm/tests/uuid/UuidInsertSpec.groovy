@@ -18,7 +18,6 @@ class UuidInsertSpec extends Specification {
 
     @Rollback
     @Issue('https://github.com/grails/grails-data-mapping/issues/902')
-    @Ignore("java.lang.IllegalStateException: Either class [grails.gorm.tests.uuid.Person] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "Test UUID insert"() {
         when:"A UUID is used"
         Person p = new Person(name: "test").save(flush:true)

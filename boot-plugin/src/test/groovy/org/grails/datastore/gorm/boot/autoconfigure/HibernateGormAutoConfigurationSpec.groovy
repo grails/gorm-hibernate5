@@ -35,7 +35,6 @@ class HibernateGormAutoConfigurationSpec extends Specification{
                 PropertyPlaceholderAutoConfiguration.class);
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [org.grails.datastore.gorm.boot.autoconfigure.Person] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void 'Test that GORM is correctly configured'() {
         when:"The context is refreshed"
             context.refresh()

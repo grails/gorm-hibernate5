@@ -18,7 +18,6 @@ class CascadeValidationSpec extends Specification {
 
     @Rollback
     @Issue('https://github.com/grails/grails-data-mapping/issues/926')
-    @Ignore("groovy.lang.MissingPropertyException: No such property: business for class: grails.gorm.tests.validation.Employee")
     void "validation cascades correctly"() {
         given: "an invalid business"
         Business b = new Business(name: null)

@@ -22,7 +22,6 @@ class TablePerSubClassAndEmbeddedSpec extends Specification {
     @Shared PlatformTransactionManager transactionManager = hibernateDatastore.getTransactionManager()
 
     @Rollback
-    @Ignore("groovy.lang.MissingPropertyException: No such property: zip for class: org.grails.datastore.gorm.query.criteria.AbstractDetachedCriteria")
     void 'test table per subclass with embedded entity'() {
         given:"some test data"
         Vendor vendor = new Vendor(name: "Blah")
@@ -39,7 +38,6 @@ class TablePerSubClassAndEmbeddedSpec extends Specification {
         results.size() == 1
     }
 
-    @Ignore("groovy.lang.MissingPropertyException: No such property: zip for class: org.grails.datastore.gorm.query.criteria.AbstractDetachedCriteria")
     void "test transform query with embedded entity"() {
         when:"A query is parsed that queries the embedded entity"
         def gcl = new GroovyClassLoader()

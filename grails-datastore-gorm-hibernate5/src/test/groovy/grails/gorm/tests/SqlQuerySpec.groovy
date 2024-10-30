@@ -17,8 +17,6 @@ class SqlQuerySpec extends Specification {
     @Shared @AutoCleanup HibernateDatastore datastore = new HibernateDatastore(Club)
     @Shared PlatformTransactionManager transactionManager = datastore.getTransactionManager()
 
-    // bug in JDK 11 results in IllegalArgumentException: Comparison method violates its general contract!
-    @IgnoreIf({System.getProperty('java.version').startsWith('11')})
     void "test simple query returns a single result"() {
         given:
         setupTestData()
@@ -33,8 +31,6 @@ class SqlQuerySpec extends Specification {
 
     }
 
-    // bug in JDK 11 results in IllegalArgumentException: Comparison method violates its general contract!
-    @IgnoreIf({System.getProperty('java.version').startsWith('11')})
     void "test simple sql query"() {
 
         given:
@@ -49,8 +45,6 @@ class SqlQuerySpec extends Specification {
         results[0].name == 'Arsenal'
     }
 
-    // bug in JDK 11 results in IllegalArgumentException: Comparison method violates its general contract!
-    @IgnoreIf({System.getProperty('java.version').startsWith('11')})
     void "test sql query with gstring parameters"() {
         given:
         setupTestData()

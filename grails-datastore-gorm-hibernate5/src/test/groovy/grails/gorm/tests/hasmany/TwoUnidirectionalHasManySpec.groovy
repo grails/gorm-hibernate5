@@ -123,4 +123,8 @@ class EcmMask {
 @Entity
 class User {
     String name
+
+    static mapping = {
+        table '`user`'
+    }
 }

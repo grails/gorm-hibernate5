@@ -38,7 +38,6 @@ class SchemaPerTenantSpec extends HibernateSpec implements GrailsUnitTest{
     }
 
     @Rollback("moreBooks")
-    @Ignore("java.lang.IllegalStateException: Either class [example.Book] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void "Test should rollback changes in a previous test"() {
         when:"When there is no tenant"
         Book.count()
@@ -55,7 +54,6 @@ class SchemaPerTenantSpec extends HibernateSpec implements GrailsUnitTest{
         bookDataService.countBooks() == 1
     }
 
-    @Ignore("java.lang.IllegalStateException: Either class [example.Book] is not a domain class or GORM has not been initialized correctly or has already been shutdown. Ensure GORM is loaded and configured correctly before calling any methods on a GORM entity.")
     void 'Test database per tenant'() {
         when:"When there is no tenant"
         Book.count()
