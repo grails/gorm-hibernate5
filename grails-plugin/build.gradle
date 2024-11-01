@@ -53,3 +53,10 @@ dependencies {
 }
 
 groovydoc.classpath += configurations.documentation
+
+tasks.named('bootJar') {
+    enabled = false // Plugins should not create a bootJar
+}
+tasks.named('jar', Jar) {
+    archiveClassifier = '' // Remove '-plain' suffix from jar file name
+}
