@@ -8,7 +8,6 @@ buildscript {
         classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
         classpath "org.grails.plugins:views-gradle:$viewsGradleVersion"
         classpath "org.asciidoctor:asciidoctor-gradle-jvm:$asciidoctorGradleVersion"
-        classpath "com.github.erdi:webdriver-binaries-gradle-plugin:$webdriverBinariesPluginVersion"
     }
 }
 
@@ -90,7 +89,6 @@ subprojects { Project subproject ->
             if (subproject.name != "examples-grails-data-service") {
                 apply plugin:"org.grails.grails-web"
                 apply plugin:"org.grails.grails-gsp"
-                apply plugin:"com.github.erdi.webdriver-binaries"
             }
         }
 
