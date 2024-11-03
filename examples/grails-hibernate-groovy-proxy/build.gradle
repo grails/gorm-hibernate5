@@ -5,19 +5,19 @@ dependencies {
 
     implementation "org.springframework.boot:spring-boot-starter-logging"
     implementation "org.springframework.boot:spring-boot-autoconfigure"
-    implementation "org.grails:grails-core:$grailsVersion"
-    implementation "org.grails:grails-dependencies:$grailsVersion", {
+    implementation "org.grails:grails-core"
+    implementation "org.grails:grails-dependencies", {
         exclude module:'grails-datastore-simple'
     }
-    implementation "org.grails:grails-web-boot:$grailsVersion"
+    implementation "org.grails:grails-web-boot"
     implementation project(":grails-plugin")
 
     implementation "org.hibernate:hibernate-core-jakarta:$hibernateVersion"
 
     runtimeOnly "com.h2database:h2"
-    runtimeOnly "org.yaml:snakeyaml:$snakeYamlVersion"
-    runtimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
+    runtimeOnly "org.yaml:snakeyaml"
+    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
 
-    testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
+    testImplementation "org.grails:grails-gorm-testing-support"
 
 }

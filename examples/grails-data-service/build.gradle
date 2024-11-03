@@ -25,6 +25,6 @@ dependencies {
     implementation "org.grails.plugins:spring-security-rest:$grailsSpringSecurityRestVersion"
     profile "org.grails.profiles:rest-api"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    testImplementation "org.grails:grails-gorm-testing-support:$testingSupportVersion"
-    testImplementation "org.grails:grails-web-testing-support:$testingSupportVersion"
+    testImplementation "org.grails:grails-gorm-testing-support"
+    testImplementation "org.grails:grails-web-testing-support"
 }

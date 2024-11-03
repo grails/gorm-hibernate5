@@ -16,26 +16,26 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-autoconfigure"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-tomcat"
-    implementation "jakarta.servlet:jakarta.servlet-api:$servletApiVersion"
-    implementation "org.grails:grails-core:$grailsVersion"
-    implementation "org.grails:grails-dependencies:$grailsVersion", {
+    implementation "jakarta.servlet:jakarta.servlet-api"
+    implementation "org.grails:grails-core"
+    implementation "org.grails:grails-dependencies", {
         exclude module:'grails-datastore-simple'
     }
     implementation "org.ysb33r.gradle:grolifant80:$grolifantVersion"
-    implementation "org.grails:grails-web-boot:$grailsVersion"
+    implementation "org.grails:grails-web-boot"
     implementation project(":grails-plugin")
 
 
     implementation "org.hibernate:hibernate-core-jakarta:$hibernateVersion"
 
-    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineVersion"
+    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails"
     runtimeOnly "com.h2database:h2"
-    runtimeOnly "org.yaml:snakeyaml:$snakeYamlVersion"
-    runtimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
-    runtimeOnly "org.grails.plugins:fields:$fieldsVersion"
-    runtimeOnly "org.grails.plugins:scaffolding:$scaffoldingVersion"
+    runtimeOnly "org.yaml:snakeyaml"
+    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
+    runtimeOnly "org.grails.plugins:fields"
+    runtimeOnly "org.grails.plugins:scaffolding"
 
-    testImplementation ("org.grails:grails-gorm-testing-support:$testingSupportVersion") {
+    testImplementation ("org.grails:grails-gorm-testing-support") {
         exclude group: "org.spockframework", module: "spock-core"
     }
 }

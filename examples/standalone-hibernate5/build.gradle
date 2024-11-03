@@ -3,13 +3,14 @@ group 'examples'
 apply plugin:"groovy"
 
 dependencies {
+    implementation platform("org.grails:grails-bom:$grailsVersion")
     implementation project(":grails-datastore-gorm-hibernate5")
     runtimeOnly "com.h2database:h2"
-    runtimeOnly "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
+    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
     runtimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatLog4jVersion"
-    runtimeOnly "org.slf4j:slf4j-api:$slf4jVersion"
-    implementation "org.grails:grails-core:$grailsVersion"
-    testImplementation "org.spockframework:spock-core:$spockVersion"
+    runtimeOnly "org.slf4j:slf4j-api"
+    implementation "org.grails:grails-core"
+    testImplementation "org.spockframework:spock-core"
 
-    testRuntimeOnly "org.slf4j:slf4j-simple:$slf4jVersion"
+    testRuntimeOnly "org.slf4j:slf4j-simple"
 }
