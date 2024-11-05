@@ -10,8 +10,9 @@ import grails.gorm.transactions.Transactional
 @CurrentTenant
 @Transactional
 class AnotherBookService {
-    Book saveBook(String title) {
-        new Book(title: "The Stand").save()
+
+    Book saveBook(String title = 'The Stand') {
+        new Book(title: title).save()
     }
 
     @ReadOnly
