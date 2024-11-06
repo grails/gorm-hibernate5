@@ -1,11 +1,9 @@
 package example
 
-import grails.gorm.transactions.Rollback
 import grails.test.hibernate.HibernateSpec
 import org.grails.datastore.mapping.config.Settings
 import org.grails.datastore.mapping.multitenancy.exceptions.TenantNotFoundException
 import org.grails.datastore.mapping.multitenancy.resolvers.SystemPropertyTenantResolver
-import spock.lang.Ignore
 
 /**
  * Created by graemerocher on 06/04/2017.
