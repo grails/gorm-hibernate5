@@ -1,28 +1,31 @@
-group "examples"
+plugins {
+    id 'com.bertramlabs.asset-pipeline' version '5.0.1'
+    id 'groovy'
+    id 'org.grails.grails-gsp'
+    id 'org.grails.grails-web'
+}
+
+version = rootProject.version
+group = 'examples'
 
 dependencies {
-    implementation "org.springframework.boot:spring-boot-starter-logging"
-    implementation "org.springframework.boot:spring-boot-autoconfigure"
-    implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.springframework.boot:spring-boot-starter-tomcat"
-    implementation "jakarta.servlet:jakarta.servlet-api"
-    implementation "org.grails:grails-core"
-    implementation "org.grails:grails-dependencies", {
-        exclude module:'grails-datastore-simple'
-    }
-    implementation "org.grails:grails-web-boot"
-    implementation project(":grails-plugin")
 
-    implementation "org.hibernate:hibernate-core-jakarta:$hibernateVersion"
+    implementation project(':grails-plugin')
+    implementation 'org.grails:grails-core'
+    implementation 'org.grails:grails-plugin-rest'
+    implementation 'org.grails.plugins:gsp'
 
-    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails"
-    runtimeOnly "com.h2database:h2"
-    runtimeOnly "org.yaml:snakeyaml"
-    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "org.grails.plugins:fields"
-    runtimeOnly "org.grails.plugins:scaffolding"
+    runtimeOnly 'com.bertramlabs.plugins:asset-pipeline-grails'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.zaxxer:HikariCP'
+    runtimeOnly 'org.grails:grails-plugin-databinding'
+    runtimeOnly 'org.grails:grails-plugin-i18n'
+    runtimeOnly 'org.grails:grails-plugin-services'
+    runtimeOnly 'org.grails:grails-plugin-url-mappings'
+    runtimeOnly 'org.grails.plugins:fields'
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-logging'
+    runtimeOnly 'org.springframework.boot:spring-boot-autoconfigure'
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
 
-    testImplementation "org.grails:grails-gorm-testing-support"
-
-    integrationTestImplementation testFixtures("org.grails.plugins:geb")
+    testImplementation 'org.grails:grails-testing-support'
 }
