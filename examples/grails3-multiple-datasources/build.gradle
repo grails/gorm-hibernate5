@@ -1,30 +1,41 @@
-group "examples"
-
-dependencies {
-    implementation "org.springframework.boot:spring-boot-starter-logging"
-    implementation "org.springframework.boot:spring-boot-autoconfigure"
-    implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.springframework.boot:spring-boot-starter-tomcat"
-    implementation "jakarta.servlet:jakarta.servlet-api"
-    implementation "org.grails:grails-core"
-    implementation "org.grails:grails-dependencies", {
-        exclude module:'grails-datastore-simple'
-    }
-
-    implementation "org.grails:grails-web-boot"
-    implementation project(":grails-plugin")
-
-    implementation "org.hibernate:hibernate-core-jakarta:$hibernateVersion"
-
-    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails"
-    runtimeOnly "com.h2database:h2"
-    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "org.grails.plugins:fields"
-    runtimeOnly "org.grails.plugins:scaffolding"
-
-    testImplementation "org.grails:grails-gorm-testing-support"
-
-
-    integrationTestImplementation testFixtures("org.grails.plugins:geb")
+plugins {
+    id 'groovy'
 }
 
+version = rootProject.version
+group = 'examples'
+
+configurations {
+    astTransformation
+}
+
+dependencies {
+
+    astTransformation 'jakarta.servlet:jakarta.servlet-api'
+    astTransformation 'org.grails:grails-plugin-controllers'
+
+    implementation project(':grails-plugin')
+    implementation 'org.grails:grails-core'
+    implementation 'org.grails:grails-plugin-domain-class'
+
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.zaxxer:HikariCP'
+    runtimeOnly 'org.grails:grails-plugin-databinding'
+    runtimeOnly 'org.grails:grails-plugin-controllers'
+    runtimeOnly 'org.springframework.boot:spring-boot-autoconfigure'
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-logging'
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
+
+    testImplementation 'org.grails:grails-testing-support'
+
+    testRuntimeOnly 'org.grails:grails-web-testing-support'
+}
+
+sourceSets {
+    main {
+        compileClasspath += configurations.astTransformation
+    }
+    integrationTest {
+        compileClasspath += configurations.astTransformation
+    }
+}
