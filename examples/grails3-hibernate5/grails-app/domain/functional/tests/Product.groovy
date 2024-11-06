@@ -1,7 +1,5 @@
 package functional.tests
 
-import grails.gorm.annotation.JpaEntity
-
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
@@ -12,6 +10,7 @@ import jakarta.validation.constraints.Digits
  */
 @Entity
 class Product {
+
     @Id
     @GeneratedValue
     Long myId

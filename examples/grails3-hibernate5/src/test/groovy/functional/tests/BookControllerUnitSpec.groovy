@@ -2,17 +2,11 @@ package functional.tests
 
 import grails.test.hibernate.HibernateSpec
 import grails.testing.web.controllers.ControllerUnitTest
-import org.grails.plugins.web.mime.MimeTypesGrailsPlugin
-import spock.lang.Ignore
 
 /**
  * Created by graemerocher on 24/10/16.
  */
 class BookControllerUnitSpec extends HibernateSpec implements ControllerUnitTest<BookController> {
-
-    def setupSpec() {
-        defineBeans(new MimeTypesGrailsPlugin())
-    }
 
     def setup() {
         def bookService = Mock(BookService)

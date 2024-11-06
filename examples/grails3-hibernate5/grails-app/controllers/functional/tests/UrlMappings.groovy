@@ -1,3 +1,5 @@
+package functional.tests
+
 class UrlMappings {
 
     static mappings = {
