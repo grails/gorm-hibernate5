@@ -9,6 +9,13 @@ class Customer implements Serializable {
 
     String name
 
+    @SuppressWarnings('unused')
+    Customer() {
+        // no-args constructor for proxying.
+        // Usually added by ControllerDomainTransformer
+        // from 'org.grails:grails-plugin-controllers'
+    }
+
     Customer(Long id, String name) {
         this.id = id
         this.name = name

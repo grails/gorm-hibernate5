@@ -17,7 +17,7 @@ class ByteBuddyProxySpec extends GormDatastoreSpec {
     static HibernateProxyHandler proxyHandler = new HibernateProxyHandler()
 
     //to show test that fail that should succeed set this to true. or uncomment the
-    // testImplementation "org.yakworks:hibernate-groovy-proxy:$hibernateGroovyProxy" to see pass
+    // testImplementation "org.yakworks:hibernate-groovy-proxy:$yakworksHibernateGroovyProxy" to see pass
     boolean runPending = ClassUtils.isPresent("yakworks.hibernate.proxy.ByteBuddyGroovyInterceptor")
 
     @Override

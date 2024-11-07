@@ -43,7 +43,7 @@ dependencies {
     testImplementation "org.hibernate:hibernate-ehcache:$hibernateVersion"
 
     // groovy proxy fixes bytebuddy to be a bit smarter when it comes to groovy metaClass
-    testImplementation "org.yakworks:hibernate-groovy-proxy:$hibernateGroovyProxy"
+    testImplementation "org.yakworks:hibernate-groovy-proxy:$yakworksHibernateGroovyProxyVersion"
 
     testImplementation "org.apache.tomcat:tomcat-jdbc:$tomcatVersion"
     testRuntimeOnly "org.springframework:spring-aop"
