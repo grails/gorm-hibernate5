@@ -63,5 +63,8 @@ project(":examples-grails-data-service").projectDir = new File(settingsDir, "exa
 include "examples-grails-hibernate-groovy-proxy"
 project(":examples-grails-hibernate-groovy-proxy").projectDir = new File(settingsDir, "examples/grails-hibernate-groovy-proxy")
 
+include 'examples-issue450'
+project(':examples-issue450').projectDir = new File(settingsDir, 'examples/issue450')
+
 findProject(':boot-plugin').name = 'gorm-hibernate5-spring-boot'
 
