@@ -1,37 +1,28 @@
-
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:3.3.5")
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootGradlePluginVersion"
     }
 }
 
-apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: 'org.springframework.boot'
-apply plugin: "groovy"
 
-group 'examples'
+version = rootProject.version
+group = 'examples'
 
 dependencies {
-    implementation platform("org.grails:grails-bom:$grailsVersion")
-    implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation "org.springframework.boot:spring-boot-autoconfigure"
-    implementation "org.springframework.boot:spring-boot-starter-tomcat"
-    implementation project(":gorm-hibernate5-spring-boot")
-    implementation "org.hibernate:hibernate-core-jakarta:$hibernateVersion"
-    implementation "org.hibernate:hibernate-ehcache:$hibernateVersion"
 
-    runtimeOnly "com.h2database:h2"
-    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatLog4jVersion"
-    runtimeOnly "org.slf4j:slf4j-api"
+    implementation project(':gorm-hibernate5-spring-boot')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    testImplementation "org.spockframework:spock-core"
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.zaxxer:HikariCP'
+    runtimeOnly 'org.springframework.boot:spring-boot-autoconfigure'
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-logging'
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
 
-    testRuntimeOnly "org.slf4j:slf4j-simple"
-
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation 'org.spockframework:spock-core'
 }
