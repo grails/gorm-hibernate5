@@ -1,16 +1,17 @@
-group 'examples'
+group = 'examples'
 
-apply plugin:"groovy"
+apply plugin: 'groovy'
 
 dependencies {
-    implementation platform("org.grails:grails-bom:$grailsVersion")
-    implementation project(":grails-datastore-gorm-hibernate5")
-    runtimeOnly "com.h2database:h2"
-    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "org.apache.tomcat.embed:tomcat-embed-logging-log4j:$tomcatLog4jVersion"
-    runtimeOnly "org.slf4j:slf4j-api"
-    implementation "org.grails:grails-core"
-    testImplementation "org.spockframework:spock-core"
 
-    testRuntimeOnly "org.slf4j:slf4j-simple"
+    implementation platform("org.grails:grails-bom:$grailsVersion")
+    implementation project(':grails-datastore-gorm-hibernate5')
+    implementation 'org.springframework:spring-tx'
+
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.zaxxer:HikariCP'
+
+    testImplementation 'org.spockframework:spock-core'
+
+    testRuntimeOnly 'org.slf4j:slf4j-simple'
 }
