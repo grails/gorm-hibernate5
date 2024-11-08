@@ -11,12 +11,16 @@ class TestServiceSpec extends Specification {
 
     TestService testService
     TestBean testBean
+    ClassUsingAService classUsingAService
 
     @Autowired
     List<BookService> bookServiceList
 
     void "test data-service is loaded correctly"() {
         when:
+        classUsingAService.doSomethingWithTheService()
+
+        and:
         testService.testDataService()
 
         then:

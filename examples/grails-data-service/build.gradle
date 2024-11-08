@@ -1,30 +1,28 @@
-group "examples"
+plugins {
+    id 'groovy'
+    id 'org.grails.grails-web'
+    id 'org.grails.plugins.views-json'
+}
 
-apply plugin:"org.grails.grails-web"
-apply plugin:"org.grails.plugins.views-json"
-apply plugin: 'java'
+
+version = rootProject.version
+group = 'examples'
 
 dependencies {
-    implementation "org.springframework.boot:spring-boot-starter-logging"
-    implementation "org.springframework.boot:spring-boot-autoconfigure"
-    implementation "org.grails:grails-core"
-    implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.springframework.boot:spring-boot-starter-tomcat"
-    implementation "org.grails:grails-dependencies"
-    implementation "org.grails:grails-plugin-codecs"
-    implementation "org.grails:grails-plugin-services"
-    implementation "org.grails:grails-plugin-datasource"
-    implementation "org.grails:grails-web-boot"
-    implementation "org.grails:grails-logging"
-    implementation "org.grails.plugins:cache"
-    implementation "org.grails.plugins:events"
-    implementation project(":grails-plugin")
-    implementation "org.hibernate:hibernate-core-jakarta:$hibernateVersion"
-    implementation "org.grails.plugins:views-json"
-    implementation "org.grails.plugins:views-json-templates"
-    implementation "org.grails.plugins:spring-security-rest:$grailsSpringSecurityRestVersion"
-    profile "org.grails.profiles:rest-api"
-    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    testImplementation "org.grails:grails-gorm-testing-support"
-    testImplementation "org.grails:grails-web-testing-support"
+
+    implementation project(':grails-plugin')
+    implementation 'org.grails:grails-core'
+    implementation 'org.grails.plugins:views-json'
+
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.zaxxer:HikariCP'
+    runtimeOnly 'org.grails:grails-plugin-databinding'
+    runtimeOnly 'org.grails:grails-plugin-i18n'
+    runtimeOnly 'org.grails:grails-plugin-services'
+    runtimeOnly 'org.grails:grails-plugin-url-mappings'
+    runtimeOnly 'org.springframework.boot:spring-boot-autoconfigure'
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-logging'
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-tomcat'
+
+    integrationTestImplementation 'org.grails:grails-testing-support'
 }

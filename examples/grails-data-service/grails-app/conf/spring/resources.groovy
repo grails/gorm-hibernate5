@@ -1,10 +1,10 @@
-import example.LoginAuthenticationSucessHandler
+import example.ClassUsingAService
 import example.TestBean
 
 // Place your Spring DSL code here
 beans = {
 
-    restAuthenticationSuccessHandler(LoginAuthenticationSucessHandler) {
+    classUsingAService(ClassUsingAService) {
         testService = ref('testService')
     }
 
