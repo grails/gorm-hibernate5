@@ -4,7 +4,7 @@
 
 ## Branches
 
-**6.0.x** Version of the plugin compatible with Grails 7 and Liquibase 4.27
+**9.0.x** Version of the plugin compatible with Grails 7 and Liquibase 4.27
 
 **5.0.x** Version of the plugin compatible with Grails 6 and Liquibase 4.19
 
@@ -33,17 +33,17 @@ One popular approach is to have a root changelog named changlog.groovy (or chang
 * 3.x: Grails 3 with Hibernate 5
 * 4.0.x Grails 5
 * 5.0.x Grails 6
-* 6.0.x Grails 7
+* 9.0.x Grails 7
 
 ## Documentation
-* Latest https://grails.github.io/grails-database-migration/latest/
+* Latest https://gorm.grails.org/latest/hibernate/manual/#_grails_database_migration_plugin
 * Grails 2: https://grails.github.io/grails-database-migration/docs/manual/index.html
 * Grails 3 (Hibernate 4): https://grails.github.io/grails-database-migration/2.0.x/index.html
 * Grails 3/4 (Hibernate 5): https://grails.github.io/grails-database-migration/3.0.x/index.html
 * Grails 5 (Hibernate 5): https://grails.github.io/grails-database-migration/4.0.x/index.html
 * Grails 6 (Hibernate 5): https://grails.github.io/grails-database-migration/5.0.x/index.html
-* Grails 7 (Hibernate 5): https://grails.github.io/grails-database-migration/6.0.x/index.html
-* Snapshot: https://grails.github.io/grails-database-migration/snapshot/index.html
+* Grails 7 (Hibernate 5): https://gorm.grails.org/9.0.x/hibernate/manual/#_grails_database_migration_plugin
+* Snapshot: https://gorm.grails.org/snapshot/hibernate/manual/#_grails_database_migration_plugin
 
 
 ## Package distribution
