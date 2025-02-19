@@ -8,7 +8,7 @@ class BootStrap {
 
     BookService bookService
 
-    def init = { servletContext ->
+    def init = {
         String grailsId = UUID.randomUUID().toString()
         Tenants.withId("grails") {
             bookService.save(grailsId, "The definitive Guide to Grails 2")
