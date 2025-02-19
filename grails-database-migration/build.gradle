@@ -4,7 +4,7 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath "org.asciidoctor:asciidoctor-gradle-jvm:$asciidoctorJvmVersion"
+        classpath "org.asciidoctor:asciidoctor-gradle-jvm:$asciidoctorGradleVersion"
     }
 }
 
@@ -15,7 +15,6 @@ apply plugin:"eclipse"
 apply plugin:"idea"
 apply plugin:"java-library"
 apply plugin:"org.grails.grails-plugin"
-apply plugin:"org.grails.grails-publish"
 apply plugin:"org.grails.grails-gsp"
 apply plugin: "org.asciidoctor.jvm.convert"
 
@@ -74,14 +73,13 @@ dependencies {
 
 compileJava.options.release = 17
 
-grailsPublish {
-    githubSlug = 'grails/grails-database-migration'
-    license {
-        name = 'Apache-2.0'
-    }
-    title = 'Grails Database Migration Plugin'
-    desc = 'Grails Database Migration Plugin'
-    developers = [kazukiyamamoto: "Kazuki YAMAMOTO"]
+ext {
+    pomTitle = 'Grails Database Migration Plugin'
+    pomDescription = 'The Database Migration plugin helps you manage database changes, via Liquibase, while developing Grails applications'
+    pomDevelopers = [
+            [id: 'kazukiyamamoto', name: 'Kazuki YAMAMOTO'],
+            [id: 'jamesfredley', name: 'James Fredley']
+    ]
 }
 
 asciidoctor {
