@@ -82,26 +82,6 @@ ext {
     ]
 }
 
-asciidoctor {
-    baseDirFollowsSourceFile()
-    outputDir = layout.buildDirectory.dir('asciidoc').get().getAsFile()
-
-    resources {
-        from('src/docs/images')
-        into "./images"
-    }
-
-    attributes 'experimental'  : 'true',
-            'compat-mode'   : 'true',
-            'toc'           : 'left',
-            'icons'         : 'font',
-            'version'       : project.version,
-            'groupId'       : project.group,
-            'artifactId'    : project.name,
-            'sourcedir'     : "${projectDir}/src/main/groovy",
-            'liquibaseHibernate5Version': liquibaseHibernate5Version
-}
-
 tasks.withType(GroovyCompile) {
     configure(groovyOptions) {
         forkOptions.jvmArgs = ['-Xmx1024m']
@@ -120,12 +100,6 @@ tasks.withType(Groovydoc) {
         classpath = configurations.documentation
         groovyClasspath = configurations.documentation
     }
-}
-
-task docs(type:Copy, group: 'documentation')  {
-    dependsOn(groovydoc, asciidoctor)
-    from "${project.layout.buildDirectory.get()}/asciidoc"
-    into "${project.layout.buildDirectory.get()}/docs"
 }
 
 jar {

@@ -51,7 +51,10 @@ asciidoctor {
                 'reproducible'  : '',
                 'version'       : project.version,
                 'pluginVersion' : project.version,
-                'sourcedir'     : "${project.projectDir}/src/main/groovy"
+                'groupId'       : project.group,
+                'artifactId'    : project.name,
+                'sourcedir'     : "${project.projectDir}/src/main/groovy",
+                'liquibaseHibernate5Version': liquibaseHibernate5Version
 }
 
 task fetchSource {

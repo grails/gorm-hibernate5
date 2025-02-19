@@ -274,3 +274,8 @@ include::constraints/index.adoc[]
 == GORM and Testing
 
 include::testing/index.adoc[]
+
+[[databaseMigration]]
+== Database Migration
+
+include::databaseMigration/index.adoc[]
