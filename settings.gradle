@@ -36,6 +36,10 @@ include 'docs'
 // Plugins
 include "boot-plugin"
 include 'grails-plugin'
+include 'grails-database-migration'
+
+findProject(':boot-plugin').name = 'gorm-hibernate5-spring-boot'
+findProject(':grails-database-migration').name = 'database-migration'
 
 include "examples-grails-hibernate"
 project(":examples-grails-hibernate").projectDir = new File(settingsDir, "examples/grails-hibernate")
@@ -66,6 +70,3 @@ project(":examples-grails-hibernate-groovy-proxy").projectDir = new File(setting
 
 include 'examples-issue450'
 project(':examples-issue450').projectDir = new File(settingsDir, 'examples/issue450')
-
-findProject(':boot-plugin').name = 'gorm-hibernate5-spring-boot'
-
