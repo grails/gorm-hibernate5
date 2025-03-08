@@ -11,7 +11,7 @@ develocity {
     server = 'https://ge.grails.org'
     buildScan {
         tag('grails')
-        tag('gorm-hibernate5')
+        tag('grails-data-hibernate5')
         tag('grails-database-migration')
         publishing.onlyIf { isAuthenticated }
         uploadInBackground = isLocal

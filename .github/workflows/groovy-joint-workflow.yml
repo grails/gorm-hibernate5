@@ -74,7 +74,8 @@ jobs:
           echo "    server = 'https://ge.grails.org'" >> $GITHUB_OUTPUT
           echo "    buildScan {" >> $GITHUB_OUTPUT
           echo "        tag('groovy')" >> $GITHUB_OUTPUT
-          echo "        tag('gorm-hibernate5')" >> $GITHUB_OUTPUT
+          echo "        tag('grails-data-hibernate5')" >> $GITHUB_OUTPUT
+          echo "        tag('grails-database-migration')" >> $GITHUB_OUTPUT
           echo "        publishing.onlyIf { isAuthenticated }" >> $GITHUB_OUTPUT
           echo "        uploadInBackground = false" >> $GITHUB_OUTPUT
           echo "    }" >> $GITHUB_OUTPUT

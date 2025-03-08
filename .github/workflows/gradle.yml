@@ -63,7 +63,7 @@ jobs:
         run: ./gradlew docs:docs
       - name: "👀 Determine docs target repository"
         run: |
-          if [ "${{ github.repository }}" = "grails/gorm-hibernate5" ]; then
+          if [ "${{ github.repository }}" = "grails/grails-data-hibernate5" ]; then
             DOCS_TARGET_REPOSITORY="grails/grails-data-mapping"
           else
             DOCS_TARGET_REPOSITORY="${{ github.repository }}"
