@@ -1,3 +1,0 @@
-tasks.withType(Groovydoc).configureEach {
-    enabled = false
-}
